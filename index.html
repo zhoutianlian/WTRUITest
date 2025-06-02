@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WTR Crypto Data Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="container mx-auto p-4">
+        <header class="flex justify-between items-center py-4">
+            <div class="wtr-logo">WTR</div>
+            <nav>
+                <a href="#" class="nav-link px-3 py-2 rounded hover:bg-gray-700" data-section="dashboard">Dashboard</a>
+                <a href="#" class="nav-link px-3 py-2 rounded hover:bg-gray-700" data-section="on-chain-analysis">On-chain Analysis</a>
+                <a href="#" class="nav-link px-3 py-2 rounded hover:bg-gray-700" data-section="derivatives-analysis">Derivatives Analysis</a>
+                <a href="#" class="nav-link px-3 py-2 rounded hover:bg-gray-700" data-section="trading-signals">Trading Signals</a>
+            </nav>
+        </header>
+
+        <main>
+            <div id="dashboard" class="section"> <!-- Removed Tailwind classes, will be handled by style.css -->
+                <h2 class="text-xl font-semibold">Market Overview</h2> <!-- Changed title -->
+
+                <!-- Core Indicators Section -->
+                <div class="core-indicators-grid">
+                    <div class="indicator-card">
+                        <h3 class="indicator-title">Bitcoin Price</h3>
+                        <p id="bitcoinPrice" class="indicator-value">-</p>
+                    </div>
+                    <div class="indicator-card">
+                        <h3 class="indicator-title">Ethereum Price</h3>
+                        <p id="ethereumPrice" class="indicator-value">-</p>
+                    </div>
+                    <div class="indicator-card">
+                        <h3 class="indicator-title">Total Market Cap</h3>
+                        <p id="totalMarketCap" class="indicator-value">-</p>
+                    </div>
+                    <div class="indicator-card">
+                        <h3 class="indicator-title">BTC Dominance</h3>
+                        <p id="marketDominanceBTC" class="indicator-value">-</p>
+                    </div>
+                    <div class="indicator-card">
+                        <h3 class="indicator-title">24h Volume</h3>
+                        <p id="tradingVolume24h" class="indicator-value">-</p>
+                    </div>
+                </div>
+
+                <!-- Main Chart Section -->
+                <div class="main-chart-container">
+                    <h3 class="chart-title">Overall Market Trend</h3>
+                    <canvas id="mainMarketChart"></canvas>
+                </div>
+
+                <!-- Watched Assets Section -->
+                <div class="watched-assets-section">
+                    <h3 class="section-subtitle">My Watchlist</h3>
+                    <div id="watchedAssetsContainer" class="watched-assets-grid">
+                        <!-- Watched assets will be populated here by script.js -->
+                    </div>
+                </div>
+
+            </div>
+            <div id="on-chain-analysis" class="section" style="display: none;"> <!-- Removed Tailwind, using style.css -->
+                <h2 class="text-xl font-semibold">On-chain Analysis Dashboard</h2>
+
+                <div class="onchain-grid">
+                    <!-- Macro Indicators Section -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">NVTS Ratio (Network Value to Transactions Signal)</h3>
+                        <div class="chart-container-fixed-height">
+                            <canvas id="nvtsChart"></canvas>
+                        </div>
+                        <div class="ai-insight-section">
+                            <button id="nvtsAiInsightBtn" class="ai-insight-btn">AI Insights</button>
+                            <div id="nvtsAiResponseArea" class="ai-response-area" aria-live="polite"></div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">MVRV Ratio (Market Value to Realized Value)</h3>
+                        <div class="chart-container-fixed-height">
+                            <canvas id="mvrvChart"></canvas>
+                        </div>
+                        <div class="ai-insight-section">
+                            <button id="mvrvAiInsightBtn" class="ai-insight-btn">AI Insights</button>
+                            <div id="mvrvAiResponseArea" class="ai-response-area" aria-live="polite"></div>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Flow Section -->
+                    <div class="chart-card full-width-card"> <!-- Spans full width in a 2-col layout if needed -->
+                        <h3 class="chart-title">Daily Exchange Net Inflow/Outflow (BTC)</h3>
+                        <div class="chart-container-fixed-height">
+                            <canvas id="exchangeFlowChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="derivatives-analysis" class="section" style="display: none;"> <!-- Removed Tailwind, using style.css -->
+                <h2 class="text-xl font-semibold">Derivatives Market Analysis</h2>
+
+                <div class="derivatives-grid">
+                    <!-- Futures Data Section -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">Futures Open Interest</h3>
+                        <div class="chart-container-fixed-height">
+                            <canvas id="openInterestChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Funding Rates Overview</h3>
+                        <div class="chart-container-fixed-height">
+                            <canvas id="fundingRatesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Options Data Section -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">Implied Volatility Smile/Skew (BTC Options)</h3>
+                        <div class="chart-container-fixed-height">
+                            <canvas id="impliedVolatilityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div id="optionsChainContainer" class="options-chain-card full-width-card">
+                        <!-- Options chain table will be rendered here by script.js -->
+                    </div>
+
+                    <!-- AI Sentiment Card -->
+                    <div class="ai-sentiment-card full-width-card">
+                        <h3 class="chart-title">AI Sentiment & Risk Analysis (Derivatives)</h3>
+                        <div class="ai-response-area" aria-live="polite">
+                            <!-- AI response will be populated here by script.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NLQ Section -->
+                <div class="nlq-section">
+                    <h3 class="section-subtitle">Ask WTR AI</h3>
+                    <div class="nlq-input-area">
+                        <input type="text" id="nlqInput" class="nlq-input" placeholder="e.g., What is MVRV? or Explain funding rates..." aria-label="Ask WTR AI">
+                        <button id="nlqSubmitBtn" class="nlq-submit-btn">Ask AI</button>
+                    </div>
+                    <div id="nlqResponseArea" class="nlq-response-area" aria-live="polite">
+                        <!-- AI's answer will appear here -->
+                    </div>
+                </div>
+
+            </div>
+            <div id="trading-signals" class="section" style="display: none;"> <!-- Removed Tailwind, using style.css -->
+                <h2 class="text-xl font-semibold">Trading & Anomaly Signals</h2>
+
+                <div class="signals-layout-grid">
+                    <div class="signals-category-column">
+                        <h3 class="signals-category-title">Technical Signals</h3>
+                        <div id="technicalSignalsContainer" class="signals-container">
+                            <!-- Technical signals will be populated here by script.js -->
+                        </div>
+                    </div>
+                    <div class="signals-category-column">
+                        <h3 class="signals-category-title">On-chain Anomaly Signals</h3>
+                        <div id="onchainAnomalySignalsContainer" class="signals-container">
+                            <!-- On-chain anomaly signals will be populated here by script.js -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
