@@ -1,0 +1,119 @@
+/* src/components/charts/D3CandlestickChart.css */
+.d3-candlestick-chart-container {
+  /* Define CSS variables for candle colors if not already in theme.css or if specific overrides are needed */
+  /* These are fallbacks if the theme variables aren't picked up by D3 directly in JS */
+  --color-candle-red: var(--color-accent-secondary-red, #E54D42);
+  --color-candle-green: var(--color-accent-secondary-teal, #2AA092);
+
+  /* RGB versions for RGBA usage if needed, ensure these match the hex above */
+  --rgb-candle-red: 229, 77, 66; /* For #E54D42 */
+  --rgb-candle-green: 42, 160, 146; /* For #2AA092 */
+
+  --color-background-primary: #0D1117; /* Fallback if theme not loaded */
+  --color-background-secondary: #161B22;
+  --color-border-primary: #30363D;
+  --color-border-secondary: #454B53;
+  --color-text-primary: #E6EDF3;
+  --color-text-secondary: #A0AEC0;
+
+  background-color: var(--color-background-primary); /* Chart background */
+  border-radius: var(--border-radius-medium, 6px);
+  padding: var(--spacing-unit, 8px); /* Padding around the SVG */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  position: relative; /* For tooltip positioning */
+}
+
+.d3-candlestick-chart-container svg {
+  display: block; /* Remove extra space below SVG */
+  width: 100%;
+  height: 100%;
+}
+
+/* Grid lines styling */
+.grid .tick line, /* For individual grid lines if ticks are used to draw them */
+.grid path.domain { /* Path for the axis line itself, often part of grid */
+  stroke: var(--color-border-secondary);
+  stroke-opacity: 0.2; /* More subtle grid lines */
+  shape-rendering: crispEdges; /* Keep lines sharp */
+}
+.grid .tick:first-of-type line { /* Hide first grid line if it overlaps axis */
+    /* stroke-opacity: 0; */
+}
+
+
+/* Axis styling */
+.axis path,
+.axis line {
+  stroke: var(--color-border-secondary); /* Slightly more visible axis lines */
+  stroke-width: 1px;
+}
+
+.axis text {
+  fill: var(--color-text-secondary);
+  font-size: 0.7rem; /* Smaller font for axis labels */
+  font-family: var(--font-family-sans);
+}
+
+.x-axis .tick text {
+  /* transform: rotate(-45deg) translate(-4px, -4px); Already handled in JS */
+  /* text-anchor: end; */
+}
+
+/* Candlestick styling */
+.wick {
+  stroke-width: 1.5px; /* Slightly thicker wicks */
+}
+
+.candle-body.bullish {
+  /* fill: var(--color-candle-green); */ /* Set by JS */
+}
+
+.candle-body.bearish {
+  /* fill: var(--color-candle-red); */ /* Set by JS */
+}
+
+/* Volume bar styling */
+.volume-bar.bullish {
+  /* fill: rgba(var(--rgb-candle-green), 0.4); */ /* Set by JS */
+}
+.volume-bar.bearish {
+  /* fill: rgba(var(--rgb-candle-red), 0.4); */ /* Set by JS */
+}
+
+
+/* Tooltip styling */
+.chart-tooltip {
+  position: absolute; /* Positioned relative to .d3-candlestick-chart-container */
+  background-color: rgba(30, 30, 30, 0.9); /* Darker, more opaque tooltip */
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
+  padding: calc(var(--spacing-unit) * 0.75) calc(var(--spacing-unit) * 1.25); /* 6px 10px */
+  border-radius: var(--border-radius-small, 4px);
+  font-size: 0.75rem;
+  pointer-events: none; /* Important for tooltip not to interfere with mouse events on chart */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  white-space: nowrap; /* Prevent multi-line tooltips unless intended */
+  transition: opacity 0.1s ease-out, transform 0.1s ease-out; /* Smooth appearance */
+  opacity: 0; /* Hidden by default, shown by JS */
+  transform: translate(-50%, -100%); /* Default position adjustment, JS will override */
+}
+
+/* Example of how tooltip content could be structured if it had multiple lines */
+.tooltip-line {
+  display: block;
+  margin-bottom: 4px;
+}
+.tooltip-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+.tooltip-value {
+  margin-left: 4px;
+  color: var(--color-text-primary);
+}
+.tooltip-value.positive {
+  color: var(--color-candle-green);
+}
+.tooltip-value.negative {
+  color: var(--color-candle-red);
+}

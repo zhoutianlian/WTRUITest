@@ -1,0 +1,130 @@
+/* src/components/auth/LoginForm.css */
+.login-form-container {
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 3.5); /* 24px 28px */
+  /* Background is handled by .login-content-wrapper on the page */
+  border-radius: var(--border-radius-medium); /* Consistent with other cards */
+  text-align: center;
+}
+
+.login-form-container h2 {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 1.8rem; /* ~28px */
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.login-form-subtitle {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.login-form .form-group {
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+  text-align: left;
+}
+
+.login-form .form-group label {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.login-form .form-group input[type="email"],
+.login-form .form-group input[type="password"] {
+  width: 100%;
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 1.5); /* 10px 12px */
+  background-color: var(--color-background-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--border-radius-small);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-form .form-group input[type="email"]::placeholder,
+.login-form .form-group input[type="password"]::placeholder {
+  color: var(--color-text-disabled);
+}
+
+
+.login-form .form-group input[type="email"]:focus,
+.login-form .form-group input[type="password"]:focus {
+  outline: none;
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.2); /* Gold focus ring */
+}
+
+.login-form .form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: calc(var(--spacing-unit) * 2.5); /* 20px */
+  font-size: 0.85rem;
+}
+
+.login-form .form-options .remember-me {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+.login-form .form-options .remember-me input[type="checkbox"] {
+  margin-right: calc(var(--spacing-unit) * 0.75); /* 6px */
+  /* Basic styling for checkbox, can be enhanced further */
+  accent-color: var(--color-accent-gold); /* Styles the check itself */
+  width: 14px;
+  height: 14px;
+}
+
+
+.login-form .form-options a {
+  color: var(--color-accent-gold-text); /* Brighter gold for links */
+  text-decoration: none;
+}
+
+.login-form .form-options a:hover {
+  text-decoration: underline;
+  color: var(--color-accent-gold-hover);
+}
+
+.login-button {
+  width: 100%;
+  padding: calc(var(--spacing-unit) * 1.5) 0; /* 12px */
+  background-color: var(--color-accent-gold);
+  color: var(--color-background-primary); /* Dark text on gold button */
+  border: none;
+  border-radius: var(--border-radius-small);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.login-button:hover {
+  background-color: var(--color-accent-gold-hover);
+}
+
+.login-button:active {
+  transform: scale(0.98);
+}
+
+.signup-link {
+  margin-top: calc(var(--spacing-unit) * 3); /* 24px */
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.signup-link a {
+  color: var(--color-accent-gold-text);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+  color: var(--color-accent-gold-hover);
+}

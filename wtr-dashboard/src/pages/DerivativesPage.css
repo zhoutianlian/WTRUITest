@@ -1,0 +1,66 @@
+/* src/pages/DerivativesPage.css */
+.derivatives-page {
+  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3); /* 16px 24px */
+}
+
+/* Reusing .page-title style, ensure it's globally available or defined here if not */
+.page-title {
+  font-size: 1.8rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+  padding-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.chart-grid {
+  display: grid;
+  /* Using auto-fit with a sensible minmax for chart widgets */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+  gap: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+/* Reusing .chart-container style from OnChainPage.css or global styles */
+/* Ensure this class provides consistent chart presentation */
+.chart-container {
+  width: 100%;
+  margin: 0 auto;
+  background-color: var(--color-background-primary);
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius-small);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  /* min-height is implicitly set by D3Chart component's height prop via WidgetWrapper content area */
+}
+
+/* Common D3 styling overrides - ideally these would be in a global D3 chart style file */
+.chart-container svg .axis path,
+.chart-container svg .axis line,
+.chart-container svg .chart-axis path, /* From D3LineChart */
+.chart-container svg .chart-axis line { /* From D3LineChart */
+  stroke: var(--color-text-secondary);
+  stroke-opacity: 0.7;
+}
+
+.chart-container svg .axis text,
+.chart-container svg .chart-axis text { /* From D3LineChart */
+  fill: var(--color-text-secondary);
+  font-family: var(--font-family-sans);
+  font-size: 0.75rem;
+}
+
+.chart-container svg .grid line,
+.chart-container svg .grid path {
+  stroke: var(--color-border-secondary);
+  stroke-opacity: 0.2;
+  shape-rendering: crispEdges;
+}
+
+.chart-container svg .grid .domain {
+    stroke: none;
+}
+
+.chart-container svg .zero-line-emphasis { /* If used by any chart here, e.g., funding rates if it dips to 0 */
+    stroke: var(--color-text-secondary);
+    stroke-width: 0.7px;
+    stroke-opacity: 0.8;
+}

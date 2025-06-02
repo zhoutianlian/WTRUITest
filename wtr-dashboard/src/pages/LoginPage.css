@@ -1,0 +1,54 @@
+/* src/pages/LoginPage.css */
+.login-page {
+  display: flex;
+  flex-direction: column; /* Align logo and form vertically */
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  position: relative; /* For z-indexing of Three.js scene */
+  background-color: var(--color-background-primary); /* Fallback if scene is transparent or fails */
+  overflow: hidden; /* Prevent scrollbars from scene */
+  padding: var(--spacing-unit) * 2; /* Add some padding for smaller screens */
+}
+
+.login-logo-container {
+  margin-bottom: calc(var(--spacing-unit) * 3); /* Space between logo and form card */
+  position: relative; /* To ensure it's above the Three.js scene */
+  z-index: 1;
+  /* Adjust logo size specifically for login page if needed via Logo.css or here */
+}
+
+/* Override for logo on login page if a different size is needed */
+.login-logo-container .logo-svg {
+  height: 40px; /* Slightly larger logo on login page */
+}
+
+
+.login-content-wrapper {
+  position: relative; /* To ensure it's above the Three.js scene */
+  z-index: 1;
+  background-color: rgba(22, 27, 34, 0.85); /* var(--color-background-secondary) with alpha for frosted glass */
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 4); /* 24px 32px */
+  border-radius: var(--border-radius-large, 8px); /* Use theme variable with fallback */
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+  max-width: 480px; /* Max width for the form card */
+  width: 100%; /* Responsive width */
+  border: 1px solid var(--color-border-primary);
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+}
+
+/* Ensure that the direct children of login-content-wrapper (like LoginForm) are not affected by backdrop-filter
+   if they also have backgrounds. Usually not an issue if LoginForm has no background itself. */
+
+/* Media query for smaller screens to reduce padding or adjust layout if needed */
+@media (max-width: 600px) {
+  .login-content-wrapper {
+    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3); /* 20px 24px */
+    margin: 0 var(--spacing-unit); /* Add some horizontal margin */
+  }
+  .login-form-container h2 {
+    font-size: 1.6rem;
+  }
+}

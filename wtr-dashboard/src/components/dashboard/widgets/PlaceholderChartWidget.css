@@ -1,0 +1,29 @@
+/* src/components/dashboard/widgets/PlaceholderChartWidget.css */
+.placeholder-chart-widget-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%; /* Take full height of widget content area */
+  min-height: 150px; /* Minimum height */
+  background-color: var(--color-background-tertiary);
+  border: 1px dashed var(--color-border-secondary);
+  border-radius: var(--border-radius-small);
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: var(--spacing-unit);
+}
+
+.placeholder-chart-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-unit);
+  font-style: italic;
+}
+
+.placeholder-chart-icon {
+  font-size: 2rem; /* Larger icon */
+  opacity: 0.5;
+}

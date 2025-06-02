@@ -1,0 +1,72 @@
+/* src/components/dashboard/WidgetWrapper.css */
+.widget-wrapper {
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--border-radius-medium); /* 6px */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Important for Gridstack items to fill their allocated space */
+  overflow: hidden; /* Prevent content from spilling out, especially with fixed height grid items */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2); /* 10px 16px */
+  background-color: var(--color-background-tertiary); /* Slightly different from widget body */
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.widget-title { /* Changed from h3 directly to allow more flexibility */
+  font-size: 1rem; /* ~16px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0; /* Remove default h3 margin */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.widget-actions {
+  display: flex;
+  align-items: center;
+}
+
+.widget-action-button {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 1rem; /* Adjust if using actual icons */
+  padding: calc(var(--spacing-unit) * 0.5); /* 4px */
+  margin-left: calc(var(--spacing-unit) * 0.5); /* 4px */
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.widget-action-button:hover {
+  color: var(--color-accent-gold);
+}
+
+.widget-content {
+  padding: calc(var(--spacing-unit) * 2); /* 16px */
+  flex-grow: 1; /* Allows content to fill available space */
+  overflow-y: auto; /* Scroll content if it overflows */
+  /* Custom scrollbar for widget content if needed */
+}
+
+.widget-content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.widget-content::-webkit-scrollbar-track {
+  background: transparent; /* Or var(--color-background-secondary) */
+}
+.widget-content::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
+  border-radius: var(--border-radius-small);
+}
+.widget-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-gold);
+}

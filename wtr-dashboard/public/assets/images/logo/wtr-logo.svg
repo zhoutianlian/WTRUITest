@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40" width="100" height="40">
+  <style>
+    .text { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: bold; fill: #B08D57; } /* Fallback gold */
+    .highlight { fill: #E6EDF3; } /* Fallback text primary */
+    /* Note: CSS variables from external sheets might not apply reliably here.
+       For production, consider inlining critical styles or using a React component for the SVG. */
+  </style>
+  <rect width="100" height="40" fill="#161B22" /> {/* Fallback background secondary */}
+  <text x="10" y="28" class="text">W<tspan class="highlight">T</tspan>R</text>
+</svg>

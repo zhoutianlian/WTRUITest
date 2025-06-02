@@ -1,0 +1,14 @@
+/* src/components/common/ThreeInteractiveObjectDashboard.css */
+.three-interactive-object-dashboard {
+  width: 100%;
+  height: 350px; /* Default height, can be overridden by parent */
+  /* max-height: 50vh; Consider if this is needed or if parent controls height */
+  cursor: pointer; /* Indicate interactivity */
+  display: flex; /* For centering canvas if it's smaller than div */
+  justify-content: center;
+  align-items: center;
+}
+
+.three-interactive-object-dashboard canvas {
+  display: block; /* Default for canvas, good to be explicit */
+}

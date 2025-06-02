@@ -1,0 +1,193 @@
+/* src/pages/DashboardPage.css */
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4); /* 32px space between sections */
+}
+
+.dashboard-hero-section {
+  position: relative;
+  border-radius: var(--border-radius-large, 8px);
+  overflow: hidden;
+  background-color: var(--color-background-secondary);
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.three-object-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.three-object-container .three-interactive-object-dashboard {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+.dashboard-hero-overlay-text {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--color-text-primary);
+  padding: calc(var(--spacing-unit) * 3);
+  pointer-events: none;
+}
+
+.dashboard-hero-overlay-text h1 {
+  font-size: 2.8rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-unit);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  color: #fff;
+}
+
+.dashboard-hero-overlay-text p {
+  font-size: 1.3rem;
+  color: var(--color-text-secondary);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dashboard-grid-section {
+  /* Container for the gridstack area and its title */
+}
+
+.dashboard-section-title {
+  font-size: 1.75rem; /* ~28px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+  padding-bottom: var(--spacing-unit); /* 8px */
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.grid-stack-container {
+  background-color: transparent;
+  padding: 0;
+  border-radius: var(--border-radius-md, 8px);
+  margin-top: var(--spacing-unit);
+}
+
+.grid-stack {
+  /* background-color: var(--color-background-tertiary); */
+}
+
+.grid-stack-item > .grid-stack-item-content {
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border-radius: var(--border-radius-medium);
+  overflow: hidden !important;
+  border: 1px solid var(--color-border-primary);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-wrapper-manual {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+.widget-header-manual {
+  background-color: var(--color-background-tertiary);
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2);
+  border-bottom: 1px solid var(--color-border-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.widget-header-manual h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.widget-content-manual {
+  padding: calc(var(--spacing-unit) * 2);
+  flex-grow: 1;
+  overflow-y: auto;
+  color: var(--color-text-secondary);
+}
+.widget-content-manual p {
+    color: var(--color-text-secondary);
+}
+
+.placeholder-chart-manual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height:100px;
+    background-color: var(--color-background-primary);
+    border: 1px dashed var(--color-border-secondary);
+    color: var(--color-text-secondary);
+    border-radius: var(--border-radius-small);
+    font-style: italic;
+}
+
+/* Specific styling for the D3 chart widget content area */
+.d3-chart-widget-content {
+  padding: 0 !important; /* Remove padding to allow SVG to use full space */
+  display: flex; /* Ensure D3 container takes full space */
+  align-items: center; /* Center chart if it's smaller */
+  justify-content: center; /* Center chart if it's smaller */
+  overflow: hidden; /* SVG might handle its own overflow/clipping */
+}
+
+/* Ensure the D3 chart container itself fills this content area */
+.d3-chart-widget-content .d3-candlestick-chart-container {
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-unit); /* Add padding back around the chart itself */
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+}
+
+
+/* Placeholder for actual dashboard widgets section (not Gridstack) */
+.dashboard-widgets-placeholder {
+  padding: calc(var(--spacing-unit) * 3);
+  background-color: var(--color-background-secondary);
+  border-radius: var(--border-radius-large, 8px);
+  text-align: center;
+  color: var(--color-text-secondary);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  margin-top: var(--spacing-unit) * 3;
+}
+.dashboard-widgets-placeholder h2 {
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-unit) * 2;
+}
+
+.widgets-grid-placeholder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: calc(var(--spacing-unit) * 2);
+  margin-top: var(--spacing-unit) * 2;
+}
+
+.widget-item-placeholder {
+  background-color: var(--color-background-primary);
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: var(--border-radius-medium);
+  border: 1px solid var(--color-border-primary);
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: italic;
+}

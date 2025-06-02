@@ -1,0 +1,135 @@
+/* src/components/common/Sidebar.css */
+.sidebar {
+  grid-area: sidebar; /* From MainLayout.css grid */
+  background-color: var(--color-background-secondary);
+  border-right: 1px solid var(--color-border-primary);
+  padding: 0; /* Remove padding if sidebar-sticky-content handles it */
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure it takes full height of the grid area */
+  overflow-y: auto; /* Allow sidebar itself to scroll if content is too long */
+}
+
+.sidebar-sticky-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%; /* For sticky footer patterns if ever needed */
+}
+
+.sidebar-header {
+  padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 2); /* 20px 16px */
+  border-bottom: 1px solid var(--color-border-primary);
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.sidebar-header h3 {
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.sidebar-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1; /* Allows footer to be pushed down */
+}
+
+.sidebar-nav-item, .sidebar-sub-nav-item {
+  margin: 0;
+}
+
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2); /* 10px 16px */
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-regular);
+  border-left: 3px solid transparent; /* For active state */
+  transition: background-color 0.2s ease, color 0.2s ease, border-left-color 0.2s ease;
+}
+
+.sidebar-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle hover */
+  color: var(--color-text-primary);
+}
+
+.sidebar-nav-link.active {
+  color: var(--color-accent-gold-text); /* Brighter gold for active text */
+  font-weight: var(--font-weight-medium);
+  background-color: rgba(176, 141, 87, 0.1); /* Subtle gold background */
+  border-left-color: var(--color-accent-gold);
+}
+
+.sidebar-nav-link .nav-icon { /* For future icons */
+  margin-right: calc(var(--spacing-unit) * 1.5); /* 12px */
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.8;
+}
+.sidebar-nav-link.active .nav-icon {
+  opacity: 1;
+}
+
+.sidebar-nav-link .nav-text {
+  flex-grow: 1;
+}
+
+/* Expandable Sections */
+.sidebar-nav-link.expandable {
+  cursor: pointer;
+  justify-content: space-between; /* Pushes expand icon to the right */
+}
+
+.expand-icon {
+  font-size: 0.8em; /* Make + / - smaller */
+  margin-left: var(--spacing-unit);
+  transition: transform 0.2s ease;
+  font-weight: var(--font-weight-bold);
+}
+.sidebar-nav-link.expandable.expanded .expand-icon {
+  transform: rotate(45deg); /* Example: '+' becomes 'x' or animate '-' */
+}
+
+
+.sidebar-sub-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: rgba(0,0,0, 0.15); /* Slightly darker background for sub-menu */
+  /* padding-left: calc(var(--spacing-unit) * 2); /* Indentation for sub-items */
+}
+
+.sidebar-sub-nav-item .sidebar-nav-link {
+  padding-left: calc(var(--spacing-unit) * 4); /* Deeper indentation for sub-menu links */
+  font-size: 0.9rem; /* Slightly smaller font for sub-items */
+}
+
+.sidebar-sub-nav-item .sidebar-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-sub-nav-item .sidebar-nav-link.active {
+  color: var(--color-accent-gold); /* Standard gold for active sub-item text */
+  border-left-color: var(--color-accent-gold-hover); /* Slightly different gold for sub-item active border */
+  background-color: rgba(176, 141, 87, 0.15);
+}
+
+/* Custom scrollbar for sidebar if needed */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: var(--color-background-secondary);
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border-primary);
+  border-radius: var(--border-radius-small);
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-gold);
+}

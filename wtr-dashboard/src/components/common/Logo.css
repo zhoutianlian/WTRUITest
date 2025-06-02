@@ -1,0 +1,11 @@
+/* src/components/common/Logo.css */
+.logo-container {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-unit); /* Add some padding if it's directly in the header */
+}
+
+.logo-svg {
+  height: 30px; /* Target height for the logo in the header */
+  width: auto; /* Maintain aspect ratio */
+}
