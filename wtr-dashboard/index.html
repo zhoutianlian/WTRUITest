@@ -5,6 +5,26 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React + TS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'custom-gold-highlight': 'var(--color-accent-gold-highlight)',
+              'custom-gold-muted': 'var(--color-accent-gold)', // Already defined as --color-accent-gold
+              'custom-gold-coppery': 'var(--color-accent-gold-coppery)', // Will be newly defined
+              'custom-dark-primary': 'var(--color-background-primary)',
+              'custom-dark-secondary': 'var(--color-background-secondary)',
+              'custom-text-primary': 'var(--color-text-primary)',
+              'custom-text-secondary': 'var(--color-text-secondary)',
+              'custom-accent-blue': 'var(--color-accent-secondary-blue)',
+              'custom-accent-teal': 'var(--color-accent-secondary-teal)',
+            }
+          }
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

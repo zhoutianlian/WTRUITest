@@ -25,7 +25,7 @@
 
 .sidebar-header h3 {
   font-size: 1.1rem;
-  color: var(--color-text-primary);
+  color: var(--color-accent-gold-highlight);
   font-weight: var(--font-weight-medium);
   margin: 0;
 }
@@ -54,15 +54,15 @@
 }
 
 .sidebar-nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.03); /* Subtle hover */
+  background-color: var(--color-background-tertiary);
   color: var(--color-text-primary);
 }
 
 .sidebar-nav-link.active {
-  color: var(--color-accent-gold-text); /* Brighter gold for active text */
-  font-weight: var(--font-weight-medium);
-  background-color: rgba(176, 141, 87, 0.1); /* Subtle gold background */
-  border-left-color: var(--color-accent-gold);
+  color: var(--color-accent-gold-highlight);
+  font-weight: var(--font-weight-semibold);
+  background-color: rgba(var(--rgb-accent-gold), 0.15);
+  border-left-color: var(--color-accent-gold-highlight);
 }
 
 .sidebar-nav-link .nav-icon { /* For future icons */
@@ -88,35 +88,52 @@
 .expand-icon {
   font-size: 0.8em; /* Make + / - smaller */
   margin-left: var(--spacing-unit);
-  transition: transform 0.2s ease;
+  /* transition: transform 0.2s ease; */ /* Removed transform */
+  transition: color 0.2s ease; /* Added color transition */
   font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
 }
-.sidebar-nav-link.expandable.expanded .expand-icon {
-  transform: rotate(45deg); /* Example: '+' becomes 'x' or animate '-' */
+
+.sidebar-nav-link:hover .expand-icon {
+  color: var(--color-text-primary);
 }
+/* .sidebar-nav-link.expandable.expanded .expand-icon { */
+  /* transform: rotate(45deg); */ /* Example: '+' becomes 'x' or animate '-' - Removed */
+/* } */
 
 
 .sidebar-sub-nav-list {
   list-style: none;
-  padding: 0;
+  padding: 0; /* Padding will be applied when open */
   margin: 0;
-  background-color: rgba(0,0,0, 0.15); /* Slightly darker background for sub-menu */
-  /* padding-left: calc(var(--spacing-unit) * 2); /* Indentation for sub-items */
+  background-color: var(--color-background-primary); /* Darker background for sub-menu */
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+.sidebar-sub-nav-list.is-open {
+  max-height: 500px; /* Adjust as needed, e.g. based on number of items */
+  padding-top: var(--spacing-unit);
+  padding-bottom: var(--spacing-unit);
 }
 
 .sidebar-sub-nav-item .sidebar-nav-link {
   padding-left: calc(var(--spacing-unit) * 4); /* Deeper indentation for sub-menu links */
   font-size: 0.9rem; /* Slightly smaller font for sub-items */
+  /* Default color is inherited: var(--color-text-secondary) */
 }
 
 .sidebar-sub-nav-item .sidebar-nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  background-color: var(--color-background-tertiary);
 }
 
 .sidebar-sub-nav-item .sidebar-nav-link.active {
-  color: var(--color-accent-gold); /* Standard gold for active sub-item text */
-  border-left-color: var(--color-accent-gold-hover); /* Slightly different gold for sub-item active border */
-  background-color: rgba(176, 141, 87, 0.15);
+  color: var(--color-accent-gold); /* muted gold for sub-items */
+  background-color: rgba(var(--rgb-accent-gold), 0.1);
+  border-left-color: var(--color-accent-gold);
+  font-weight: var(--font-weight-medium); /* slightly less than parent active */
 }
 
 /* Custom scrollbar for sidebar if needed */

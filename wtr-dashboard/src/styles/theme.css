@@ -1,15 +1,18 @@
 /* src/styles/theme.css */
 :root {
-  --color-background-primary: #0D1117; /* Very dark blue/gray */
+  --color-background-primary: #0A0A0A; /* Very dark blue/gray */
   --color-background-secondary: #161B22; /* Slightly lighter dark blue/gray for cards/elements */
   --color-background-tertiary: #21262D; /* For subtle borders or elevated elements */
 
   --color-accent-gold: #B08D57; /* Burnished/antique gold */
-  --color-accent-gold-hover: #CCA470;
-  --color-accent-gold-text: #FFD700; /* Brighter gold for text if needed */
+  --color-accent-gold-hover: #C8A064;
+  --color-accent-gold-highlight: #FFD700; /* Brighter gold for text if needed */
+  --color-accent-gold-coppery: #DA8A67;
 
   --color-accent-secondary-blue: #3078C0;
+  --color-accent-secondary-blue-muted: #2E5A8D;
   --color-accent-secondary-teal: #2AA092;
+  --color-accent-secondary-teal-muted: #227C70;
   --color-accent-secondary-purple: #8A63D2;
   --color-accent-secondary-red: #E54D42; /* For negative bars/indicators */
 
@@ -44,4 +47,23 @@
 
   --header-height: 60px;
   --sidebar-width: 250px;
+
+  /* K-Line Chart Colors */
+  --color-candle-uptrend-body: #F0F0F0; /* Warm white/Champagne */
+  --color-candle-uptrend-wick: #FFD700; /* Bright Gold */
+  --color-candle-downtrend-body: #3A506B; /* Dark Muted Blue */
+  --color-candle-downtrend-wick: #B08D57; /* Muted Gold */
+
+  --color-chart-background: var(--color-background-primary);
+  --color-chart-gridlines: var(--color-border-primary);
+  --color-chart-axis-text: var(--color-text-secondary);
+
+  --color-volume-uptrend: rgba(255, 215, 0, 0.5); /* Corresponds to --color-accent-gold-highlight at 50% opacity */
+  --color-volume-downtrend: rgba(58, 80, 107, 0.5); /* Corresponds to --color-candle-downtrend-body at 50% opacity */
+
+  /* RGB versions for D3 if needed directly (though direct var() is preferred) */
+  --rgb-candle-uptrend-body: 240,240,240;
+  --rgb-candle-downtrend-body: 58,80,107;
+  --rgb-accent-gold-highlight: 255,215,0;
+  --rgb-accent-secondary-blue-muted: 90,120,150; /* Example, adjust if a specific blue is chosen for volume */
 }

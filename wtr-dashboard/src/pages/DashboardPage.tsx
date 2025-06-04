@@ -6,6 +6,10 @@ import 'gridstack/dist/gridstack.min.css';
 import './DashboardPage.css';
 import ThreeInteractiveObjectDashboard from '../components/common/ThreeInteractiveObjectDashboard';
 import D3CandlestickChart from '../components/charts/D3CandlestickChart'; // Import the D3 chart
+import WTRCoreInsights from '../components/homepage/WTRCoreInsights';
+import FeaturedCapabilities from '../components/homepage/FeaturedCapabilities';
+import LatestResearchSnippets from '../components/homepage/LatestResearchSnippets';
+import WTRVision from '../components/homepage/WTRVision';
 
 // Mock Data for D3 Candlestick Chart
 const generateMockCandlestickData = (numPoints = 60) => {
@@ -62,7 +66,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="dashboard-grid-section">
+      <section className="dashboard-grid-section px-4 sm:px-6 lg:px-8"> {/* Added padding here */}
         <h2 className="dashboard-section-title">My Workspace</h2>
         <div className="grid-stack-container">
           <div ref={gridContainerRef} className="grid-stack">
@@ -95,6 +99,13 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* New Content Sections */}
+      <WTRCoreInsights />
+      <FeaturedCapabilities />
+      <LatestResearchSnippets />
+      <WTRVision />
+
     </div>
   );
 };

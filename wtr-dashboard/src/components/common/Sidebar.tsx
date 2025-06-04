@@ -61,14 +61,13 @@ const Sidebar: React.FC = () => {
             >
               {item.icon && <span className="nav-icon">{item.icon}</span>}
               <span className="nav-text">{item.name}</span>
-              {/* Using text for expand icon, replace with actual icon component later */}
-              <span className="expand-icon">{expandedSections[item.name] ? '−' : '+'}</span>
+              <span className="expand-icon">
+                {expandedSections[item.name] ? '∨' : '›'}
+              </span>
             </div>
-            {expandedSections[item.name] && (
-              <ul className="sidebar-sub-nav-list" id={`submenu-${item.name.replace(/\s+/g, '-')}`}>
-                {renderNavItems(item.subItems, true)}
-              </ul>
-            )}
+            <ul className={`sidebar-sub-nav-list ${expandedSections[item.name] ? 'is-open' : ''}`} id={`submenu-${item.name.replace(/\s+/g, '-')}`}>
+              {renderNavItems(item.subItems, true)}
+            </ul>
           </>
         ) : (
           <NavLink
