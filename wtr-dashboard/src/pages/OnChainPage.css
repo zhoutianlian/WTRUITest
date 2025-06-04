@@ -1,75 +1,50 @@
 /* src/pages/OnChainPage.css */
 .onchain-page {
-  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3); /* 16px 24px */
-}
-
-.page-title {
-  font-size: 1.8rem; /* ~28-29px */
-  font-weight: var(--font-weight-bold);
+  padding: 20px;
   color: var(--color-text-primary);
-  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
-  padding-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
-  border-bottom: 1px solid var(--color-border-primary);
 }
 
-.onchain-charts-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* Default to single column */
-  gap: calc(var(--spacing-unit) * 3); /* 24px */
+.page-header h1 {
+  color: var(--color-heading-text);
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--color-accent-gold);
+  padding-bottom: 10px;
 }
 
-/* For wider screens, maybe 2 columns if charts are not too wide, or keep 1 for focus */
-@media (min-width: 1200px) { /* Adjust breakpoint as needed */
-  .onchain-charts-grid {
-    /* grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); */ /* Example for responsive 2-col */
-    /* For now, let's keep it single column for focused chart view unless specified otherwise */
-  }
+.data-section {
+  background-color: var(--color-background-secondary);
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: var(--border-radius-standard, 8px);
+  box-shadow: var(--shadow-standard, 0 4px 6px rgba(0,0,0,0.1));
 }
 
-/* The WidgetWrapper already provides card styling.
-   This chart-container is for the space where the SVG will be rendered. */
+.data-section h2 {
+  color: var(--color-text-primary);
+  margin-bottom: 10px;
+}
+
+.data-section p {
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
 .chart-container {
-  width: 100%;
-  /* max-width: 900px; /* Max width can be controlled here or by WidgetWrapper's parent */
-  margin: 0 auto; /* Center if max-width is active */
-  background-color: var(--color-background-primary); /* Chart's immediate background */
-  padding: var(--spacing-unit); /* Small padding around the SVG */
-  border-radius: var(--border-radius-small); /* Inner radius for the chart area */
-  /* min-height is implicitly set by D3Chart component's height prop */
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Inner shadow for depth */
+  margin-top: 20px;
+  padding: 15px;
+  background-color: var(--color-background-tertiary, #2c2c2c);
+  border-radius: var(--border-radius-standard, 8px);
 }
 
-/* Ensure D3 chart SVG itself uses theme variables correctly */
-/* These styles might be more general and could live in global.css or a D3 specific global css */
-.chart-container svg .axis path,
-.chart-container svg .axis line,
-.chart-container svg .chart-axis path, /* Added from D3LineChart */
-.chart-container svg .chart-axis line { /* Added from D3LineChart */
-  stroke: var(--color-text-secondary);
-  stroke-opacity: 0.7;
+.chart-container h3 {
+  margin-bottom: 10px;
+  color: var(--color-text-secondary);
+  font-size: 1.1em;
 }
 
-.chart-container svg .axis text,
-.chart-container svg .chart-axis text { /* Added from D3LineChart */
-  fill: var(--color-text-secondary);
-  font-family: var(--font-family-sans);
-  font-size: 0.75rem; /* Consistent axis text size */
-}
-
-.chart-container svg .grid line,
-.chart-container svg .grid path {
-  stroke: var(--color-border-secondary);
-  stroke-opacity: 0.2; /* Subtle grid lines */
-  shape-rendering: crispEdges;
-}
-
-/* Hide domain line from grid if it's just for ticks */
-.chart-container svg .grid .domain {
-    stroke: none;
-}
-
-.chart-container svg .zero-line-emphasis {
-    stroke: var(--color-text-secondary);
-    stroke-width: 0.7px;
-    stroke-opacity: 0.8;
+.page-footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--color-text-secondary);
 }

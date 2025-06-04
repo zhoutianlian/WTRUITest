@@ -9,22 +9,55 @@
   position: relative;
   border-radius: var(--border-radius-large, 8px);
   overflow: hidden;
-  background-color: var(--color-background-secondary);
-  min-height: 350px;
+  /* background-color: var(--color-background-secondary); /* Overridden by gradient */
+  min-height: 350px; /* Kept existing min-height */
+  padding: 20px 0; /* Added padding */
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  flex-direction: column; /* Added for stacking .three-object-container and .dashboard-hero-overlay-text */
+  text-align: center; /* Center text within .dashboard-hero-overlay-text */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2); /* Kept existing box-shadow */
+
+  /* New gradient animation properties */
+  background: linear-gradient(-45deg, var(--color-background-dark-blue, #1a202c), var(--color-background-deep-purple, #2d3748), var(--color-accent-gold-muted, #4a3b27), var(--color-background-interactive-hover, #3b4a5c));
+  background-size: 400% 400%;
+  animation: gradientBG 25s ease infinite;
+  color: var(--color-text-on-dark, #ffffff); /* Ensure text is visible by default in this section */
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .three-object-container {
-  position: absolute;
+  position: absolute; /* Keeps it as a background layer */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 1; /* Original z-index was 1, this is fine */
+  /* margin-bottom: 20px; /* This would not apply if absolute. If it should be part of flex flow, position:relative is needed */
 }
+/* If .three-object-container is meant to be part of the flex flow: */
+/*
+.three-object-container {
+  position: relative;
+  width: 100%;
+  height: 250px; /* Example fixed height for the 3D object area */
+  /* z-index: 1;
+  margin-bottom: 20px;
+}
+*/
+
 
 .three-object-container .three-interactive-object-dashboard {
   width: 100%;
@@ -34,29 +67,32 @@
 
 .dashboard-hero-overlay-text {
   position: relative;
-  z-index: 2;
-  text-align: center;
-  color: var(--color-text-primary);
+  z-index: 2; /* Ensure text is above the 3D object canvas */
+  text-align: center; /* Ensures text itself is centered if it's block */
+  color: var(--color-text-primary); /* Default text color, can be overridden by h1, p */
   padding: calc(var(--spacing-unit) * 3);
-  pointer-events: none;
+  pointer-events: none; /* Original had this, keeping it */
+  /* background-color: rgba(0,0,0,0.3); /* Optional: semi-transparent backdrop for text */
+  border-radius: var(--border-radius-standard, 8px); /* Added from example */
 }
 
 .dashboard-hero-overlay-text h1 {
-  font-size: 2.8rem;
+  font-size: 2.8em; /* Existing was 2.8rem, example 2.8em. Using em for scalability. */
   font-weight: var(--font-weight-bold);
-  margin-bottom: var(--spacing-unit);
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-  color: var(--color-accent-gold-highlight);
+  margin-bottom: 0.5em; /* Example: 0.5em. Existing was var(--spacing-unit) */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Example: 1px 1px 3px rgba(0,0,0,0.5). Existing: 0 2px 12px rgba(0,0,0,0.6) */
+  color: var(--color-accent-gold-highlight, #FFD700); /* Example color */
 }
 
 .dashboard-hero-overlay-text p {
-  font-size: 1.3rem;
-  color: var(--color-text-primary);
-  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  font-size: 1.3em; /* Existing was 1.3rem, example 1.3em. Using em. */
+  color: var(--color-text-light, #f0f0f0); /* Example color. Existing was var(--color-text-primary) */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Example shadow. Existing: 0 1px 6px rgba(0,0,0,0.5) */
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
 }
+
 
 .dashboard-grid-section {
   /* Container for the gridstack area and its title */

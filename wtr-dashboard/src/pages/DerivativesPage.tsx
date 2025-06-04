@@ -1,116 +1,66 @@
-// src/pages/DerivativesPage.tsx
 import React from 'react';
-import D3LineChart from '../components/charts/D3LineChart';
-import WidgetWrapper from '../components/dashboard/WidgetWrapper';
-import './DerivativesPage.css'; // Create this CSS
+import './DerivativesPage.css'; // Ensure this CSS file is created/updated
+import D3LineChart from '../components/charts/D3LineChart'; // Example chart
 
-// Mock data generation functions
-const generateDerivativeTimeSeries = (
-  numPoints: number,
-  startVal: number,
-  volatility: number,
-  canBeNegative: boolean = false,
-  minVal?: number,
-  maxVal?: number
-) => {
-  const data: { date: Date; value: number }[] = [];
-  let currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() - numPoints);
-  let currentValue = startVal;
+// Mock data for the line chart
+const generateMockMetricData = (numPoints = 30, initialValue = 1000, volatility = 50) => {
+  const data = [];
+  let value = initialValue;
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - numPoints);
 
   for (let i = 0; i < numPoints; i++) {
-    currentDate.setDate(currentDate.getDate() + 1);
-    data.push({ date: new Date(currentDate), value: parseFloat(currentValue.toFixed(canBeNegative ? 4 : 2)) }); // More precision for rates
-
-    let change = (Math.random() - 0.49) * volatility; // Slight bias for more realistic movements
-    currentValue += change;
-
-    if (!canBeNegative && minVal === undefined) {
-      currentValue = Math.max(0.00001, currentValue);
-    }
-    if (minVal !== undefined) {
-      currentValue = Math.max(minVal, currentValue);
-    }
-    if (maxVal !== undefined) {
-      currentValue = Math.min(maxVal, currentValue);
-    }
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    value += (Math.random() - 0.5) * volatility;
+    data.push({ date, value: Math.max(0, value) }); // Ensure value doesn't go below 0
   }
   return data;
 };
 
-const generateIVSmileData = (numStrikes: number, atmStrike: number, atmIV: number, smileFactor: number, skewFactor: number) => {
-  const data: { date: Date; value: number }[] = []; // Using 'date' to hold strike for now
-  const strikeStep = atmStrike * 0.05; // 5% of ATM strike as step
-
-  for (let i = 0; i < numStrikes; i++) {
-    const strike = atmStrike - Math.floor(numStrikes / 2) * strikeStep + i * strikeStep;
-    const moneyness = Math.log(strike / atmStrike);
-    let iv = atmIV + (skewFactor * moneyness) + (smileFactor * Math.pow(moneyness, 2));
-    iv = Math.max(0.05, iv); // Floor IV at 5%
-
-    // Workaround: Pass strike as the time value of a Date object.
-    // D3LineChart needs modification for proper numerical X-axis formatting.
-    data.push({ date: new Date(strike), value: parseFloat(iv.toFixed(4)) });
-  }
-  data.sort((a, b) => a.date.getTime() - b.date.getTime());
-  return data;
-};
-
-const mockOpenInterestData = generateDerivativeTimeSeries(90, 1500000000, 80000000, false, 500000000); // OI in USD
-const mockFundingRatesData = generateDerivativeTimeSeries(90, 0.0001, 0.00025, true, -0.0025, 0.0025); // Funding Rate as %
-const mockIVSmileData = generateIVSmileData(21, 65000, 0.60, 0.7, -0.15);
-
+const mockOpenInterestData = generateMockMetricData(60, 50000, 2000);
+const mockFundingRateData = generateMockMetricData(60, 0.01, 0.005);
 
 const DerivativesPage: React.FC = () => {
-  const chartWidth = undefined; // Let chart take container width
-  const chartHeight = 320;    // Fixed height for consistency
-
-  // TODO: Ideally, D3LineChart would accept an xTickFormat prop.
-  // For IV Smile, the x-axis ticks will currently show numerical date values
-  // (milliseconds since epoch, because we store strikes in Date objects as a workaround).
-  // A proper solution requires enhancing D3LineChart to handle linear scales and custom tick formatting.
-
   return (
-    <div className="derivatives-page">
-      <h1 className="page-title">Derivatives Analysis</h1>
+    <div className="derivatives-page page-content">
+      <header className="page-header">
+        <h1>Derivatives Analysis</h1>
+      </header>
 
-      <div className="chart-grid">
-        <WidgetWrapper title="Open Interest (BTC Perpetuals)">
-          <div className="chart-container">
-            <D3LineChart
-              data={mockOpenInterestData}
-              width={chartWidth} height={chartHeight}
-              yAxisLabel="Open Interest (USD)"
-              lineColor="var(--color-accent-secondary-teal, #2AA092)"
-            />
-          </div>
-        </WidgetWrapper>
+      <section className="data-section">
+        <h2>Futures Market Overview</h2>
+        <p>Insights into futures contracts, open interest, and trading volumes across major exchanges. Understanding these trends can provide leading indicators for market sentiment and potential price movements.</p>
+        <div className="chart-container">
+          <h3>Open Interest Over Time</h3>
+          <D3LineChart data={mockOpenInterestData} yAxisLabel="Open Interest (USD)" lineColor="var(--color-accent-blue)" />
+        </div>
+      </section>
 
-        <WidgetWrapper title="Funding Rates (BTC Perpetuals)">
-          <div className="chart-container">
-            <D3LineChart
-              data={mockFundingRatesData}
-              width={chartWidth} height={chartHeight}
-              yAxisLabel="Funding Rate (%)"
-              lineColor="var(--color-accent-secondary-blue, #3078C0)"
-              // Y-axis tick formatting for percentages could be added to D3LineChart
-            />
-          </div>
-        </WidgetWrapper>
+      <section className="data-section">
+        <h2>Options Market Overview</h2>
+        <p>Analysis of options contracts, including put/call ratios, implied volatility, and options flow. These metrics help gauge market expectations and risk appetite.</p>
+        <div className="chart-container">
+          <h3>Implied Volatility Index</h3>
+          {/* Placeholder for another chart or data display */}
+          <p><em>Options data chart coming soon.</em></p>
+        </div>
+      </section>
 
-        <WidgetWrapper title="Implied Volatility Smile (BTC Options)">
-          <div className="chart-container">
-            <D3LineChart
-              data={mockIVSmileData}
-              width={chartWidth} height={chartHeight}
-              yAxisLabel="Implied Volatility"
-              lineColor="var(--color-accent-gold, #B08D57)"
-              // Note: X-axis will show strikes as numerical date values due to D3LineChart limitation
-            />
-          </div>
-        </WidgetWrapper>
-      </div>
+      <section className="data-section">
+        <h2>Key Derivatives Metrics</h2>
+        <p>Tracking critical metrics such as funding rates, liquidations, and basis spread to understand the health and dynamics of the derivatives market.</p>
+        <div className="chart-container">
+          <h3>Funding Rate (Illustrative)</h3>
+          <D3LineChart data={mockFundingRateData} yAxisLabel="Funding Rate (%)" lineColor="var(--color-accent-green)" />
+        </div>
+      </section>
+
+      <footer className="page-footer">
+        <p>Note: Data shown is illustrative and for demonstration purposes only.</p>
+      </footer>
     </div>
   );
 };
+
 export default DerivativesPage;

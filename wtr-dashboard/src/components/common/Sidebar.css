@@ -150,3 +150,87 @@
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-gold);
 }
+
+.sidebar-nav-link-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Assuming sidebar-nav-link already has padding, otherwise add:
+  padding: var(--sidebar-nav-link-padding, 10px 15px); */
+  cursor: default;
+}
+
+.sidebar-nav-link-container .nav-link-text-icon {
+  flex-grow: 1;
+  text-decoration: none;
+  color: var(--sidebar-text-color, var(--color-text-primary)); /* Ensure fallback or use existing variables */
+  display: flex;
+  align-items: center;
+  padding: var(--sidebar-nav-link-padding, 10px 15px); /* Apply padding here if not on parent */
+}
+
+.sidebar-nav-link-container .nav-link-text-icon:hover {
+  color: var(--sidebar-text-hover-color, var(--color-accent-gold));
+  background-color: var(--sidebar-item-hover-bg, rgba(var(--color-accent-gold-rgb), 0.1));
+}
+
+.sidebar-nav-link-container .nav-link-text-icon.active {
+  color: var(--sidebar-text-active-color, var(--color-accent-gold));
+  font-weight: bold;
+  border-left: 3px solid var(--color-accent-gold); /* Example active indicator */
+  background-color: var(--sidebar-item-active-bg, rgba(var(--color-accent-gold-rgb), 0.05));
+}
+
+.expand-icon-button {
+  padding: 10px 15px; /* Consistent padding with links */
+  cursor: pointer;
+  user-select: none;
+  font-size: 1em; /* Adjust as needed */
+  color: var(--sidebar-icon-color, var(--color-text-secondary));
+  display: flex; /* Align icon nicely */
+  align-items: center;
+  justify-content: center;
+}
+
+.expand-icon-button:hover {
+  color: var(--sidebar-icon-hover-color, var(--color-accent-gold));
+  background-color: var(--sidebar-item-hover-bg, rgba(var(--color-accent-gold-rgb), 0.1)); /* Subtle hover for the button too */
+}
+
+/* Adjustments for items that are parents of sub-menus */
+.sidebar-nav-item.has-sub-items > .sidebar-nav-link-container .nav-link-text-icon {
+  /* If the main link itself shouldn't have full padding because the container does, adjust.
+     However, the current setup applies padding to nav-link-text-icon. */
+}
+
+/* Ensure original .sidebar-nav-link styles don't conflict if they are too general.
+   The new .nav-link-text-icon is more specific for items within a .sidebar-nav-link-container.
+   Items NOT in a container (those without submenus) still use .sidebar-nav-link directly.
+   It might be good to ensure padding is consistent.
+   If .sidebar-nav-link had padding: 10px 15px;, this is now handled by .nav-link-text-icon
+   and the standalone .sidebar-nav-link.
+*/
+.sidebar-nav-link {
+    /* Common styles for all NavLinks, whether standalone or part of a container */
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--sidebar-text-color, var(--color-text-primary));
+    padding: var(--sidebar-nav-link-padding, 10px 15px); /* Ensure this is defined or set */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.sidebar-nav-link:hover {
+    color: var(--sidebar-text-hover-color, var(--color-accent-gold));
+    background-color: var(--sidebar-item-hover-bg, rgba(var(--color-accent-gold-rgb), 0.1));
+}
+.sidebar-nav-link.active {
+    color: var(--sidebar-text-active-color, var(--color-accent-gold));
+    font-weight: bold;
+    border-left: 3px solid var(--color-accent-gold); /* Example active indicator */
+    background-color: var(--sidebar-item-active-bg, rgba(var(--color-accent-gold-rgb), 0.05));
+}
+
+/* Remove specific styling from the old .expandable class if it conflicts */
+.sidebar-nav-link.expandable {
+    /* review and remove conflicting styles, as this class might not be used anymore or its role changed */
+}

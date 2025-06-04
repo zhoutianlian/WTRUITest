@@ -2,10 +2,44 @@
 .logo-container {
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing-unit); /* Add some padding if it's directly in the header */
+  /* padding: 0 var(--spacing-unit); Removed, assuming MainLayout header handles padding */
+  height: var(--header-height, 60px); /* Ensure container respects header height */
 }
 
-.logo-svg {
+.wtr-text-logo-svg {
   height: 30px; /* Target height for the logo in the header */
-  width: auto; /* Maintain aspect ratio */
+  width: auto;  /* Maintain aspect ratio, viewBox will scale */
+  max-width: 120px; /* Prevent it from becoming too wide */
+  overflow: visible; /* Important for filters like drop shadows */
+}
+
+.wtr-logo-text-w,
+.wtr-logo-text-t,
+.wtr-logo-text-r {
+  font-family: 'Arial', 'Helvetica', sans-serif; /* Choose a modern, clean font */
+  font-size: 40px; /* Base font size, will be scaled by SVG viewBox */
+  font-weight: bold;
+  letter-spacing: -2px; /* Adjust letter spacing for a compact look */
+}
+
+/* Specific adjustments for each letter to create a custom logotype feel */
+/* These values will need to be tuned based on the chosen font and desired overlap/kerning */
+.wtr-logo-text-w {
+  /* Example: slightly shift if needed, or adjust letter-spacing/kerning if possible */
+  transform: translateX(-28px);
+}
+
+.wtr-logo-text-t {
+  /* No shift for T, it's the center */
+}
+
+.wtr-logo-text-r {
+  transform: translateX(28px);
+}
+
+/* Fallback for CSS variables if not defined elsewhere -- ideally these are in a global theme.css */
+:root {
+  --color-accent-gold-highlight: #FFD700;
+  --color-accent-gold: #B08D57;
+  --header-height: 60px; /* Example value */
 }

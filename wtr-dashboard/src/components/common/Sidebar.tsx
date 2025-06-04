@@ -41,46 +41,53 @@ const Sidebar: React.FC = () => {
     setExpandedSections(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  // Helper to render navigation items and sub-items
-  const renderNavItems = (items: NavItem[], isSubMenu: boolean = false) => {
-    return items.map((item) => (
-      <li
-        key={item.name}
-        className={`${isSubMenu ? 'sidebar-sub-nav-item' : 'sidebar-nav-item'} ${item.subItems ? 'has-sub-items' : ''}`}
-      >
-        {item.subItems ? (
-          <>
-            <div
-              className={`sidebar-nav-link expandable ${expandedSections[item.name] ? 'expanded' : ''}`}
-              onClick={() => toggleSection(item.name)}
-              role="button" // ARIA role
-              aria-expanded={expandedSections[item.name]}
-              aria-controls={`submenu-${item.name.replace(/\s+/g, '-')}`} // ARIA controls
-              tabIndex={0} // Make it focusable
-              onKeyPress={(e) => e.key === 'Enter' && toggleSection(item.name)} // Keyboard toggle
+    const renderNavItems = (items: NavItem[], isSubMenu: boolean = false) => {
+      return items.map((item) => (
+        <li
+          key={item.name}
+          className={`${isSubMenu ? 'sidebar-sub-nav-item' : 'sidebar-nav-item'} ${item.subItems ? 'has-sub-items' : ''}`}
+        >
+          {item.subItems ? (
+            <>
+              <div className={`sidebar-nav-link-container ${expandedSections[item.name] ? 'expanded' : ''}`}>
+                <NavLink
+                  to={item.path}
+                  end // Ensures NavLink is only active for this exact path
+                  className={({ isActive }) =>
+                    `sidebar-nav-link nav-link-text-icon ${isActive ? 'active' : ''}`
+                  }
+                >
+                  {item.icon && <span className="nav-icon">{item.icon}</span>}
+                  <span className="nav-text">{item.name}</span>
+                </NavLink>
+                <span
+                  className="expand-icon-button"
+                  onClick={() => toggleSection(item.name)}
+                  role="button"
+                  aria-expanded={expandedSections[item.name]}
+                  aria-controls={`submenu-${item.name.replace(/\s+/g, '-')}`}
+                  tabIndex={0}
+                  onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleSection(item.name); }}
+                >
+                  {expandedSections[item.name] ? '∨' : '›'}
+                </span>
+              </div>
+              <ul className={`sidebar-sub-nav-list ${expandedSections[item.name] ? 'is-open' : ''}`} id={`submenu-${item.name.replace(/\s+/g, '-')}`}>
+                {renderNavItems(item.subItems, true)}
+              </ul>
+            </>
+          ) : (
+            <NavLink
+              to={item.path}
+              className={({ isActive }) => isActive ? "sidebar-nav-link active" : "sidebar-nav-link"}
             >
               {item.icon && <span className="nav-icon">{item.icon}</span>}
               <span className="nav-text">{item.name}</span>
-              <span className="expand-icon">
-                {expandedSections[item.name] ? '∨' : '›'}
-              </span>
-            </div>
-            <ul className={`sidebar-sub-nav-list ${expandedSections[item.name] ? 'is-open' : ''}`} id={`submenu-${item.name.replace(/\s+/g, '-')}`}>
-              {renderNavItems(item.subItems, true)}
-            </ul>
-          </>
-        ) : (
-          <NavLink
-            to={item.path}
-            className={({ isActive }) => isActive ? "sidebar-nav-link active" : "sidebar-nav-link"}
-          >
-            {item.icon && <span className="nav-icon">{item.icon}</span>}
-            <span className="nav-text">{item.name}</span>
-          </NavLink>
-        )}
-      </li>
-    ));
-  };
+            </NavLink>
+          )}
+        </li>
+      ));
+    };
 
   return (
     <aside className="sidebar">

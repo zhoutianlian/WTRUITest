@@ -1,66 +1,50 @@
 /* src/pages/DerivativesPage.css */
 .derivatives-page {
-  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3); /* 16px 24px */
-}
-
-/* Reusing .page-title style, ensure it's globally available or defined here if not */
-.page-title {
-  font-size: 1.8rem;
-  font-weight: var(--font-weight-bold);
+  padding: 20px;
   color: var(--color-text-primary);
-  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
-  padding-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
-  border-bottom: 1px solid var(--color-border-primary);
 }
 
-.chart-grid {
-  display: grid;
-  /* Using auto-fit with a sensible minmax for chart widgets */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
-  gap: calc(var(--spacing-unit) * 3); /* 24px */
+.page-header h1 {
+  color: var(--color-heading-text);
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--color-accent-gold);
+  padding-bottom: 10px;
 }
 
-/* Reusing .chart-container style from OnChainPage.css or global styles */
-/* Ensure this class provides consistent chart presentation */
+.data-section {
+  background-color: var(--color-background-secondary);
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: var(--border-radius-standard, 8px);
+  box-shadow: var(--shadow-standard, 0 4px 6px rgba(0,0,0,0.1));
+}
+
+.data-section h2 {
+  color: var(--color-text-primary);
+  margin-bottom: 10px;
+}
+
+.data-section p {
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
 .chart-container {
-  width: 100%;
-  margin: 0 auto;
-  background-color: var(--color-background-primary);
-  padding: var(--spacing-unit);
-  border-radius: var(--border-radius-small);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-  /* min-height is implicitly set by D3Chart component's height prop via WidgetWrapper content area */
+  margin-top: 20px;
+  padding: 15px;
+  background-color: var(--color-background-tertiary, #2c2c2c);
+  border-radius: var(--border-radius-standard, 8px);
 }
 
-/* Common D3 styling overrides - ideally these would be in a global D3 chart style file */
-.chart-container svg .axis path,
-.chart-container svg .axis line,
-.chart-container svg .chart-axis path, /* From D3LineChart */
-.chart-container svg .chart-axis line { /* From D3LineChart */
-  stroke: var(--color-text-secondary);
-  stroke-opacity: 0.7;
+.chart-container h3 {
+  margin-bottom: 10px;
+  color: var(--color-text-secondary);
+  font-size: 1.1em;
 }
 
-.chart-container svg .axis text,
-.chart-container svg .chart-axis text { /* From D3LineChart */
-  fill: var(--color-text-secondary);
-  font-family: var(--font-family-sans);
-  font-size: 0.75rem;
-}
-
-.chart-container svg .grid line,
-.chart-container svg .grid path {
-  stroke: var(--color-border-secondary);
-  stroke-opacity: 0.2;
-  shape-rendering: crispEdges;
-}
-
-.chart-container svg .grid .domain {
-    stroke: none;
-}
-
-.chart-container svg .zero-line-emphasis { /* If used by any chart here, e.g., funding rates if it dips to 0 */
-    stroke: var(--color-text-secondary);
-    stroke-width: 0.7px;
-    stroke-opacity: 0.8;
+.page-footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--color-text-secondary);
 }

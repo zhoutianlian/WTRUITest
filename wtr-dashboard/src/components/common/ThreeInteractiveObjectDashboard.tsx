@@ -130,6 +130,7 @@ const ThreeInteractiveObjectDashboard: React.FC = () => {
 
       mainObject.rotation.x = elapsedTime * 0.03; // Slower and more graceful
       mainObject.rotation.y = elapsedTime * 0.06; // Slower and more graceful
+      mainObject.position.y = Math.sin(elapsedTime * 0.5) * 0.1; // Vertical oscillation
 
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects([mainObject]);

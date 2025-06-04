@@ -160,3 +160,14 @@
   stroke: var(--color-chart-gridlines);
   stroke-opacity: 0.5; /* Slightly more visible than main grid if desired, or match */
 }
+
+.crosshair-x, .crosshair-y {
+  stroke: var(--color-text-secondary, #888);
+  stroke-width: 0.5px;
+  stroke-dasharray: 3,3;
+  pointer-events: none; /* Important so they don't interfere with other mouse events */
+  display: none; /* Initially hidden, shown on mouseover */
+}
+.chart-overlay {
+    cursor: crosshair; /* Change cursor to indicate interactivity */
+}

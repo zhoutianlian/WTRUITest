@@ -133,7 +133,7 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
 
     const xAxis = d3.axisBottom(xScale)
       .tickValues(tickValues)
-      .tickFormat(d => d3.timeFormat('%b %d')(new Date(parseInt(d))));
+      .tickFormat(d => d3.timeFormat('%Y-%m-%d')(new Date(parseInt(d))));
 
     priceG.append("g")
       .attr("class", "x-axis price-axis")
@@ -298,6 +298,17 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
 
     // --- Tooltip Implementation ---
     const priceChartInteractionG = g.append("g").attr("class", "price-chart-interaction-layer");
+
+    const crosshairY = priceChartInteractionG.append("line")
+        .attr("class", "crosshair-y")
+        .attr("y1", 0)
+        .attr("y2", priceChartHeight);
+
+    const crosshairX = priceChartInteractionG.append("line")
+        .attr("class", "crosshair-x")
+        .attr("x1", 0)
+        .attr("x2", chartWidth);
+
     const overlay = priceChartInteractionG.append("rect")
         .attr("class", "chart-overlay")
         .attr("width", chartWidth)
@@ -308,32 +319,39 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     overlay
         .on("mouseover", () => {
             if (tooltipRef.current) tooltipRef.current.style.opacity = "1";
+            crosshairX.style("display", "block");
+            crosshairY.style("display", "block");
         })
         .on("mouseout", () => {
             if (tooltipRef.current) tooltipRef.current.style.opacity = "0";
+            crosshairX.style("display", "none");
+            crosshairY.style("display", "none");
         })
         .on("mousemove", (event) => {
             if (!tooltipRef.current || data.length === 0 || !xScale.domain().length) return;
 
-            const [mouseX] = d3.pointer(event, g.node());
+            const [mouseX, mouseY] = d3.pointer(event, priceChartInteractionG.node()); // Use priceChartInteractionG for coords
 
+            crosshairY.attr("x1", mouseX).attr("x2", mouseX);
+            crosshairX.attr("y1", mouseY).attr("y2", mouseY);
+            // mouseX is already relative to priceChartInteractionG thanks to d3.pointer(event, priceChartInteractionG.node())
             let mindist = Infinity;
             let selectedIndex = -1;
 
+            // Use mouseX directly for finding the closest data point
             xScale.domain().forEach((dateStr, i) => {
                 const bandCenter = (xScale(dateStr) || 0) + xScale.bandwidth() / 2;
-                const dist = Math.abs(mouseX - bandCenter);
-                if (dist < mindist && dist < xScale.bandwidth() / 1.5) { // Increased tolerance slightly beyond half bandwidth
+                const dist = Math.abs(mouseX - bandCenter); // Use mouseX from d3.pointer
+                if (dist < mindist && dist < xScale.bandwidth() / 1.5) {
                     mindist = dist;
                     selectedIndex = i;
                 }
             });
 
-            // Fallback if not directly in a band (e.g., mouse is between bands)
             if (selectedIndex === -1) {
                 xScale.domain().forEach((dateStr, i) => {
                     const bandCenter = (xScale(dateStr) || 0) + xScale.bandwidth() / 2;
-                    const dist = Math.abs(mouseX - bandCenter);
+                    const dist = Math.abs(mouseX - bandCenter); // Use mouseX from d3.pointer
                     if (dist < mindist) {
                         mindist = dist;
                         selectedIndex = i;
@@ -342,7 +360,7 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
             }
 
             if (selectedIndex === -1 && data.length > 0) {
-                const approxIndex = Math.floor(mouseX / xScale.step());
+                const approxIndex = Math.floor(mouseX / xScale.step()); // Use mouseX from d3.pointer
                 selectedIndex = Math.max(0, Math.min(data.length - 1, approxIndex));
             }
 
@@ -388,7 +406,7 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
         });
 
         priceG.select<SVGGElement>(".x-axis.price-axis")
-            .call(xAxis.scale(xScale).tickValues(newTickValues))
+            .call(xAxis.scale(xScale).tickValues(newTickValues).tickFormat(d => d3.timeFormat('%Y-%m-%d')(new Date(parseInt(d)))))
             .selectAll("text")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")

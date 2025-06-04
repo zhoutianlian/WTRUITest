@@ -1,9 +1,9 @@
 // src/components/charts/D3LineChart.tsx
 import React, { useEffect, useRef } from 'react';
-import *_d3 from 'd3';
+import * as d3 from 'd3';
 // import './D3LineChart.css'; // No separate CSS for this one, will use common chart styles or inline
 
-const d3 = (window as any).d3 || _d3;
+// const d3 = (window as any).d3 || _d3; // This line is no longer needed due to direct import
 
 interface TimePoint {
   date: Date;
