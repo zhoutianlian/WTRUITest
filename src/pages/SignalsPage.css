@@ -1,0 +1,122 @@
+/* src/pages/SignalsPage.css */
+.signals-page .page-header {
+  background-color: var(--color-background-secondary);
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 2); /* 24px 16px */
+  border-bottom: 1px solid var(--color-border-primary);
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.signals-page .page-header h1 {
+  font-size: 2rem; /* ~32px */
+  color: var(--color-accent-gold-highlight);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.signals-page .page-content {
+  padding: 0 calc(var(--spacing-unit) * 2); /* 16px horizontal padding */
+  max-width: 1200px; /* Max content width for table */
+  margin: 0 auto; /* Center content */
+}
+
+.signals-page .content-section {
+  margin-bottom: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.signals-page .intro-section p {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  text-align: left; /* Default for paragraphs */
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+}
+
+.signals-page .section-title {
+  font-size: 1.75rem; /* ~28px */
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+  padding-bottom: var(--spacing-unit); /* 8px */
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+/* Signal Categories Styling */
+.signal-categories .categories-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit) * 1.5); /* 12px */
+}
+
+.signal-categories .categories-list span {
+  background-color: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
+  padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5); /* 8px 12px */
+  border-radius: var(--border-radius-small); /* 4px */
+  font-size: 0.9rem;
+  border: 1px solid var(--color-border-primary);
+}
+
+/* Signals Table Styling */
+.table-container {
+  overflow-x: auto; /* For responsiveness on smaller screens */
+  background-color: var(--color-background-secondary);
+  border-radius: var(--border-radius-medium);
+  border: 1px solid var(--color-border-primary);
+}
+
+.signals-table {
+  width: 100%;
+  border-collapse: collapse; /* Clean look */
+}
+
+.signals-table th,
+.signals-table td {
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2); /* 12px 16px */
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-primary);
+  font-size: 0.95rem;
+}
+
+.signals-table th {
+  background-color: var(--color-background-tertiary);
+  color: var(--color-accent-gold);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap; /* Prevent header text wrapping */
+}
+
+.signals-table td {
+  color: var(--color-text-secondary);
+}
+
+.signals-table tbody tr:last-child td {
+  border-bottom: none; /* Remove border for the last row */
+}
+
+.signals-table tbody tr:hover td {
+  background-color: rgba(var(--rgb-accent-gold), 0.05); /* Subtle gold hover */
+  color: var(--color-text-primary);
+}
+
+/* Confidence Level Styling */
+.signals-table .confidence-high { color: #4CAF50; /* Green */ }
+.signals-table .confidence-medium { color: #FFC107; /* Amber */ }
+.signals-table .confidence-low { color: #F44336; /* Red */ }
+/* Consider using theme variables for these colors if available/desired */
+
+/* Disclaimer Styling */
+.disclaimer-section .disclaimer-title {
+  font-size: 1.2rem;
+  color: var(--color-accent-gold);
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.disclaimer-section p {
+  font-size: 0.85rem;
+  color: var(--color-text-disabled);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.page-container {
+  padding-bottom: calc(var(--spacing-unit) * 4); /* Add some bottom padding */
+}

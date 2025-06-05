@@ -1,0 +1,96 @@
+/* src/pages/ResearchPage.css */
+.research-page .page-header {
+  background-color: var(--color-background-secondary);
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 2); /* 24px 16px */
+  border-bottom: 1px solid var(--color-border-primary);
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.research-page .page-header h1 {
+  font-size: 2rem; /* ~32px */
+  color: var(--color-accent-gold-highlight);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.research-page .page-content {
+  padding: 0 calc(var(--spacing-unit) * 2); /* 16px horizontal padding for content area */
+  max-width: 1200px; /* Max content width */
+  margin: 0 auto; /* Center content */
+}
+
+.research-page .content-section {
+  margin-bottom: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.research-page .intro-section p {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+}
+
+.research-page .section-title {
+  font-size: 1.75rem; /* ~28px */
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+  padding-bottom: var(--spacing-unit); /* 8px */
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.articles-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.article-item {
+  background-color: var(--color-background-secondary);
+  padding: calc(var(--spacing-unit) * 3); /* 24px */
+  border-radius: var(--border-radius-medium); /* 6px */
+  border: 1px solid var(--color-border-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.article-item .article-title {
+  font-size: 1.25rem; /* ~20px */
+  color: var(--color-accent-gold);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.article-item .article-meta {
+  font-size: 0.85rem;
+  color: var(--color-text-disabled);
+  margin-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
+}
+
+.article-item .article-summary {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+  flex-grow: 1; /* Ensures summary takes available space, pushing link down */
+}
+
+.article-item .article-read-more {
+  font-size: 0.95rem;
+  color: var(--color-accent-gold-highlight);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  align-self: flex-start; /* Align link to the start of the flex item */
+}
+
+.article-item .article-read-more:hover {
+  color: var(--color-accent-gold);
+  transform: translateX(3px);
+}
+
+/* General page container class if needed for consistent max-width and padding */
+.page-container {
+  padding-bottom: calc(var(--spacing-unit) * 4); /* Add some bottom padding to the overall page */
+}

@@ -65,14 +65,16 @@
   border-left-color: var(--color-accent-gold-highlight);
 }
 
-.sidebar-nav-link .nav-icon { /* For future icons */
+.sidebar-nav-link .nav-icon {
   margin-right: calc(var(--spacing-unit) * 1.5); /* 12px */
   display: inline-flex;
   align-items: center;
-  opacity: 0.8;
+  color: var(--color-text-secondary); /* Default icon color */
+  transition: color 0.2s ease; /* Smooth transition for color change */
 }
+
 .sidebar-nav-link.active .nav-icon {
-  opacity: 1;
+  color: var(--color-accent-gold-highlight); /* Active icon color */
 }
 
 .sidebar-nav-link .nav-text {
@@ -160,77 +162,27 @@
   cursor: default;
 }
 
+/* Styling for the NavLink part within the container */
 .sidebar-nav-link-container .nav-link-text-icon {
   flex-grow: 1;
-  text-decoration: none;
-  color: var(--sidebar-text-color, var(--color-text-primary)); /* Ensure fallback or use existing variables */
-  display: flex;
-  align-items: center;
-  padding: var(--sidebar-nav-link-padding, 10px 15px); /* Apply padding here if not on parent */
+  /* It inherits .sidebar-nav-link styles for text, padding, hover, active */
+  /* No specific styles needed here unless overriding .sidebar-nav-link */
 }
 
-.sidebar-nav-link-container .nav-link-text-icon:hover {
-  color: var(--sidebar-text-hover-color, var(--color-accent-gold));
-  background-color: var(--sidebar-item-hover-bg, rgba(var(--color-accent-gold-rgb), 0.1));
-}
-
-.sidebar-nav-link-container .nav-link-text-icon.active {
-  color: var(--sidebar-text-active-color, var(--color-accent-gold));
-  font-weight: bold;
-  border-left: 3px solid var(--color-accent-gold); /* Example active indicator */
-  background-color: var(--sidebar-item-active-bg, rgba(var(--color-accent-gold-rgb), 0.05));
-}
 
 .expand-icon-button {
-  padding: 10px 15px; /* Consistent padding with links */
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2); /* 10px 16px, consistent with nav links */
   cursor: pointer;
   user-select: none;
-  font-size: 1em; /* Adjust as needed */
-  color: var(--sidebar-icon-color, var(--color-text-secondary));
-  display: flex; /* Align icon nicely */
+  font-size: 1em; /* Adjust as needed, React Icons are SVGs and might scale with font-size */
+  color: var(--color-accent-gold); /* Icon color as per requirement */
+  display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .expand-icon-button:hover {
-  color: var(--sidebar-icon-hover-color, var(--color-accent-gold));
-  background-color: var(--sidebar-item-hover-bg, rgba(var(--color-accent-gold-rgb), 0.1)); /* Subtle hover for the button too */
-}
-
-/* Adjustments for items that are parents of sub-menus */
-.sidebar-nav-item.has-sub-items > .sidebar-nav-link-container .nav-link-text-icon {
-  /* If the main link itself shouldn't have full padding because the container does, adjust.
-     However, the current setup applies padding to nav-link-text-icon. */
-}
-
-/* Ensure original .sidebar-nav-link styles don't conflict if they are too general.
-   The new .nav-link-text-icon is more specific for items within a .sidebar-nav-link-container.
-   Items NOT in a container (those without submenus) still use .sidebar-nav-link directly.
-   It might be good to ensure padding is consistent.
-   If .sidebar-nav-link had padding: 10px 15px;, this is now handled by .nav-link-text-icon
-   and the standalone .sidebar-nav-link.
-*/
-.sidebar-nav-link {
-    /* Common styles for all NavLinks, whether standalone or part of a container */
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--sidebar-text-color, var(--color-text-primary));
-    padding: var(--sidebar-nav-link-padding, 10px 15px); /* Ensure this is defined or set */
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-}
-.sidebar-nav-link:hover {
-    color: var(--sidebar-text-hover-color, var(--color-accent-gold));
-    background-color: var(--sidebar-item-hover-bg, rgba(var(--color-accent-gold-rgb), 0.1));
-}
-.sidebar-nav-link.active {
-    color: var(--sidebar-text-active-color, var(--color-accent-gold));
-    font-weight: bold;
-    border-left: 3px solid var(--color-accent-gold); /* Example active indicator */
-    background-color: var(--sidebar-item-active-bg, rgba(var(--color-accent-gold-rgb), 0.05));
-}
-
-/* Remove specific styling from the old .expandable class if it conflicts */
-.sidebar-nav-link.expandable {
-    /* review and remove conflicting styles, as this class might not be used anymore or its role changed */
+  color: var(--color-accent-gold-highlight); /* Slightly brighter gold on hover */
+  background-color: var(--color-background-tertiary);
 }

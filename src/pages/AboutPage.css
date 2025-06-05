@@ -1,0 +1,60 @@
+/* src/pages/AboutPage.css */
+.about-page .page-header {
+  background-color: var(--color-background-secondary);
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 2); /* 24px 16px */
+  border-bottom: 1px solid var(--color-border-primary);
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.about-page .page-header h1 {
+  font-size: 2rem; /* ~32px */
+  color: var(--color-accent-gold-highlight);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.about-page .page-content {
+  padding: 0 calc(var(--spacing-unit) * 2); /* 16px horizontal padding */
+  max-width: 900px; /* Max content width for readability */
+  margin: 0 auto; /* Center content */
+}
+
+.about-page .content-section {
+  margin-bottom: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.about-page .section-title {
+  font-size: 1.75rem; /* ~28px */
+  color: var(--color-accent-gold); /* Muted gold for section titles */
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: calc(var(--spacing-unit) * 2); /* 16px */
+  padding-bottom: var(--spacing-unit); /* 8px */
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.about-page .about-section p {
+  font-size: 1.05rem; /* Slightly larger for readability */
+  color: var(--color-text-secondary);
+  line-height: 1.8; /* More spacing for text-heavy page */
+  margin-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
+}
+
+.about-page .contact-section .contact-email {
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+}
+
+.about-page .contact-section .contact-email a {
+  color: var(--color-accent-gold-highlight);
+  text-decoration: none;
+}
+
+.about-page .contact-section .contact-email a:hover {
+  text-decoration: underline;
+}
+
+/* General page container class if needed for consistent max-width and padding */
+/* (Already defined in ResearchPage.css, but good to keep in mind for modularity) */
+.page-container {
+  padding-bottom: calc(var(--spacing-unit) * 4); /* Add some bottom padding to the overall page */
+}

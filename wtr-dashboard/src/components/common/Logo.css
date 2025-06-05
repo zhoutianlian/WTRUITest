@@ -24,9 +24,9 @@
 
 /* Specific adjustments for each letter to create a custom logotype feel */
 /* These values will need to be tuned based on the chosen font and desired overlap/kerning */
+/* translateX properties removed as x attributes in SVG now handle positioning. */
 .wtr-logo-text-w {
   /* Example: slightly shift if needed, or adjust letter-spacing/kerning if possible */
-  transform: translateX(-28px);
 }
 
 .wtr-logo-text-t {
@@ -34,7 +34,6 @@
 }
 
 .wtr-logo-text-r {
-  transform: translateX(28px);
 }
 
 /* Fallback for CSS variables if not defined elsewhere -- ideally these are in a global theme.css */

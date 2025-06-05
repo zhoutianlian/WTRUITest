@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
-// import { FaAngleDown, FaAngleRight } from 'react-icons/fa'; // Example for icons
+import {
+  FaAngleDown, FaAngleRight, FaHome, FaChartLine, FaChartPie,
+  FaBroadcastTower, FaBookOpen, FaInfoCircle
+} from 'react-icons/fa';
 
 interface NavItem {
   path: string;
@@ -12,9 +15,9 @@ interface NavItem {
 
 // Define actual paths for sub-items as well, if they are meant to be navigable
 const navItems: NavItem[] = [
-  { path: '/', name: 'Dashboard' /* icon: <FaHome /> */ },
+  { path: '/', name: 'Dashboard', icon: <FaHome /> },
   {
-    path: '/on-chain', name: 'On-chain Analysis', /* icon: <FaChartLine /> */
+    path: '/on-chain', name: 'On-chain Analysis', icon: <FaChartLine />,
     subItems: [
       { path: '/on-chain/macro', name: 'Macro Indicators' },
       { path: '/on-chain/exchange-flows', name: 'Exchange Flows' },
@@ -22,15 +25,15 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    path: '/derivatives', name: 'Derivatives Analysis', /* icon: <FaChartPie /> */
+    path: '/derivatives', name: 'Derivatives Analysis', icon: <FaChartPie />,
     subItems: [
       { path: '/derivatives/futures', name: 'Futures Analysis' },
       { path: '/derivatives/options', name: 'Options Analysis' },
     ]
   },
-  { path: '/signals', name: 'Trading Signals' /* icon: <FaBroadcastTower /> */ },
-  { path: '/research', name: 'Research' /* icon: <FaBookOpen /> */ },
-  { path: '/about', name: 'About WTR' /* icon: <FaInfoCircle /> */ },
+  { path: '/signals', name: 'Trading Signals', icon: <FaBroadcastTower /> },
+  { path: '/research', name: 'Research', icon: <FaBookOpen /> },
+  { path: '/about', name: 'About WTR', icon: <FaInfoCircle /> },
   // { path: '/login', name: 'Login' /* icon: <FaSignInAlt /> */ }, // Login is usually separate
 ];
 
@@ -69,7 +72,7 @@ const Sidebar: React.FC = () => {
                   tabIndex={0}
                   onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleSection(item.name); }}
                 >
-                  {expandedSections[item.name] ? '∨' : '›'}
+                  {expandedSections[item.name] ? <FaAngleDown /> : <FaAngleRight />}
                 </span>
               </div>
               <ul className={`sidebar-sub-nav-list ${expandedSections[item.name] ? 'is-open' : ''}`} id={`submenu-${item.name.replace(/\s+/g, '-')}`}>

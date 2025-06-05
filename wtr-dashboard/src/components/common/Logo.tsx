@@ -6,7 +6,7 @@ const Logo: React.FC = () => {
     <div className="logo-container">
       <svg
         className="wtr-text-logo-svg"
-        viewBox="0 0 150 50" // Base viewBox, can be adjusted
+        viewBox="0 0 190 50" // Adjusted viewBox for new shape and spaced text
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -26,11 +26,24 @@ const Logo: React.FC = () => {
          </filter>
         </defs>
 
-        {/* Text WTR */}
+        {/* New Graphical Shape Element */}
+        <g id="wtrLogoShape" stroke="var(--color-accent-gold-highlight)" strokeWidth="0.5">
+          {/* Parallelogram 1: Top-left (15,15), Top-right(25,15), Bottom-right(20,40), Bottom-left(10,40) */}
+          <polygon points="15,20 25,20 20,40 10,40" fill="var(--color-accent-gold-muted)" />
+          {/* Parallelogram 2: Top-left (30,10), Top-right(40,10), Bottom-right(35,40), Bottom-left(25,40) - Taller */}
+          <polygon points="30,10 40,10 35,40 25,40" fill="var(--color-accent-gold)" />
+          {/* Parallelogram 3: Top-left (45,25), Top-right(55,25), Bottom-right(50,40), Bottom-left(40,40) */}
+          <polygon points="45,15 55,15 50,40 40,40" fill="var(--color-accent-gold-muted)" />
+        </g>
+
+        {/* Adjusted Text WTR - Ensure font-size is set in CSS or here for proper spacing */}
+        {/* Approximate character width + kerning could be 30-40 units at this scale. */}
+        {/* Let's assume font-size makes W, T, R each about 25-30 units wide including spacing. */}
+        {/* Shape ends around x=55. Start text around x=75 (center of W) */}
         <text
-          x="50%"
+          x="85" // Adjusted x position: Shape (approx 55 wide) + gap (10) + W_half_width (20)
           y="50%"
-          dy=".35em" // Vertical alignment adjustment
+          dy=".35em"
           textAnchor="middle"
           className="wtr-logo-text-w"
           fill="url(#wtrLogoGradient)"
@@ -39,9 +52,9 @@ const Logo: React.FC = () => {
           W
         </text>
         <text
-          x="50%"
+          x="120" // Adjusted x position: W_center (85) + W_half_width (17.5) + T_half_width (17.5) = 85 + 35
           y="50%"
-          dy=".35em" // Vertical alignment adjustment
+          dy=".35em"
           textAnchor="middle"
           className="wtr-logo-text-t"
           fill="url(#wtrLogoGradient)"
@@ -50,9 +63,9 @@ const Logo: React.FC = () => {
           T
         </text>
         <text
-          x="50%"
+          x="155" // Adjusted x position: T_center (120) + T_half_width (17.5) + R_half_width (17.5) = 120 + 35
           y="50%"
-          dy=".35em" // Vertical alignment adjustment
+          dy=".35em"
           textAnchor="middle"
           className="wtr-logo-text-r"
           fill="url(#wtrLogoGradient)"
@@ -60,9 +73,6 @@ const Logo: React.FC = () => {
         >
           R
         </text>
-
-        {/* Optional: Add a small decorative element, like a line or shape */}
-        {/* <line x1="10" y1="45" x2="140" y2="45" stroke="url(#wtrLogoGradient)" strokeWidth="2" /> */}
       </svg>
     </div>
   );

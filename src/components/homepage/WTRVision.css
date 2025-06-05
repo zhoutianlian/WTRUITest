@@ -1,0 +1,49 @@
+/* src/components/homepage/WTRVision.css */
+.wtr-vision {
+  padding: calc(var(--spacing-unit) * 6) 0; /* 48px */
+  background-color: var(--color-background-secondary); /* Alternate background */
+  text-align: center; /* Center align content for a grand statement */
+}
+
+.wtr-vision .section-title {
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.vision-content {
+  max-width: 800px; /* Constrain width for readability */
+  margin: 0 auto; /* Center the content block */
+}
+
+.mission-statement {
+  font-size: 1.5rem; /* Larger font for impact */
+  font-weight: var(--font-weight-light); /* Lighter weight for a sophisticated feel */
+  color: var(--color-text-primary);
+  line-height: 1.8; /* Ample line height */
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+  padding: calc(var(--spacing-unit) * 3); /* 24px */
+  border-left: 3px solid var(--color-accent-gold);
+  border-right: 3px solid var(--color-accent-gold);
+  background-color: rgba(var(--rgb-accent-gold), 0.05); /* Very subtle gold tint background */
+  border-radius: var(--border-radius-small);
+}
+
+/* Optional CTA link styling */
+/*
+.vision-cta-link {
+  display: inline-block;
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3); // 12px 24px
+  background-color: var(--color-accent-gold);
+  color: var(--color-background-primary);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  border-radius: var(--border-radius-medium);
+  transition: background-color 0.3s ease;
+}
+
+.vision-cta-link:hover {
+  background-color: var(--color-accent-gold-highlight);
+}
+*/

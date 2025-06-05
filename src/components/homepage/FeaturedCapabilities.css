@@ -1,0 +1,54 @@
+/* src/components/homepage/FeaturedCapabilities.css */
+.featured-capabilities {
+  padding: calc(var(--spacing-unit) * 6) 0; /* 48px */
+  background-color: var(--color-background-secondary); /* Alternate background */
+}
+
+.featured-capabilities .section-title {
+  text-align: center;
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.capability-card {
+  background-color: var(--color-background-primary); /* Cards slightly different from section bg */
+  padding: calc(var(--spacing-unit) * 3); /* 24px */
+  border-radius: var(--border-radius-large);
+  border: 1px solid var(--color-border-primary);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.capability-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(var(--rgb-accent-gold), 0.1); /* Shadow with gold tint */
+}
+
+.capability-icon-wrapper {
+  margin-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
+  color: var(--color-accent-gold); /* Icon color */
+  /* Example for icon styling if react-icons are used:
+     .capability-icon-wrapper svg { font-size: 2.5rem; }
+  */
+}
+
+.capability-card h3 {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary); /* Using primary text color for card titles */
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.capability-card p {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}

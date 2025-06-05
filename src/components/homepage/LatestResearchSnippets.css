@@ -1,0 +1,66 @@
+/* src/components/homepage/LatestResearchSnippets.css */
+.latest-research-snippets {
+  padding: calc(var(--spacing-unit) * 6) 0; /* 48px */
+  background-color: var(--color-background-primary);
+}
+
+.latest-research-snippets .section-title {
+  text-align: center;
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: calc(var(--spacing-unit) * 4); /* 32px */
+}
+
+.snippets-list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.snippet-item {
+  background-color: var(--color-background-secondary);
+  padding: calc(var(--spacing-unit) * 3); /* 24px */
+  border-radius: var(--border-radius-medium); /* 6px */
+  border: 1px solid var(--color-border-primary);
+  /* Optional: Add a subtle left border for accent */
+  /* border-left: 4px solid var(--color-accent-gold); */
+}
+
+.snippet-item h3 {
+  font-size: 1.35rem; /* ~21px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-unit); /* 8px */
+}
+
+.snippet-item p {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: calc(var(--spacing-unit) * 1.5); /* 12px */
+}
+
+.read-more-link {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.read-more-link:hover {
+  color: var(--color-accent-gold-highlight);
+  transform: translateX(3px);
+}
+
+/* Optional icon styling */
+/*
+.snippet-icon {
+  color: var(--color-accent-gold-muted);
+  margin-right: calc(var(--spacing-unit) * 1.5); // 12px
+  font-size: 1.5rem;
+  float: left; // Example positioning
+}
+*/
