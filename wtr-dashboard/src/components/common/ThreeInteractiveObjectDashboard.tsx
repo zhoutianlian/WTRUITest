@@ -48,19 +48,19 @@ const ThreeInteractiveObjectDashboard: React.FC = () => {
 
 
     // Main Object
-    const geometry = new THREE.IcosahedronGeometry(1.8, 1);
+    // Replace IcosahedronGeometry with TorusKnotGeometry
+    const geometry = new THREE.TorusKnotGeometry(1.2, 0.35, 128, 16, 2, 3);
 
     // Attempt to get CSS variable values (with fallbacks)
     const computedStyle = getComputedStyle(document.documentElement);
-    const goldColorStr = computedStyle.getPropertyValue('--color-accent-gold').trim() || '#B08D57';
-    const tealColorStr = computedStyle.getPropertyValue('--color-accent-secondary-teal').trim() || '#2AA092';
-    // const emissiveGoldStr = computedStyle.getPropertyValue('--color-accent-gold-highlight').trim() || '#FFD700'; // Defined later in animate
+    const goldColorStr = computedStyle.getPropertyValue('--color-accent-gold-luminous').trim() || '#E4A11B';
+    // const tealColorStr = computedStyle.getPropertyValue('--color-accent-secondary-teal').trim() || '#2AA092'; // No longer needed for wireframe
 
 
     mainMaterialRef.current = new THREE.MeshStandardMaterial({
       color: new THREE.Color(goldColorStr),
-      metalness: 0.8, // Adjusted for dark brushed gold
-      roughness: 0.4, // Adjusted for dark brushed gold
+      metalness: 0.9,
+      roughness: 0.2,
       emissive: new THREE.Color("#000000"), // Will be controlled by hover
       emissiveIntensity: 0, // Will be controlled by hover
     });
@@ -69,14 +69,10 @@ const ThreeInteractiveObjectDashboard: React.FC = () => {
     const mainObject = mainObjectRef.current;
     scene.add(mainObject);
 
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(tealColorStr),
-      wireframe: true,
-      opacity: 0.15, // More subtle wireframe
-      transparent: true,
-    });
-    const wireframe = new THREE.Mesh(geometry, wireframeMaterial);
-    mainObject.add(wireframe); // Add wireframe to the mainObject
+    // Remove the secondary wireframe mesh
+    // const wireframeMaterial = new THREE.MeshBasicMaterial({ ... });
+    // const wireframe = new THREE.Mesh(geometry, wireframeMaterial);
+    // mainObject.add(wireframe);
 
     camera.position.z = 6; // Adjusted camera position
 
@@ -88,9 +84,9 @@ const ThreeInteractiveObjectDashboard: React.FC = () => {
         currentMount.removeChild(renderer.domElement);
       }
       renderer?.dispose();
-      geometry?.dispose();
-      material?.dispose();
-      wireframeMaterial?.dispose();
+      geometry?.dispose(); // Dispose of the old geometry
+      material?.dispose(); // Dispose of the old material
+      // wireframeMaterial?.dispose(); // Wireframe material removed
       scene.remove(ambientLight);
       scene.remove(pointLight);
       scene.remove(pointLight2);
@@ -126,11 +122,20 @@ const ThreeInteractiveObjectDashboard: React.FC = () => {
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = clock.getElapsedTime(); // Keep for other potential time-based effects if needed
 
-      mainObject.rotation.x = elapsedTime * 0.03; // Slower and more graceful
-      mainObject.rotation.y = elapsedTime * 0.06; // Slower and more graceful
-      mainObject.position.y = Math.sin(elapsedTime * 0.5) * 0.1; // Vertical oscillation
+      // Enhanced Ambient Dynamics (Animation Loop)
+      const baseSpeedX = 0.001;
+      const baseSpeedY = 0.0025;
+      const baseSpeedZ = -0.0007; // For the new Z-axis rotation
+      const hoverBoost = isHoveringRef.current ? 1.5 : 1; // Boost factor
+
+      mainObject.rotation.x += baseSpeedX * hoverBoost;
+      mainObject.rotation.y += baseSpeedY * hoverBoost;
+      mainObject.rotation.z += baseSpeedZ * hoverBoost; // Added Z-axis rotation
+
+      // Remove Y-axis position oscillation
+      // mainObject.position.y = Math.sin(elapsedTime * 0.5) * 0.1;
 
       raycaster.setFromCamera(mouse, camera);
       const intersects = raycaster.intersectObjects([mainObject]);
@@ -141,12 +146,18 @@ const ThreeInteractiveObjectDashboard: React.FC = () => {
         if (isHoveringRef.current) setIsHovering(false);
       }
 
-      const computedStyle = getComputedStyle(document.documentElement);
+      // Adapt Mouse Interaction (Hover)
+      const computedStyle = getComputedStyle(document.documentElement); // Already defined earlier, ensure scope or pass if needed
       const emissiveHighlightStr = computedStyle.getPropertyValue('--color-accent-gold-highlight').trim() || '#FFD700';
 
-      material.emissiveIntensity = isHoveringRef.current ? 0.8 : 0; // More pronounced on hover, off otherwise
-      material.emissive = isHoveringRef.current ? new THREE.Color(emissiveHighlightStr) : new THREE.Color('#000000');
-      material.needsUpdate = true;
+      if (isHoveringRef.current) {
+        material.emissive = new THREE.Color(emissiveHighlightStr);
+        material.emissiveIntensity = 0.7;
+      } else {
+        material.emissive = new THREE.Color('#000000');
+        material.emissiveIntensity = 0;
+      }
+      material.needsUpdate = true; // Important for material changes to take effect
 
       renderer.render(scene, camera);
     };

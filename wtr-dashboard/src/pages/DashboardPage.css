@@ -227,3 +227,78 @@
   justify-content: center;
   font-style: italic;
 }
+
+/* Card styles for Welcome Note, Quick Links, etc. */
+.dashboard-card {
+  background-color: rgba(15, 17, 21, 0.65); /* --color-background-secondary at 65% opacity */
+  backdrop-filter: blur(10px) saturate(180%);
+  border-radius: var(--border-radius-large);
+  border: 1px solid var(--color-border-secondary); /* Subtle gold-tinged border */
+  padding: calc(var(--spacing-unit) * 2);
+  color: var(--color-text-primary);
+  height: 100%; /* Ensure card fills the grid item */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Softer shadow for cards */
+  display: flex; /* Added to allow header/content to flex column */
+  flex-direction: column; /* Added to allow header/content to flex column */
+}
+
+.dashboard-card-header { /* Wrapper for h3 to control padding/border */
+  padding-bottom: var(--spacing-unit);
+  margin-bottom: var(--spacing-unit);
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.dashboard-card-header h3 {
+  color: var(--color-accent-gold-luminous);
+  margin: 0; /* Remove default h3 margin */
+  font-size: 1.1rem;
+  /* font-weight already handled by global h3 if needed, or set here */
+}
+
+.dashboard-card-content {
+  flex-grow: 1; /* Allow content to take available space */
+  overflow-y: auto; /* Scroll if content overflows */
+}
+
+.dashboard-card-content p {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-unit);
+}
+
+.dashboard-card-content ul {
+  list-style: none; /* Remove default bullet points */
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-card-content ul li {
+  margin-bottom: calc(var(--spacing-unit) * 0.75); /* Space between links */
+}
+
+.dashboard-card-content ul li a {
+  color: var(--color-accent-gold); /* Use luminous gold for links */
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+}
+
+.dashboard-card-content ul li a:hover {
+  color: var(--color-accent-gold-hover);
+  text-decoration: underline;
+}
+
+/* General link styling within dashboard card content, not in a list */
+.dashboard-card-content > a,
+.dashboard-card-content > .inline-block { /* Targeting the Link component which might be wrapped or be direct a */
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  font-size: 0.9rem; /* Consistent with list links */
+  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+}
+
+.dashboard-card-content > a:hover,
+.dashboard-card-content > .inline-block:hover {
+  color: var(--color-accent-gold-hover);
+  text-decoration: underline;
+}

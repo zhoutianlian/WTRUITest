@@ -71,28 +71,44 @@ const DashboardPage: React.FC = () => {
         <div className="grid-stack-container">
           <div ref={gridContainerRef} className="grid-stack">
             <div className="grid-stack-item" gs-x="0" gs-y="0" gs-w="4" gs-h="2">
-              <div className="grid-stack-item-content">
-                <div className="widget-wrapper-manual">
-                   <div className="widget-header-manual"><h3>Welcome Note</h3></div>
-                   <div className="widget-content-manual"><p>WTR dashboard. Drag & resize!</p></div>
+              <div className="grid-stack-item-content"> {/* This content div is kept by GridStack for structure */}
+                <div className="dashboard-card"> {/* Applied new style */}
+                  <div className="dashboard-card-header"><h3>Welcome to WTR</h3></div>
+                  <div className="dashboard-card-content">
+                     <p>Your advanced crypto intelligence hub. Explore market data, on-chain analytics, and cutting-edge research.</p>
+                     <p>Customize your workspace by dragging and resizing widgets.</p>
+                  </div>
                 </div>
               </div>
             </div>
             <div className="grid-stack-item" gs-x="4" gs-y="0" gs-w="8" gs-h="5"> {/* Wider for D3 chart */}
               <div className="grid-stack-item-content">
+                 {/* Chart widget likely needs its own specific wrapper if dashboard-card isn't suitable for it directly,
+                     or D3CandlestickChart itself should handle its internal padding/background if needed.
+                     For now, keeping its existing structure. If it needs card styling, it will be a separate task.
+                 */}
                  <div className="widget-wrapper-manual">
-                   <div className="widget-header-manual"><h3>Price Chart (D3 Example)</h3></div>
-                   <div className="widget-content-manual d3-chart-widget-content"> {/* Added class for specific styling */}
-                     <D3CandlestickChart data={mockCandlestickData} /> {/* Default width/height will be used and scaled by container */}
+                   <div className="widget-header-manual"><h3>Market Overview (BTC/USD)</h3></div>
+                   <div className="widget-content-manual d3-chart-widget-content">
+                     <D3CandlestickChart data={mockCandlestickData} />
                    </div>
                 </div>
               </div>
             </div>
              <div className="grid-stack-item" gs-x="0" gs-y="2" gs-w="4" gs-h="3"> {/* Adjusted Y and H */}
               <div className="grid-stack-item-content">
-                <div className="widget-wrapper-manual">
-                   <div className="widget-header-manual"><h3>Quick Links</h3></div>
-                   <div className="widget-content-manual"><p>Link 1, Link 2...</p></div>
+                <div className="dashboard-card"> {/* Applied new style */}
+                  <div className="dashboard-card-header"><h3>Quick Access</h3></div>
+                  <div className="dashboard-card-content">
+                    <ul>
+                      {/* Using <a> for now as react-router-dom Link might require router context not available here depending on setup */}
+                      <li><a href="/on-chain">On-Chain Analysis Dashboard</a></li>
+                      <li><a href="/derivatives">Derivatives Market Overview</a></li>
+                      <li><a href="/signals">Latest Trading Signals</a></li>
+                      <li><a href="/research">WTR Research Portal</a></li>
+                      <li><a href="/about">About WTR Platform</a></li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>

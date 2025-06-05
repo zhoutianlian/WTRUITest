@@ -32,16 +32,16 @@ const ThreeSceneLogin: React.FC = () => {
     // Note: This direct fetching of CSS vars might not work in all contexts for JS.
     // More robust solutions might involve passing colors as props or using a CSS-in-JS solution.
     const style = getComputedStyle(document.documentElement);
-    const goldColorStr = style.getPropertyValue('--color-accent-gold').trim() || '#B08D57';
-    const tealColorStr = style.getPropertyValue('--color-accent-secondary-teal').trim() || '#2AA092';
+    const goldColorStr = style.getPropertyValue('--color-accent-gold').trim() || '#E4A11B'; // Updated fallback to new gold
+    const tealColorStr = style.getPropertyValue('--color-accent-tech-blue-desaturated').trim() || '#2A5A8C'; // Use new CSS var with fallback
 
     const colorGold = new THREE.Color(goldColorStr);
     const colorTeal = new THREE.Color(tealColorStr);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 15; // Increased spread
-      positions[i + 1] = (Math.random() - 0.5) * 15;
-      positions[i + 2] = (Math.random() - 0.5) * 15;
+      positions[i] = (Math.random() - 0.5) * 15; // X
+      positions[i + 1] = (Math.random() - 0.5) * 15; // Y
+      positions[i + 2] = (Math.random() - 0.5) * 20; // Z - Increased depth
 
       const randomColor = Math.random() > 0.4 ? colorGold : colorTeal; // Adjusted ratio
       colors[i] = randomColor.r;
@@ -52,10 +52,10 @@ const ThreeSceneLogin: React.FC = () => {
     particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
-      size: 0.025, // Slightly larger particles
+      size: 0.028, // Experimented size (0.02 to 0.03 suggested, trying mid-value)
       vertexColors: true,
       transparent: true,
-      opacity: 0.6, // Slightly less opaque
+      opacity: 0.65, // Experimented opacity (0.5 to 0.7 suggested)
       sizeAttenuation: true,
     });
     const particleSystem = new THREE.Points(particles, particleMaterial);
@@ -63,11 +63,21 @@ const ThreeSceneLogin: React.FC = () => {
 
     camera.position.z = 4; // Closer camera
 
+    const mouse = new THREE.Vector2();
+    const handleMouseMove = (event: MouseEvent) => {
+      if (currentMount) {
+        mouse.x = (event.clientX / currentMount.clientWidth) * 2 - 1;
+        mouse.y = -(event.clientY / currentMount.clientHeight) * 2 + 1;
+      }
+    };
+    currentMount.addEventListener('mousemove', handleMouseMove);
+
     let animationFrameId: number;
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
-      particleSystem.rotation.y += 0.0003; // Slower rotation
-      particleSystem.rotation.x += 0.00015;
+      // Base rotation + mouse influence
+      particleSystem.rotation.y += 0.0003 + (mouse.x * 0.0005);
+      particleSystem.rotation.x += 0.00015 + (mouse.y * 0.0005);
       renderer.render(scene, camera);
     };
     animate();
@@ -84,6 +94,7 @@ const ThreeSceneLogin: React.FC = () => {
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
+      currentMount.removeEventListener('mousemove', handleMouseMove); // Remove mousemove listener
       cancelAnimationFrame(animationFrameId);
       if (currentMount && renderer.domElement) {
         currentMount.removeChild(renderer.domElement);

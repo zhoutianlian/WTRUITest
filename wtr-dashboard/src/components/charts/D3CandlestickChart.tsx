@@ -31,9 +31,7 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
   const originalXScaleRef = useRef<d3.ScaleBand<string> | null>(null);
 
   const [visibleIndicators, setVisibleIndicators] = React.useState({
-    volume: true,
-    macd: false,
-    rsi: false,
+    volume: true, // Keep volume, default to true or false based on preference
   });
 
   useEffect(() => {
@@ -89,8 +87,9 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     let totalRatio = basePriceChartRatio;
     let activeIndicatorCount = 0;
     if (visibleIndicators.volume) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
-    if (visibleIndicators.macd) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
-    if (visibleIndicators.rsi) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
+    // MACD and RSI removed from activeIndicatorCount
+    // if (visibleIndicators.macd) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
+    // if (visibleIndicators.rsi) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
 
     const normalizationFactor = totalRatio > 1 ? 1 / totalRatio : 1;
 
@@ -225,76 +224,16 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     }
 
     // --- MACD Chart (Conditional Placeholder) ---
-    let macdG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
-    let macdLine: d3.Line<{ date: Date; value: number; }> | null = null;
-    if (visibleIndicators.macd) {
-      const yMacdScale = d3.scaleLinear()
-        .domain([-10, 10]) // Example domain
-        .range([individualIndicatorHeight - indicatorTopMargin, 0]);
-
-      macdG = g.append("g")
-        .attr("class", "macd-chart")
-        .attr("transform", `translate(0, ${currentYOffset + indicatorTopMargin})`);
-
-      macdG.append("g")
-        .attr("class", "x-axis macd-axis")
-        .attr("transform", `translate(0,${individualIndicatorHeight - indicatorTopMargin})`)
-        .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
-
-      macdG.append("g")
-        .attr("class", "y-axis macd-axis")
-        .call(d3.axisLeft(yMacdScale).ticks(3));
-
-      const mockMacdData = data.map(d => ({date: d.date, value: (Math.random() - 0.5) * 18 })); // Wider range
-      macdLine = d3.line<{date: Date, value: number}>()
-          .x(d => (xScale(d.date.getTime().toString()) || 0) + xScale.bandwidth() / 2)
-          .y(d => yMacdScale(d.value));
-      macdG.append("path")
-          .datum(mockMacdData)
-          .attr("fill", "none")
-          .attr("stroke", "var(--color-accent-secondary-teal-muted)")
-          .attr("stroke-width", 1.5)
-          .attr("d", macdLine);
-
-      macdG.append("text").attr("x", 10).attr("y", 10).text("MACD (placeholder)").style("font-size", "10px").attr("fill", "var(--color-text-secondary)");
-      currentYOffset += individualIndicatorHeight + indicatorTopMargin;
-    }
+    // Removed MACD plotting logic
+    // let macdG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
+    // let macdLine: d3.Line<{ date: Date; value: number; }> | null = null;
+    // if (visibleIndicators.macd) { ... }
 
     // --- RSI Chart (Conditional Placeholder) ---
-    let rsiG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
-    let rsiLine: d3.Line<{ date: Date; value: number; }> | null = null;
-    if (visibleIndicators.rsi) {
-      const yRsiScale = d3.scaleLinear()
-        .domain([0, 100]) // RSI domain
-        .range([individualIndicatorHeight - indicatorTopMargin, 0]);
-
-      rsiG = g.append("g")
-        .attr("class", "rsi-chart")
-        .attr("transform", `translate(0, ${currentYOffset + indicatorTopMargin})`);
-
-      rsiG.append("g")
-        .attr("class", "x-axis rsi-axis")
-        .attr("transform", `translate(0,${individualIndicatorHeight - indicatorTopMargin})`)
-        .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
-
-      rsiG.append("g")
-        .attr("class", "y-axis rsi-axis")
-        .call(d3.axisLeft(yRsiScale).ticks(3));
-
-      const mockRsiData = data.map(d => ({date: d.date, value: Math.random() * 80 + 10 })); // RSI-like range
-      rsiLine = d3.line<{date: Date, value: number}>()
-          .x(d => (xScale(d.date.getTime().toString()) || 0) + xScale.bandwidth() / 2)
-          .y(d => yRsiScale(d.value));
-      rsiG.append("path")
-          .datum(mockRsiData)
-          .attr("fill", "none")
-          .attr("stroke", "var(--color-accent-secondary-purple)")
-          .attr("stroke-width", 1.5)
-          .attr("d", rsiLine);
-
-      rsiG.append("text").attr("x", 10).attr("y", 10).text("RSI (placeholder)").style("font-size", "10px").attr("fill", "var(--color-text-secondary)");
-      // currentYOffset += individualIndicatorHeight + indicatorTopMargin; // Not needed for last one
-    }
+    // Removed RSI plotting logic
+    // let rsiG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
+    // let rsiLine: d3.Line<{ date: Date; value: number; }> | null = null;
+    // if (visibleIndicators.rsi) { ... }
 
     // --- Tooltip Implementation ---
     const priceChartInteractionG = g.append("g").attr("class", "price-chart-interaction-layer");
@@ -418,16 +357,9 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
             volumeG.select<SVGGElement>(".x-axis.volume-axis")
                 .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
         }
-        if (visibleIndicators.macd && macdG) {
-            macdG.select<SVGGElement>(".x-axis.macd-axis")
-                .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
-            if(macdLine) macdG.select("path").attr("d", macdLine); // Redraw MACD line
-        }
-        if (visibleIndicators.rsi && rsiG) {
-            rsiG.select<SVGGElement>(".x-axis.rsi-axis")
-                .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
-            if(rsiLine) rsiG.select("path").attr("d", rsiLine); // Redraw RSI line
-        }
+        // Removed MACD/RSI X-axis updates from zoom
+        // if (visibleIndicators.macd && macdG) { ... }
+        // if (visibleIndicators.rsi && rsiG) { ... }
 
         const currentCandles = priceG.selectAll(".candle-group");
         currentCandles.attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`)

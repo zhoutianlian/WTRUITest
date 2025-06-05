@@ -1,8 +1,9 @@
 /* src/components/common/Sidebar.css */
 .sidebar {
   grid-area: sidebar; /* From MainLayout.css grid */
-  background-color: var(--color-background-secondary);
-  border-right: 1px solid var(--color-border-primary);
+  background-color: rgba(15, 17, 21, 0.65); /* --color-background-secondary at 65% opacity */
+  backdrop-filter: blur(10px) saturate(180%);
+  border-right: 1px solid var(--color-border-secondary);
   padding: 0; /* Remove padding if sidebar-sticky-content handles it */
   color: var(--color-text-secondary);
   display: flex;
@@ -25,7 +26,7 @@
 
 .sidebar-header h3 {
   font-size: 1.1rem;
-  color: var(--color-accent-gold-highlight);
+  color: var(--color-accent-gold-luminous);
   font-weight: var(--font-weight-medium);
   margin: 0;
 }
@@ -49,20 +50,25 @@
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: var(--font-weight-regular);
-  border-left: 3px solid transparent; /* For active state */
-  transition: background-color 0.2s ease, color 0.2s ease, border-left-color 0.2s ease;
+  border-left: 3px solid transparent; /* For active state, though new active style might override */
+  border-radius: var(--border-radius-medium);
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
 .sidebar-nav-link:hover {
-  background-color: var(--color-background-tertiary);
-  color: var(--color-text-primary);
+  background-color: rgba(228, 161, 27, 0.1); /* Luminous gold at 10% opacity */
+  color: var(--color-accent-gold);
+}
+
+.sidebar-nav-link:hover .nav-icon {
+  color: var(--color-accent-gold);
 }
 
 .sidebar-nav-link.active {
-  color: var(--color-accent-gold-highlight);
+  color: var(--color-background-primary); /* Dark color for contrast on gold background */
   font-weight: var(--font-weight-semibold);
-  background-color: rgba(var(--rgb-accent-gold), 0.15);
-  border-left-color: var(--color-accent-gold-highlight);
+  background-color: var(--color-accent-gold); /* Luminous gold */
+  border-left-color: transparent; /* Remove border when full background is applied */
 }
 
 .sidebar-nav-link .nav-icon {
@@ -70,11 +76,11 @@
   display: inline-flex;
   align-items: center;
   color: var(--color-text-secondary); /* Default icon color */
-  transition: color 0.2s ease; /* Smooth transition for color change */
+  transition: color 0.2s ease-in-out; /* Smooth transition for color change */
 }
 
 .sidebar-nav-link.active .nav-icon {
-  color: var(--color-accent-gold-highlight); /* Active icon color */
+  color: var(--color-background-primary); /* Dark color for contrast on gold background */
 }
 
 .sidebar-nav-link .nav-text {
@@ -97,7 +103,7 @@
 }
 
 .sidebar-nav-link:hover .expand-icon {
-  color: var(--color-text-primary);
+  color: var(--color-accent-gold);
 }
 /* .sidebar-nav-link.expandable.expanded .expand-icon { */
   /* transform: rotate(45deg); */ /* Example: '+' becomes 'x' or animate '-' - Removed */
@@ -108,7 +114,7 @@
   list-style: none;
   padding: 0; /* Padding will be applied when open */
   margin: 0;
-  background-color: var(--color-background-primary); /* Darker background for sub-menu */
+  background-color: rgba(0,0,0,0.1); /* subtle darkening for nesting */
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
@@ -123,19 +129,28 @@
 .sidebar-sub-nav-item .sidebar-nav-link {
   padding-left: calc(var(--spacing-unit) * 4); /* Deeper indentation for sub-menu links */
   font-size: 0.9rem; /* Slightly smaller font for sub-items */
+  border-radius: var(--border-radius-medium); /* Consistency with parent links */
   /* Default color is inherited: var(--color-text-secondary) */
 }
 
 .sidebar-sub-nav-item .sidebar-nav-link:hover {
-  color: var(--color-text-primary);
-  background-color: var(--color-background-tertiary);
+  color: var(--color-accent-gold);
+  background-color: rgba(228, 161, 27, 0.1); /* Luminous gold at 10% opacity */
+}
+
+.sidebar-sub-nav-item .sidebar-nav-link:hover .nav-icon { /* Assuming sub-nav links also can have icons */
+  color: var(--color-accent-gold);
 }
 
 .sidebar-sub-nav-item .sidebar-nav-link.active {
-  color: var(--color-accent-gold); /* muted gold for sub-items */
-  background-color: rgba(var(--rgb-accent-gold), 0.1);
-  border-left-color: var(--color-accent-gold);
-  font-weight: var(--font-weight-medium); /* slightly less than parent active */
+  color: var(--color-background-primary); /* Dark color for contrast on gold background */
+  background-color: var(--color-accent-gold); /* Luminous gold */
+  border-left-color: transparent; /* Remove border when full background is applied */
+  font-weight: var(--font-weight-semibold); /* Consistent with parent active */
+}
+
+.sidebar-sub-nav-item .sidebar-nav-link.active .nav-icon { /* Assuming sub-nav links also can have icons */
+  color: var(--color-background-primary);
 }
 
 /* Custom scrollbar for sidebar if needed */
@@ -175,7 +190,7 @@
   cursor: pointer;
   user-select: none;
   font-size: 1em; /* Adjust as needed, React Icons are SVGs and might scale with font-size */
-  color: var(--color-accent-gold); /* Icon color as per requirement */
+  color: var(--color-text-secondary); /* Icon color as per requirement */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,6 +198,6 @@
 }
 
 .expand-icon-button:hover {
-  color: var(--color-accent-gold-highlight); /* Slightly brighter gold on hover */
-  background-color: var(--color-background-tertiary);
+  color: var(--color-accent-gold); /* Luminous gold on hover */
+  background-color: var(--color-background-tertiary); /* Retaining hover background from original for now */
 }

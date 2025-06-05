@@ -28,15 +28,15 @@
 .login-content-wrapper {
   position: relative; /* To ensure it's above the Three.js scene */
   z-index: 1;
-  background-color: rgba(22, 27, 34, 0.85); /* var(--color-background-secondary) with alpha for frosted glass */
+  background-color: rgba(15, 17, 21, 0.65); /* --color-background-secondary at 65% opacity */
   padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 4); /* 24px 32px */
   border-radius: var(--border-radius-large, 8px); /* Use theme variable with fallback */
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37); /* Standard shadow */
   max-width: 480px; /* Max width for the form card */
   width: 100%; /* Responsive width */
-  border: 1px solid var(--color-border-primary);
-  backdrop-filter: blur(10px); /* Frosted glass effect */
-  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  border: 1px solid var(--color-border-secondary); /* Gold-tinged border */
+  backdrop-filter: blur(10px) saturate(180%); /* Standard glassmorphism */
+  -webkit-backdrop-filter: blur(10px) saturate(180%); /* For Safari */
 }
 
 /* Ensure that the direct children of login-content-wrapper (like LoginForm) are not affected by backdrop-filter

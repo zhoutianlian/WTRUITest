@@ -15,7 +15,7 @@ interface NavItem {
 
 // Define actual paths for sub-items as well, if they are meant to be navigable
 const navItems: NavItem[] = [
-  { path: '/', name: 'Dashboard', icon: <FaHome /> },
+  { path: '/dashboard', name: 'Dashboard', icon: <FaHome /> },
   {
     path: '/on-chain', name: 'On-chain Analysis', icon: <FaChartLine />,
     subItems: [

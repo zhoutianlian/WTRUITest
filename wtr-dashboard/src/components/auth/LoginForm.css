@@ -37,7 +37,7 @@
   width: 100%;
   padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 1.5); /* 10px 12px */
   background-color: var(--color-background-tertiary);
-  border: 1px solid var(--color-border-primary);
+  border: 1px solid var(--color-accent-gold-burnished);
   border-radius: var(--border-radius-small);
   color: var(--color-text-primary);
   font-size: 1rem;
@@ -53,8 +53,8 @@
 .login-form .form-group input[type="email"]:focus,
 .login-form .form-group input[type="password"]:focus {
   outline: none;
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.2); /* Gold focus ring */
+  border-color: var(--color-accent-gold-luminous);
+  box-shadow: 0 0 0 3px rgba(228, 161, 27, 0.3); /* Luminous gold focus ring */
 }
 
 .login-form .form-options {
@@ -72,15 +72,14 @@
 }
 .login-form .form-options .remember-me input[type="checkbox"] {
   margin-right: calc(var(--spacing-unit) * 0.75); /* 6px */
-  /* Basic styling for checkbox, can be enhanced further */
-  accent-color: var(--color-accent-gold); /* Styles the check itself */
+  accent-color: var(--color-accent-gold-luminous); /* Styles the check itself */
   width: 14px;
   height: 14px;
 }
 
 
 .login-form .form-options a {
-  color: var(--color-accent-gold-text); /* Brighter gold for links */
+  color: var(--color-accent-gold-luminous);
   text-decoration: none;
 }
 
@@ -92,7 +91,7 @@
 .login-button {
   width: 100%;
   padding: calc(var(--spacing-unit) * 1.5) 0; /* 12px */
-  background-color: var(--color-accent-gold);
+  background-color: var(--color-accent-gold-luminous);
   color: var(--color-background-primary); /* Dark text on gold button */
   border: none;
   border-radius: var(--border-radius-small);
@@ -101,11 +100,12 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 .login-button:hover {
   background-color: var(--color-accent-gold-hover);
+  box-shadow: 0 0 15px rgba(228, 161, 27, 0.4);
 }
 
 .login-button:active {
@@ -119,7 +119,7 @@
 }
 
 .signup-link a {
-  color: var(--color-accent-gold-text);
+  color: var(--color-accent-gold-luminous);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
 }
