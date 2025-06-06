@@ -29,11 +29,11 @@ const Logo: React.FC = () => {
         {/* New Graphical Shape Element */}
         <g id="wtrLogoShape" stroke="var(--color-accent-gold-highlight)" strokeWidth="0.5">
           {/* Parallelogram 1: Top-left (15,15), Top-right(25,15), Bottom-right(20,40), Bottom-left(10,40) */}
-          <polygon points="15,20 25,20 20,40 10,40" fill="var(--color-accent-gold-muted)" />
+          <polygon points="15,20 25,20 20,40 10,40" fill="var(--color-accent-gold-burnished)" />
           {/* Parallelogram 2: Top-left (30,10), Top-right(40,10), Bottom-right(35,40), Bottom-left(25,40) - Taller */}
           <polygon points="30,10 40,10 35,40 25,40" fill="var(--color-accent-gold)" />
           {/* Parallelogram 3: Top-left (45,25), Top-right(55,25), Bottom-right(50,40), Bottom-left(40,40) */}
-          <polygon points="45,15 55,15 50,40 40,40" fill="var(--color-accent-gold-muted)" />
+          <polygon points="45,15 55,15 50,40 40,40" fill="var(--color-accent-gold-burnished)" />
         </g>
 
         {/* Adjusted Text WTR - Ensure font-size is set in CSS or here for proper spacing */}

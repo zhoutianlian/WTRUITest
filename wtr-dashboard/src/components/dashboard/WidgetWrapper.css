@@ -7,7 +7,7 @@
   flex-direction: column;
   height: 100%; /* Important for Gridstack items to fill their allocated space */
   overflow: hidden; /* Prevent content from spilling out, especially with fixed height grid items */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .widget-header {
@@ -22,7 +22,7 @@
 .widget-title { /* Changed from h3 directly to allow more flexibility */
   font-size: 1rem; /* ~16px */
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--color-accent-gold-luminous);
   margin: 0; /* Remove default h3 margin */
   white-space: nowrap;
   overflow: hidden;

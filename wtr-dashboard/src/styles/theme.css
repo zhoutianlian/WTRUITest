@@ -9,35 +9,27 @@
   --color-accent-gold: #E4A11B; /* Signature Luminous Gold (Primary Accent) */
   --color-accent-gold-luminous: #E4A11B; /* Signature Luminous Gold (Primary Accent) */
   --color-accent-gold-burnished: #B08D57; /* Subtle Burnished Gold (Secondary Accent) */
-  --color-accent-gold-hover: #F0B22D; /* Slightly lighter version of Luminous Gold */
+  --color-accent-gold-hover: #F5BD47; /* a slightly brighter hover for luminous gold */
   --color-accent-gold-highlight: #FFD700; /* Distinct highlights */
-  --color-accent-gold-coppery: #DA8A67; /* Existing variable, review if needed later */
 
   /* Harmonizing Tech Accents */
-  --color-accent-secondary-blue: #3078C0; /* Deep Tech Blue/Cyan (desaturated) */
-  --color-accent-secondary-blue-muted: #2A5A8C; /* More desaturated version */
-  --color-accent-tech-blue-desaturated: #2A5A8C; /* Added for tech accents */
-  --color-accent-secondary-teal: #2AA092; /* Existing variable, review if needed later */
-  --color-accent-secondary-teal-muted: #227C70; /* Existing variable, review if needed later */
-  --color-accent-secondary-purple: #8A63D2; /* Existing variable, review if needed later */
+  --color-accent-secondary-blue: #4A90E2; /* example: a clear, desaturated tech blue */
   --color-accent-secondary-red: #E54D42; /* For negative bars/indicators - Existing variable, review if needed later */
 
   /* Ivory/Moonlight White for text */
-  --color-text-primary: #E6EDF3; /* primary body text */
-  --color-text-secondary: #C8D4E0; /* Slightly darker shade of Ivory */
+  --color-text-primary: #E6EDF3; /* Ivory/Moonlight White for primary body text */
+  --color-text-secondary: #A2B2C1; /* Slightly dimmer for less emphasis */
   --color-text-disabled: #6A737D; /* Existing variable, review if needed later */
 
   /* Borders */
-  --color-border-primary: rgba(176, 141, 87, 0.3); /* burnished gold at 30% opacity */
-  --color-border-secondary: rgba(176, 141, 87, 0.5); /* burnished gold at 50% opacity */
+  --color-border-primary: rgba(176, 141, 87, 0.25); /* burnished gold at 25% opacity */
+  --color-border-secondary: rgba(176, 141, 87, 0.4); /* burnished gold at 40% opacity */
 
   /* RGB versions for RGBA usage (e.g., in D3 charts) */
   --rgb-background-primary: 10,12,16;
   --rgb-background-secondary: 15,17,21;
-  --rgb-accent-gold: 228,161,27; /* for new primary gold #E4A11B */
-  --rgb-accent-secondary-teal: 42,160,146; /* Corresponds to #2AA092 - Existing, review if needed */
+  --rgb-accent-gold: 228,161,27; /* for #E4A11B */
   --rgb-accent-secondary-red: 229,77,66; /* Corresponds to #E54D42 - Existing, review if needed */
-
 
   --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   --font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
@@ -57,22 +49,20 @@
   --sidebar-width: 250px;
 
   /* K-Line Chart Colors - "K-Line Artistry" */
-  --color-candle-uptrend-body: #EBEBEB;
+  --color-candle-uptrend-body: #DCE0E3; /* Light ivory/off-white */
   --color-candle-uptrend-wick: var(--color-accent-gold-luminous); /* #E4A11B */
-  --color-candle-downtrend-body: #5A5A8C; /* Deep metallic blue/purple */
+  --color-candle-downtrend-body: #3E4658; /* Deep metallic grey-blue */
   --color-candle-downtrend-wick: var(--color-accent-gold-burnished); /* #B08D57 */
 
   --color-chart-background: var(--color-background-primary);
   --color-chart-gridlines: var(--color-border-primary);
   --color-chart-axis-text: var(--color-text-secondary);
 
-  --color-volume-uptrend: rgba(228, 161, 27, 0.5); /* Luminous gold at 50% opacity */
-  --color-volume-downtrend: rgba(90, 90, 140, 0.5); /* Downtrend body color #5A5A8C at 50% opacity */
+  --color-volume-uptrend: rgba(228, 161, 27, 0.4); /* Luminous gold at 40% opacity */
+  --color-volume-downtrend: rgba(62, 70, 88, 0.4); /* Downtrend body color at 40% opacity */
 
   /* RGB versions for D3 if needed directly (though direct var() is preferred) */
-  --rgb-candle-uptrend-body: 235,235,235;
-  --rgb-candle-downtrend-body: 90,90,140;
+  --rgb-candle-uptrend-body: 220,224,227; /* for #DCE0E3 */
+  --rgb-candle-downtrend-body: 62,70,88; /* for #3E4658 */
   --rgb-accent-gold-highlight: 255,215,0; /* Existing, ensure it's up-to-date if --color-accent-gold-highlight changed */
-  /* --rgb-accent-gold: 228,161,27; /* Already defined for --color-accent-gold / luminous */
-  /* --rgb-accent-secondary-blue-muted: 90,120,150; /* Example, adjust if a specific blue is chosen for volume - keep or remove if not general */
 }

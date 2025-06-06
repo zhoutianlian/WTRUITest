@@ -35,10 +35,3 @@
 
 .wtr-logo-text-r {
 }
-
-/* Fallback for CSS variables if not defined elsewhere -- ideally these are in a global theme.css */
-:root {
-  --color-accent-gold-highlight: #FFD700;
-  --color-accent-gold: #B08D57;
-  --header-height: 60px; /* Example value */
-}

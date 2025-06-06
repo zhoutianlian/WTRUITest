@@ -2,8 +2,8 @@
 .sidebar {
   grid-area: sidebar; /* From MainLayout.css grid */
   background-color: rgba(15, 17, 21, 0.65); /* --color-background-secondary at 65% opacity */
-  backdrop-filter: blur(10px) saturate(180%);
-  border-right: 1px solid var(--color-border-secondary);
+  backdrop-filter: blur(12px) saturate(160%);
+  border-right: 1px solid var(--color-border-primary);
   padding: 0; /* Remove padding if sidebar-sticky-content handles it */
   color: var(--color-text-secondary);
   display: flex;
@@ -56,7 +56,7 @@
 }
 
 .sidebar-nav-link:hover {
-  background-color: rgba(228, 161, 27, 0.1); /* Luminous gold at 10% opacity */
+  background-color: rgba(var(--rgb-accent-gold), 0.1); /* Luminous gold at 10% opacity */
   color: var(--color-accent-gold);
 }
 
@@ -103,7 +103,7 @@
 }
 
 .sidebar-nav-link:hover .expand-icon {
-  color: var(--color-accent-gold);
+  color: var(--color-accent-gold-luminous);
 }
 /* .sidebar-nav-link.expandable.expanded .expand-icon { */
   /* transform: rotate(45deg); */ /* Example: '+' becomes 'x' or animate '-' - Removed */
@@ -114,7 +114,7 @@
   list-style: none;
   padding: 0; /* Padding will be applied when open */
   margin: 0;
-  background-color: rgba(0,0,0,0.1); /* subtle darkening for nesting */
+  background-color: rgba(var(--rgb-background-primary), 0.3); /* subtle darkening for nesting */
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
@@ -135,7 +135,7 @@
 
 .sidebar-sub-nav-item .sidebar-nav-link:hover {
   color: var(--color-accent-gold);
-  background-color: rgba(228, 161, 27, 0.1); /* Luminous gold at 10% opacity */
+  background-color: rgba(var(--rgb-accent-gold), 0.1); /* Luminous gold at 10% opacity */
 }
 
 .sidebar-sub-nav-item .sidebar-nav-link:hover .nav-icon { /* Assuming sub-nav links also can have icons */
@@ -198,6 +198,6 @@
 }
 
 .expand-icon-button:hover {
-  color: var(--color-accent-gold); /* Luminous gold on hover */
+  color: var(--color-accent-gold-luminous); /* Luminous gold on hover */
   background-color: var(--color-background-tertiary); /* Retaining hover background from original for now */
 }
