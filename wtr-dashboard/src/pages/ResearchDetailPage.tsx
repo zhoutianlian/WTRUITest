@@ -52,8 +52,60 @@ const mockResearchArticles: { [key: string]: any } = {
         { type: 'p', text: 'We propose a multi-dimensional risk scoring system incorporating code audit scores, economic modeling, oracle dependency analysis, and governance structure robustness.'},
         { type: 'p', text: 'Each dimension is weighted to produce an overall risk score, providing a clearer picture for investors and users.'},
     ]
+  },
+  'rwa-tokenization-impact': {
+    id: 'rwa-tokenization-impact',
+    title: 'Understanding Real-World Asset (RWA) Tokenization',
+    author: 'Dr. Bridgit Asset',
+    publishDate: '2024-01-15',
+    imagePlaceholderText: 'RWA Tokenization Flowchart',
+    content: [
+      { type: 'h2', text: 'Introduction to RWA Tokenization' },
+      { type: 'p', text: 'The tokenization of Real-World Assets (RWAs) represents a significant bridge between traditional finance (TradFi) and decentralized finance (DeFi). This report explores the mechanisms, benefits, and challenges associated with bringing off-chain assets onto blockchain ledgers.' },
+      { type: 'p', text: 'We delve into various asset classes being tokenized, including real estate, private credit, and intellectual property, and analyze the potential market size and impact on liquidity and accessibility.'},
+      { type: 'placeholder', text: 'Chart: Growth Projections for Tokenized RWAs' },
+      { type: 'h2', text: 'Key Benefits and Use Cases' },
+      { type: 'p', text: 'Benefits include enhanced liquidity, fractional ownership, increased transparency, and reduced settlement times. Use cases span from democratizing investment in high-value assets to creating new DeFi primitives based on RWA collateral.' },
+      { type: 'h2', text: 'Challenges and Regulatory Hurdles' },
+      { type: 'p', text: 'Significant challenges remain, including regulatory uncertainty, oracle reliability for off-chain data, and ensuring legal enforceability of tokenized ownership rights. Standardization and robust legal frameworks are crucial for widespread adoption.' },
+    ]
+  },
+  'layer-2-comparative-study': {
+    id: 'layer-2-comparative-study',
+    title: 'Layer 2 Scaling Solutions: A Comparative Study',
+    author: 'Prof. Rollup Max',
+    publishDate: '2024-02-01',
+    imagePlaceholderText: 'L2 Solutions Matrix',
+    content: [
+      { type: 'h2', text: 'Overview of Layer 2 Solutions' },
+      { type: 'p', text: 'This study provides a detailed comparison of leading Layer 2 scaling solutions, focusing on their technical architectures, performance metrics, security models, and ecosystem maturity. We analyze Optimistic Rollups, ZK-Rollups (including zkEVM variants), and emerging Plasma/Validium solutions.' },
+      { type: 'placeholder', text: 'Table: Feature Comparison of Major L2s' },
+      { type: 'h2', text: 'Performance Benchmarking' },
+      { type: 'p', text: 'We conducted standardized tests to benchmark throughput (TPS), transaction finality times, and average transaction costs across different L2s under various network load conditions.' },
+      { type: 'h3', text: 'ZK-Rollups vs. Optimistic Rollups' },
+      { type: 'p', text: 'While ZK-Rollups generally offer better theoretical scalability and faster finality, Optimistic Rollups currently lead in EVM compatibility and developer tooling. The rise of zkEVMs aims to bridge this gap.'},
+      { type: 'h2', text: 'Future Outlook for L2s' },
+      { type: 'p', text: 'The L2 space is highly competitive and innovative. We expect further advancements in proof systems, data availability solutions, and interoperability protocols, ultimately leading to a more scalable and user-friendly Ethereum ecosystem.' },
+    ]
+  },
+  'future-of-mev': {
+    id: 'future-of-mev',
+    title: 'The Future of MEV: PBS, SUAVE, and Beyond',
+    author: 'Dr. Alpha Extractor',
+    publishDate: '2024-02-20',
+    imagePlaceholderText: 'MEV Supply Chain Diagram',
+    content: [
+      { type: 'h2', text: 'Understanding Maximal Extractable Value (MEV)' },
+      { type: 'p', text: 'MEV refers to the maximum value that can be extracted from block production in excess of the standard block reward and gas fees by including, excluding, and changing the order of transactions in a block. This report examines the evolution of MEV and its profound impact on blockchain ecosystems.' },
+      { type: 'placeholder', text: 'Graph: MEV Volume Over Time by Category' },
+      { type: 'h2', text: 'Proposer-Builder Separation (PBS)' },
+      { type: 'p', text: 'PBS is a mechanism designed to mitigate the negative externalities of MEV by separating the role of block proposing from block building. We analyze its implementation in Ethereum and its effects on network centralization and efficiency.' },
+      { type: 'h3', text: 'Flashbots and MEV-Boost' },
+      { type: 'p', text: 'The role of Flashbots and the MEV-Boost auction system in democratizing access to MEV and its implications for validators and users.'},
+      { type: 'h2', text: 'SUAVE and the Future of Cross-Domain MEV' },
+      { type: 'p', text: 'We explore the concept of SUAVE (Single Unifying Auction for Value Expression) and its potential to create a universal, privacy-preserving MEV layer across multiple blockchains, addressing issues like front-running and censorship.' },
+    ]
   }
-  // Add more articles here to match IDs from ResearchPage.tsx if needed for testing more links
 };
 
 const ResearchDetailPage: React.FC = () => {

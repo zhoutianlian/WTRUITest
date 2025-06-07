@@ -15,7 +15,7 @@ const FeaturedCapabilities: React.FC = () => {
       </h2>
       <div className="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"> {/* Added padding to match dashboard sections */}
         {capabilities.map((cap) => (
-          <div key={cap.name} className="dashboard-card"> {/* Applied dashboard-card class */}
+          <div key={cap.name} className="dashboard-card glassmorphic-card"> {/* Added glassmorphic-card class */}
             <div className="dashboard-card-header">
               {/* h3 color will be handled by .dashboard-card-header h3 style */}
               <h3>{cap.name}</h3>

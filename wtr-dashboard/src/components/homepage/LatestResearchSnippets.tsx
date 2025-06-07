@@ -5,6 +5,9 @@ const LatestResearchSnippets: React.FC = () => {
   const snippets = [
     { title: 'The Rise of Decentralized Options Vaults', summary: 'An in-depth look at DOVs, their risk/reward profiles, and impact on DeFi volatility markets.', pathSlug: 'decentralized-options-vaults' },
     { title: 'Cross-Chain Arbitrage: Opportunities & Challenges', summary: 'Exploring new arbitrage vectors in a multi-chain world and the infrastructure required.', pathSlug: 'cross-chain-arbitrage' },
+    { title: 'Understanding Real-World Asset (RWA) Tokenization', summary: 'A comprehensive analysis of how RWAs are being brought on-chain and the potential market impact.', pathSlug: 'rwa-tokenization-impact' },
+    { title: 'Layer 2 Scaling Solutions: A Comparative Study', summary: 'Evaluating the trade-offs of various L2s like Optimistic Rollups, zk-Rollups, and State Channels.', pathSlug: 'layer-2-comparative-study' },
+    { title: 'The Future of MEV: PBS, SUAVE, and Beyond', summary: 'Investigating the evolution of Maximal Extractable Value and its implications for network security and decentralization.', pathSlug: 'future-of-mev' },
   ];
 
   return (
@@ -14,7 +17,7 @@ const LatestResearchSnippets: React.FC = () => {
       </h2>
       <div className="space-y-6 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8"> {/* Added padding to match dashboard sections */}
         {snippets.map((snippet) => (
-          <div key={snippet.title} className="dashboard-card"> {/* Applied dashboard-card class */}
+          <div key={snippet.title} className="dashboard-card glassmorphic-card"> {/* Added glassmorphic-card class */}
             <div className="dashboard-card-header">
               {/* h3 color will be handled by .dashboard-card-header h3 style */}
               <h3>{snippet.title}</h3>

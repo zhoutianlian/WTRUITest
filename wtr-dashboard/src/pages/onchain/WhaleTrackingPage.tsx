@@ -16,26 +16,70 @@ import {
   Cell,
 } from 'recharts';
 import * as d3 from 'd3'; // For color manipulation in gradients
+import { format, subDays } from 'date-fns';
 
-// Mock Data Structure
-interface ChartDataPoint {
-  date: string;
+// Import custom D3 charts and new components
+import SimpleBarChart from '../../components/charts/SimpleBarChart';
+import SimpleLineChart from '../../components/charts/SimpleLineChart';
+import WhaleTransactionFeed, { WhaleTransaction } from '../../components/onchain/WhaleTransactionFeed';
+
+
+// --- Data Structures ---
+interface TimeSeriesDataPoint { // For D3 Line chart & Recharts
+  date: Date;
+  value: number;
+  dateString?: string; // For Recharts XAxis key if needed
+}
+
+interface CategoricalDataPoint { // For D3 Bar chart
+  category: string;
   value: number;
 }
 
-interface Indicator {
+// Combined type for chart data flexibility used by configurations
+type ChartData = TimeSeriesDataPoint[] | CategoricalDataPoint[] | WhaleTransaction[];
+
+interface BaseConfig {
   id: string;
   title: string;
-  chartType: 'line' | 'bar' | 'area';
-  data: ChartDataPoint[];
   description: string;
-  yAxisLabel?: string;
-  dataKey: string;
-  positiveColor?: string;
-  negativeColor?: string;
+  gridWidth?: number; // Optional: For layout control (e.g., 1 or 2 for 1-col or 2-col span)
 }
 
-// Custom Tooltip (copied from ExchangeFlowsPage)
+interface RechartsConfig extends BaseConfig {
+  componentType: 'recharts';
+  chartType: 'line' | 'bar' | 'area';
+  data: TimeSeriesDataPoint[]; // Recharts generally use TimeSeriesDataPoint with dateString
+  dataKey: string;
+  yAxisLabel?: string;
+  positiveColor?: string;
+  negativeColor?: string;
+  valuePrefix?: string;
+  valueSuffix?: string;
+}
+
+interface D3SimpleBarConfig extends BaseConfig {
+  componentType: 'd3SimpleBar';
+  data: CategoricalDataPoint[];
+  yAxisLabel?: string;
+  // barColor could be a prop if needed
+}
+
+interface D3SimpleLineConfig extends BaseConfig {
+  componentType: 'd3SimpleLine';
+  data: TimeSeriesDataPoint[];
+  yAxisLabel?: string;
+  lineColor?: string;
+}
+
+interface WhaleFeedConfig extends BaseConfig {
+  componentType: 'whaleFeed';
+  data: WhaleTransaction[];
+}
+
+type ComponentConfig = RechartsConfig | D3SimpleBarConfig | D3SimpleLineConfig | WhaleFeedConfig;
+
+// Custom Tooltip (Recharts only)
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -61,130 +105,171 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-// Mock Data for Whale Tracking
-const whaleTrackingData: Indicator[] = [
+// --- Mock Data Generation Helpers ---
+const generateTimeSeries = (days: number, startVal: number, dailyFluctuation: number, trendPerDay: number = 0): TimeSeriesDataPoint[] => {
+  const data: TimeSeriesDataPoint[] = [];
+  let val = startVal;
+  for (let i = 0; i < days; i++) {
+    const date = subDays(new Date(), days - 1 - i);
+    val += (Math.random() - 0.5) * dailyFluctuation + trendPerDay;
+    val = Math.max(0, val);
+    data.push({ date, value: parseFloat(val.toFixed(2)), dateString: format(date, 'yyyy-MM-dd') });
+  }
+  return data;
+};
+
+const generateWhaleBalances = (count: number): CategoricalDataPoint[] => {
+  const data: CategoricalDataPoint[] = [];
+  const tokens = ['BTC', 'ETH'];
+  for (let i = 0; i < count; i++) {
+    const token = tokens[i % tokens.length];
+    data.push({
+      category: `0x${Math.random().toString(16).substring(2, 10)}...`, // Random shortened address
+      value: parseFloat((Math.random() * (token === 'BTC' ? 10000 : 50000) + (token === 'BTC' ? 1000 : 5000)).toFixed(2)) // Larger balances
+    });
+  }
+  return data.sort((a,b) => b.value - a.value); // Sort by balance descending
+};
+
+const generateWhaleTransactions = (count: number): WhaleTransaction[] => {
+  const data: WhaleTransaction[] = [];
+  const tokens = ['BTC', 'ETH', 'USDT', 'USDC', 'LINK'];
+  const baseAddresses = Array.from({length: 20}, () => `0x${Math.random().toString(16).substring(2,12)}`);
+
+  for (let i = 0; i < count; i++) {
+    const token = tokens[Math.floor(Math.random() * tokens.length)];
+    let amount;
+    switch(token) {
+        case 'BTC': amount = Math.random() * 100 + 50; break; // 50-150 BTC
+        case 'ETH': amount = Math.random() * 2000 + 500; break; // 500-2500 ETH
+        default: amount = Math.random() * 500000 + 100000; // 100k - 600k for stables/others
+    }
+    data.push({
+      timestamp: subDays(new Date(), Math.floor(Math.random()*5)), // Within last 5 days
+      from: baseAddresses[Math.floor(Math.random() * baseAddresses.length)],
+      to: baseAddresses[Math.floor(Math.random() * baseAddresses.length)],
+      amount: parseFloat(amount.toFixed(2)),
+      token: token,
+      txHash: `0x${Math.random().toString(16).substring(2, 66)}`
+    });
+  }
+  return data.sort((a,b) => b.timestamp.getTime() - a.timestamp.getTime());
+};
+
+
+// --- Page Specific Configurations ---
+const whaleTrackingComponents: ComponentConfig[] = [
   {
-    id: 'whaleNetPositionChangeBTC',
-    title: 'Whale Net Position Change (BTC)',
-    chartType: 'bar',
-    description: 'Daily net change in BTC holdings by whale entities (typically >1k BTC). Positive values indicate accumulation, negative values indicate distribution.',
-    yAxisLabel: 'BTC',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-gold-luminous)',
-    negativeColor: 'var(--color-accent-secondary-red)',
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
-      value: parseFloat(((Math.random() - 0.55) * 500).toFixed(2)), // +/- 500 BTC, slight negative bias
-    })),
-  },
-  {
-    id: 'activeWhaleAddresses',
-    title: 'Active Whale Addresses (>1k BTC)',
-    chartType: 'line',
-    description: 'Number of unique whale addresses transacting daily, indicating whale activity levels.',
-    yAxisLabel: 'Addresses',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-secondary-blue)',
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
-      value: Math.floor(1800 + (Math.sin(i / 6) * 100) + (Math.random() * 50)), // Oscillating trend
-    })),
+    id: 'topWhaleBalancesBTC',
+    title: 'Top Whale Balances (BTC)',
+    description: 'Largest BTC balances held by individual non-exchange addresses.',
+    componentType: 'd3SimpleBar',
+    data: generateWhaleBalances(8).map(d => ({...d, category: `${d.category.substring(0,10)}... (${d.value.toFixed(0)} BTC)`})), // Format category for display
+    yAxisLabel: 'BTC Balance',
+    gridWidth: 2, // Span 2 columns
   },
   {
     id: 'whaleAccumulationScore',
-    title: 'Whale Accumulation Trend Score',
-    chartType: 'area',
-    description: 'A composite score (0-100) indicating general whale accumulation or distribution pressure based on multiple factors.',
+    title: 'Whale Accumulation Score',
+    description: 'A score (0-100) indicating general whale accumulation or distribution pressure (90 days).',
+    componentType: 'd3SimpleLine',
+    data: generateTimeSeries(90, 50, 20, 0.1), // Score between 0-100
     yAxisLabel: 'Score (0-100)',
+    lineColor: 'var(--color-accent-secondary-blue)',
+  },
+   {
+    id: 'whaleNetPositionChangeETH', // Example of another Recharts chart
+    title: 'Whale Net Position Change (ETH)',
+    description: 'Daily net change in ETH holdings by whale entities.',
+    componentType: 'recharts',
+    chartType: 'bar',
+    data: generateTimeSeries(90, 0, 5000, 10).map(d=> ({...d, value: d.value - 2500})), // Centering around 0
     dataKey: 'value',
-    positiveColor: 'var(--color-accent-gold-burnished)',
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
-      value: Math.floor(40 + (Math.random() * 30) + (i * 0.5) ), // Generally increasing but noisy
-    })),
+    yAxisLabel: 'ETH',
+    positiveColor: 'var(--color-accent-secondary-green)',
+    negativeColor: 'var(--color-accent-secondary-red)',
+    valueSuffix: ' ETH'
   },
   {
-    id: 'avgWhaleTxSizeUSD',
-    title: 'Average Whale Transaction Size (USD)',
-    chartType: 'line',
-    description: 'Average USD value of transactions conducted by whale entities, highlighting large capital movements.',
-    yAxisLabel: 'USD',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-gold-highlight)',
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
-      value: Math.floor(1500000 + (Math.random() - 0.2) * 500000), // Average $1.5M with variation
-    })),
+    id: 'whaleTransactionFeed',
+    title: 'Recent Whale Transactions',
+    description: 'A feed of notable large transactions across various tokens.',
+    componentType: 'whaleFeed',
+    data: generateWhaleTransactions(15),
+    gridWidth: 2, // Span 2 columns for wider feed
   },
 ];
 
-// RenderChart Component (copied and adapted from ExchangeFlowsPage)
-const RenderChart = ({ indicator }: { indicator: Indicator }) => {
+// Rechart Renderer (can be enhanced or moved to a shared util if used across many onchain pages)
+const RenderRechart = ({ config }: { config: RechartsConfig }) => {
+  const { dataKey, positiveColor, chartType, yAxisLabel, valuePrefix, valueSuffix, data, title, negativeColor } = config;
   const commonLineProps = {
     type: "monotone" as const,
-    stroke: indicator.positiveColor || "var(--color-accent-gold-luminous)",
+    stroke: positiveColor || "var(--color-accent-gold-luminous)",
     strokeWidth: 2,
     dot: { fill: indicator.positiveColor || "var(--color-accent-gold-luminous)", strokeWidth: 0, r: 3 },
-    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: indicator.positiveColor || "var(--color-accent-gold-highlight)" },
+    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: positiveColor || "var(--color-accent-gold-highlight)" },
   };
   const chartMargins = { top: 5, right: 20, left: 35, bottom: 5 };
+  const gradientId = (type: string) => `${type}-${config.id.replace(/\s+/g, '-')}`;
 
-  const gradientId = (type: string) => `${type}-${indicator.id.replace(/\s+/g, '-')}`;
+  const yAxisTickFormatter = (value: any) =>
+    `${valuePrefix || ''}${typeof value === 'number' ? value.toLocaleString() : value}${valueSuffix || ''}`;
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      {indicator.chartType === 'line' && (
-        <LineChart data={indicator.data} margin={chartMargins}>
+      {chartType === 'line' && (
+        <LineChart data={data} margin={chartMargins}>
           <defs>
             <linearGradient id={gradientId('lineShadow')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
+              <stop offset="5%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
-          <Line dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} />
-          <Area type="monotone" dataKey={indicator.dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />
+          <XAxis dataKey="dateString" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={yAxisTickFormatter} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+          <Line dataKey={dataKey} name={title} {...commonLineProps} />
+          <Area type="monotone" dataKey={dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />
         </LineChart>
       )}
-      {indicator.chartType === 'bar' && (
-        <BarChart data={indicator.data} margin={chartMargins}>
+      {chartType === 'bar' && (
+        <BarChart data={data} margin={chartMargins}>
           <defs>
             <linearGradient id={gradientId('barPositive')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={d3.color(indicator.positiveColor || "var(--color-accent-gold-luminous)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
-              <stop offset="100%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+              <stop offset="0%" stopColor={d3.color(positiveColor || "var(--color-accent-gold-luminous)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
             </linearGradient>
             <linearGradient id={gradientId('barNegative')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={d3.color(indicator.negativeColor || "var(--color-accent-secondary-red)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
-              <stop offset="100%" stopColor={indicator.negativeColor || "var(--color-accent-secondary-red)"} stopOpacity={0.7}/>
+              <stop offset="0%" stopColor={d3.color(negativeColor || "var(--color-accent-secondary-red)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={negativeColor || "var(--color-accent-secondary-red)"} stopOpacity={0.7}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <XAxis dataKey="dateString" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={yAxisTickFormatter} />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.08)' }} />
-          <Bar dataKey={indicator.dataKey} name={indicator.title}>
-            {indicator.data.map((entry, index) => (
+          <Bar dataKey={dataKey} name={title}>
+            {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.value >= 0 ? `url(#${gradientId('barPositive')})` : `url(#${gradientId('barNegative')})`} />
             ))}
           </Bar>
         </BarChart>
       )}
-      {indicator.chartType === 'area' && (
-        <AreaChart data={indicator.data} margin={chartMargins}>
+      {chartType === 'area' && (
+        <AreaChart data={data} margin={chartMargins}>
           <defs>
             <linearGradient id={gradientId('areaMain')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
-              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
+              <stop offset="5%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+              <stop offset="95%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
-          <Area dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
+          <XAxis dataKey="dateString" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={yAxisTickFormatter} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
+          <Area dataKey={dataKey} name={title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
         </AreaChart>
       )}
     </ResponsiveContainer>
@@ -198,18 +283,37 @@ const WhaleTrackingPage: React.FC = () => {
       <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '30px'}}>
         Monitoring large wallet movements and accumulation patterns to identify potential market-moving activities.
       </p>
-      <div className="dashboard-grid">
-        {whaleTrackingData.map((indicator) => (
-          <div key={indicator.id} className="dashboard-card">
+      <div className="dashboard-grid onchain-whale-grid"> {/* Added specific class */}
+        {whaleTrackingComponents.map((config) => (
+          <div
+            key={config.id}
+            className={`dashboard-card glassmorphic-card ${config.gridWidth === 2 ? 'grid-col-span-2' : ''}`}
+          >
             <div className="dashboard-card-header">
-              <h3>{indicator.title}</h3>
+              <h3>{config.title}</h3>
             </div>
             <div className="dashboard-card-content">
               <p style={{ fontSize: '0.85rem', marginBottom: 'var(--spacing-unit)'}}>
-                {indicator.description}
+                {config.description}
               </p>
-              <div className="chart-container" style={{ height: '300px' }}>
-                <RenderChart indicator={indicator} />
+              <div className="chart-container" style={{ height: '350px' }}> {/* Increased height slightly */}
+                {config.componentType === 'recharts' && <RenderRechart config={config} />}
+                {config.componentType === 'd3SimpleBar' && (
+                  <SimpleBarChart
+                    data={config.data as CategoricalDataPoint[]}
+                    yAxisLabel={config.yAxisLabel}
+                  />
+                )}
+                {config.componentType === 'd3SimpleLine' && (
+                  <SimpleLineChart
+                    data={config.data as TimeSeriesDataPoint[]}
+                    yAxisLabel={config.yAxisLabel}
+                    lineColor={config.lineColor}
+                  />
+                )}
+                {config.componentType === 'whaleFeed' && (
+                  <WhaleTransactionFeed transactions={config.data as WhaleTransaction[]} />
+                )}
               </div>
             </div>
           </div>

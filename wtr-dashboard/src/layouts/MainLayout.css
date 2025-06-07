@@ -2,10 +2,11 @@
 .main-layout {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr; /* Sidebar width and remaining content */
-  grid-template-rows: var(--header-height) 1fr;    /* Header height and remaining content */
+  grid-template-rows: var(--header-height) 1fr var(--footer-height, 50px); /* Header, content, footer */
   grid-template-areas:
     "sidebar header"
-    "sidebar content";
+    "sidebar content"
+    "footer  footer"; /* Footer spans full width */
   height: 100vh;
   width: 100vw;
   background-color: var(--color-background-primary);
@@ -50,4 +51,38 @@
 
 .main-content-area::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-gold);
+}
+
+/* Footer Styling */
+.main-footer {
+  grid-area: footer;
+  background-color: var(--color-background-secondary);
+  border-top: 1px solid var(--color-border-primary);
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Removed comments and temporary fixes, grid-area: footer and correct grid-template-areas handle it */
+}
+
+.main-footer p {
+  margin: 0;
+  color: var(--color-text-secondary); /* Ensure p inside footer also gets this color */
+}
+
+.footer-contact-link {
+  background: none;
+  border: none;
+  color: var(--color-accent-gold);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem; /* Match footer text */
+  text-decoration: none;
+}
+
+.footer-contact-link:hover {
+  color: var(--color-accent-gold-hover);
+  text-decoration: underline;
 }

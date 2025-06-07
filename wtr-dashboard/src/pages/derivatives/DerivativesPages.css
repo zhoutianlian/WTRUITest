@@ -68,3 +68,47 @@
   overflow-x: auto; /* Allow horizontal scroll for wide tables */
   /* maxHeight is usually set inline in the component */
 }
+
+/* Specific to FuturesAnalysisPage grid layout */
+.derivatives-futures-grid {
+  /* Default to auto-fit for smaller screens */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+}
+
+@media (min-width: 1024px) { /* lg breakpoint or similar */
+  .derivatives-futures-grid {
+    /* Aim for 2 columns on larger screens */
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Utility class for items that should span two columns */
+  .derivatives-futures-grid .grid-col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+/* On medium screens, if 2-column span items should stack: */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .derivatives-futures-grid .grid-col-span-2 {
+    grid-column: span 1 / span 1; /* Stack wide items */
+  }
+}
+
+/* Specific to OptionsAnalysisPage grid layout */
+.derivatives-options-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+}
+
+@media (min-width: 1024px) { /* lg breakpoint */
+  .derivatives-options-grid {
+    grid-template-columns: repeat(2, 1fr); /* Default to 2 columns */
+  }
+  .derivatives-options-grid .grid-col-span-2 {
+    grid-column: span 2 / span 2; /* Allow items to span full width */
+  }
+}
+
+@media (max-width: 1023px) and (min-width: 768px) { /* md breakpoint */
+  .derivatives-options-grid .grid-col-span-2 {
+    grid-column: span 1 / span 1; /* Stack 2-column items on medium screens */
+  }
+}

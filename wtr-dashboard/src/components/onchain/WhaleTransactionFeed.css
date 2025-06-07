@@ -1,0 +1,90 @@
+/* src/components/onchain/WhaleTransactionFeed.css */
+.whale-transaction-feed-container {
+  width: 100%;
+  height: 100%; /* Ensure it fills parent card if needed */
+  display: flex;
+  flex-direction: column;
+}
+
+.whale-transaction-feed-container h3 { /* Style if title is used within component */
+  font-size: 1.1rem;
+  color: var(--color-accent-gold-luminous);
+  margin-bottom: var(--spacing-unit);
+  padding-bottom: var(--spacing-unit-half);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.transaction-feed-table-wrapper {
+  overflow-x: auto; /* Allow horizontal scroll on small screens for the table */
+  flex-grow: 1; /* Allows table to take available space in flex container */
+  max-height: 100%; /* Ensure it doesn't overflow card if card has fixed height */
+}
+
+.transaction-feed-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.transaction-feed-table th,
+.transaction-feed-table td {
+  padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5); /* 8px 12px */
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-primary);
+  white-space: nowrap; /* Prevent line breaks within cells initially */
+}
+
+.transaction-feed-table th {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  background-color: rgba(var(--rgb-background-tertiary), 0.5); /* Slight background for header */
+  position: sticky; /* Sticky header */
+  top: 0;
+  z-index: 1;
+}
+
+.transaction-feed-table tbody tr:hover {
+  background-color: rgba(var(--rgb-accent-gold-muted), 0.1);
+}
+
+.transaction-feed-table td a {
+  color: var(--color-accent-gold);
+  text-decoration: none;
+}
+
+.transaction-feed-table td a:hover {
+  color: var(--color-accent-gold-hover);
+  text-decoration: underline;
+}
+
+.transaction-feed-table .amount-cell {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary); /* Make amount stand out a bit */
+}
+
+.no-transactions-message {
+  text-align: center !important; /* Ensure text-align override */
+  padding: calc(var(--spacing-unit) * 2) !important;
+  color: var(--color-text-disabled);
+  font-style: italic;
+}
+
+/* Responsive adjustments for table - not strictly needed if overflow-x is acceptable */
+@media (max-width: 768px) {
+  /* On smaller screens, if you prefer stacked rows instead of horizontal scroll: */
+  /* This requires more complex CSS and potentially JS to restructure table.
+     For now, horizontal scroll is the simpler solution.
+     Example of how one might start a stacked approach (incomplete):
+  .transaction-feed-table thead { display: none; }
+  .transaction-feed-table tr { display: block; margin-bottom: 1em; border: 1px solid var(--color-border-secondary); }
+  .transaction-feed-table td { display: block; text-align: right; border-bottom: 1px dotted var(--color-border-primary); }
+  .transaction-feed-table td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+  }
+  */
+}

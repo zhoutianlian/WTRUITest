@@ -1,0 +1,65 @@
+/* src/components/charts/FundingRateHeatmap.css */
+.funding-rate-heatmap-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.funding-rate-heatmap-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-family-sans);
+}
+
+.heatmap-axis path,
+.heatmap-axis line {
+  /* stroke: var(--color-chart-gridlines, #444); */
+  /* Domain line hidden in JS for cleaner look, ticks are also hidden in JS via tickSize(0) */
+}
+
+.heatmap-axis text {
+  fill: var(--color-chart-axis-text, #ccc);
+  font-size: 0.8rem;
+}
+
+.heatmap-cell {
+  /* fill is set by D3 color scale */
+  /* stroke is set by D3 */
+  transition: stroke 0.1s ease-out, stroke-width 0.1s ease-out;
+}
+
+/* Tooltip style is shared with SimpleLineChart.css & SimpleBarChart.css via .simple-chart-tooltip */
+/* Ensure .simple-chart-tooltip is defined globally or in a shared CSS file (e.g., charts.css)
+   If not, these styles would be:
+.simple-chart-tooltip {
+  position: absolute;
+  background-color: var(--color-background-tooltip, rgba(10, 12, 16, 0.9));
+  color: var(--color-text-tooltip, #f0f0f0);
+  border: 1px solid var(--color-accent-gold, #b08d57);
+  border-radius: var(--border-radius-small, 4px);
+  padding: var(--spacing-unit, 8px) calc(var(--spacing-unit) * 1.5, 12px);
+  font-size: 0.8rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+.simple-chart-tooltip strong {
+  color: var(--color-accent-gold-highlight, #FFD700);
+  margin-right: var(--spacing-unit-half, 4px);
+}
+*/
+
+/* Optional: Legend styling if a legend is added via D3 */
+.heatmap-legend {
+  font-size: 0.75rem;
+  fill: var(--color-chart-axis-text, #ccc);
+}
+
+.legend-rect {
+  stroke: var(--color-border-primary);
+  stroke-width: 0.5px;
+}

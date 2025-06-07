@@ -1,0 +1,74 @@
+/* src/components/charts/SimpleBarChart.css */
+.simple-bar-chart-container {
+  position: relative; /* For tooltip positioning */
+  background-color: transparent;
+}
+
+.simple-bar-chart-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-family-sans);
+}
+
+/* Axis styles are shared with SimpleLineChart.css, consider moving to a common charts.css if not already done */
+.chart-axis path,
+.chart-axis line {
+  stroke: var(--color-chart-gridlines, #444);
+  shape-rendering: crispEdges;
+}
+
+.chart-axis text {
+  fill: var(--color-chart-axis-text, #ccc);
+  font-size: 0.75rem;
+}
+
+.y-axis-label { /* Shared with line chart - could be in a global chart style */
+  fill: var(--color-chart-axis-text, #ccc);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.grid .tick line { /* Shared with line chart */
+  stroke: var(--color-chart-gridlines, #444);
+  stroke-opacity: 0.3;
+  stroke-dasharray: 2,2;
+}
+
+.grid path.domain { /* Shared with line chart */
+  stroke-width: 0;
+}
+
+.bar {
+  /* fill is set via gradient in JS */
+  /* stroke is set in JS for positive/negative values */
+  transition: filter 0.2s ease-out, stroke-width 0.2s ease-out;
+}
+
+/* Tooltip style is shared with SimpleLineChart.css via .simple-chart-tooltip */
+/* Ensure .simple-chart-tooltip is defined globally or in a shared CSS file if used by multiple chart types */
+/* If it's not already in charts.css or global.css, it might need to be duplicated or moved.
+   For this subtask, assuming it's available from SimpleLineChart's CSS or a shared file.
+   If not, these styles would be:
+*/
+/*
+.simple-chart-tooltip {
+  position: absolute;
+  background-color: var(--color-background-tooltip, rgba(10, 12, 16, 0.9));
+  color: var(--color-text-tooltip, #f0f0f0);
+  border: 1px solid var(--color-accent-gold, #b08d57);
+  border-radius: var(--border-radius-small, 4px);
+  padding: var(--spacing-unit, 8px) calc(var(--spacing-unit) * 1.5, 12px);
+  font-size: 0.8rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+.simple-chart-tooltip strong {
+  color: var(--color-accent-gold-highlight, #FFD700);
+  margin-right: var(--spacing-unit-half, 4px);
+}
+*/

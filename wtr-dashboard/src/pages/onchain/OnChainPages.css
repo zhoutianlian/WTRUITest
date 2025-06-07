@@ -18,8 +18,56 @@
   gap: calc(var(--spacing-unit) * 3); /* 24px gap */
 }
 
+/* Specific to MacroIndicatorsPage if more control is needed than auto-fit */
+.onchain-macro-grid {
+  /* On medium screens and above, aim for 2 columns */
+  /* On smaller screens, auto-fit will make it 1 column */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); /* Adjust minmax for desired card width */
+}
+
+@media (min-width: 768px) { /* md breakpoint or similar */
+  .onchain-macro-grid {
+    grid-template-columns: repeat(2, 1fr); /* Stricter 2-column layout on larger screens */
+  }
+}
+
+/* Specific to ExchangeFlowsPage */
+.onchain-exchange-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+}
+@media (min-width: 768px) { /* md breakpoint or similar */
+  .onchain-exchange-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2-column layout for exchange flows charts */
+  }
+}
+
+/* Specific to WhaleTrackingPage */
+.onchain-whale-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+}
+@media (min-width: 1024px) { /* lg breakpoint or similar, allow more complex layouts */
+  .onchain-whale-grid {
+    /* Default to 2 columns for most items */
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Utility class for items that should span two columns */
+  .onchain-whale-grid .grid-col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+@media (max-width: 1023px) and (min-width: 768px) { /* Medium screens */
+    .onchain-whale-grid .grid-col-span-2 {
+      grid-column: span 1 / span 1; /* Stack wide items on medium screens if desired, or keep as 2-col */
+      /* Or, if you want to force 1 column for all items on medium for this specific grid:
+      grid-template-columns: 1fr;
+      .onchain-whale-grid .grid-col-span-2 { grid-column: span 1 / span 1; }
+      */
+    }
+}
+
+
 /* Ensure dashboard cards take full height if in a grid row */
 .dashboard-grid .dashboard-card {
   height: 100%;
-  min-height: 300px; /* Minimum height for cards with charts */
+  min-height: 350px; /* Minimum height for cards with charts, slightly increased */
 }

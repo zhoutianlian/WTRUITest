@@ -1,75 +1,64 @@
-import React from 'react';
+import React, { Suspense, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Points, PointMaterial } from '@react-three/drei';
+import * as random from 'maath/random/dist/maath-random.esm';
 import './EntryPage.css';
-import Logo from '../components/common/Logo';
-import NewBackground from '../components/common/NewBackground'; // Import the NewBackground component
 
-const EntryPage: React.FC = () => {
-  const createParticleBurst = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    const numParticles = 20;
-    const particleLifetime = 700; // Should match CSS transition duration
-    const buttonRect = event.currentTarget.getBoundingClientRect();
+// Three.js Particle Background
+const StarsBackground: React.FC = (props: any) => {
+  const ref: any = useRef();
+  const [sphere] = random.inSphere(new Float32Array(5000), { radius: 1.5 });
 
-    // Calculate click position relative to the viewport if not using button center
-    const clickX = event.clientX;
-    const clickY = event.clientY;
-
-    for (let i = 0; i < numParticles; i++) {
-      const particle = document.createElement('div');
-      particle.classList.add('particle');
-      document.body.appendChild(particle);
-
-      // Initial position at the click event coordinates
-      particle.style.left = `${clickX}px`;
-      particle.style.top = `${clickY}px`;
-      // For centering on the button instead:
-      // particle.style.left = `${buttonRect.left + buttonRect.width / 2}px`;
-      // particle.style.top = `${buttonRect.top + buttonRect.height / 2}px`;
-
-      // Force reflow to ensure initial styles are applied before transition starts
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      particle.offsetWidth;
-
-      requestAnimationFrame(() => {
-        const angle = Math.random() * 2 * Math.PI;
-        // Increase distance for a more explosive effect
-        const distance = Math.random() * 80 + 70; // e.g., 70px to 150px
-        const translateX = Math.cos(angle) * distance;
-        const translateY = Math.sin(angle) * distance;
-
-        // Particles spread out and fade
-        particle.style.transform = `translate(${translateX}px, ${translateY}px) scale(0.3)`; // Scale down more
-        particle.style.opacity = '0';
-      });
-
-      setTimeout(() => {
-        if (particle.parentNode) {
-          particle.parentNode.removeChild(particle);
-        }
-      }, particleLifetime);
+  useFrame((_state, delta) => {
+    if (ref.current) {
+      ref.current.rotation.x -= delta / 10;
+      ref.current.rotation.y -= delta / 15;
     }
-  };
+  });
 
   return (
-    <div className="entry-page">
-      <NewBackground /> {/* Add the NewBackground component here */}
-      {/* The entry-page-background div and its contents (Dynamic3DBackground, background-overlay-text) are removed */}
-      <div className="entry-page-content">
-        <div className="entry-logo-container">
-          <Logo />
-          <h2>Welcome</h2>
-        </div>
-        <div className="entry-options">
-          <Link to="/dashboard" className="entry-button primary-entry-button" onClick={createParticleBurst}>
-            Enter Dashboard
+    <group rotation={[0, 0, Math.PI / 4]}>
+      <Points ref={ref} positions={sphere} stride={3} frustumCulled {...props}>
+        <PointMaterial
+          transparent
+          color="#ffd700" // Gold color for particles
+          size={0.005}
+          sizeAttenuation={true}
+          depthWrite={false}
+        />
+      </Points>
+    </group>
+  );
+};
+
+const ThreeJSBackground: React.FC = () => {
+  return (
+    <div id="threejs-bg-container">
+      <Canvas camera={{ position: [0, 0, 1] }}>
+        <Suspense fallback={null}>
+          <StarsBackground />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+};
+
+const EntryPage: React.FC = () => {
+  return (
+    <div className="entry-page-container">
+      <ThreeJSBackground />
+      <div className="entry-content">
+        <h1>Welcome to WTR</h1>
+        <p>Your gateway to advanced trading insights.</p>
+        <div className="entry-buttons">
+          <Link to="/dashboard" className="entry-button">
+            Enter Homepage/Dashboard
           </Link>
-          <Link to="/login" className="entry-button secondary-entry-button" onClick={createParticleBurst}>
+          <Link to="/login" className="entry-button">
             Login
           </Link>
         </div>
-        <footer className="entry-footer">
-          <p>&copy; {new Date().getFullYear()} WTR. All Rights Reserved.</p>
-        </footer>
       </div>
     </div>
   );

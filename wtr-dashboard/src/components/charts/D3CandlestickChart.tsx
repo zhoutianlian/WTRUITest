@@ -30,10 +30,11 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const originalXScaleRef = useRef<d3.ScaleBand<string> | null>(null);
 
-  // Only 'volume' indicator is kept. MACD and RSI are removed.
-  const [visibleIndicators, setVisibleIndicators] = React.useState({
-    volume: true,
-  });
+  // Volume indicator is now always on if data exists.
+  // MACD and RSI are removed.
+  // const [visibleIndicators, setVisibleIndicators] = React.useState({ // This state is no longer needed
+  //   volume: true,
+  // });
 
   // Refs for scales and dimensions needed in zoom handler
   const yVolumeScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
@@ -53,39 +54,41 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     // --- Define Gradients ---
     const defs = svg.append("defs");
 
-    // It's important that svgRef.current is available here.
-    // If this useEffect runs, svgRef.current should be set.
-    const computedStyle = getComputedStyle(svgRef.current!);
+    // const computedStyle = getComputedStyle(svgRef.current!); // Not strictly needed if not using CSS vars here for gradients
 
     const bullishCandleGradient = defs.append("linearGradient")
         .attr("id", "bullishCandleGradient")
         .attr("x1", "0%").attr("y1", "0%")
         .attr("x2", "0%").attr("y2", "100%");
-    bullishCandleGradient.append("stop").attr("offset", "0%").style("stop-color", "var(--color-candle-uptrend-body)").style("stop-opacity", 1);
-    bullishCandleGradient.append("stop").attr("offset", "100%").style("stop-color", d3.color(computedStyle.getPropertyValue('--color-candle-uptrend-body').trim() || '#F0F0F0').darker(0.3).toString()).style("stop-opacity", 1);
+    // Uptrend: Light Gold / Ivory
+    bullishCandleGradient.append("stop").attr("offset", "0%").style("stop-color", "#FFFBEB").style("stop-opacity", 1); // Light Ivory top
+    bullishCandleGradient.append("stop").attr("offset", "100%").style("stop-color", "#F0E68C").style("stop-opacity", 1); // Khaki/Light Gold bottom
 
     const bearishCandleGradient = defs.append("linearGradient")
         .attr("id", "bearishCandleGradient")
         .attr("x1", "0%").attr("y1", "0%")
         .attr("x2", "0%").attr("y2", "100%");
-    bearishCandleGradient.append("stop").attr("offset", "0%").style("stop-color", d3.color(computedStyle.getPropertyValue('--color-candle-downtrend-body').trim() || '#3A506B').brighter(0.3).toString()).style("stop-opacity", 1);
-    bearishCandleGradient.append("stop").attr("offset", "100%").style("stop-color", "var(--color-candle-downtrend-body)").style("stop-opacity", 1);
+    // Downtrend: Deep Metallic Blue/Purple
+    bearishCandleGradient.append("stop").attr("offset", "0%").style("stop-color", "#483D8B").style("stop-opacity", 1); // DarkSlateBlue top
+    bearishCandleGradient.append("stop").attr("offset", "100%").style("stop-color", "#2c2f33").style("stop-opacity", 1); // Darker Gray/almost black bottom
 
     const volumeUpGradient = defs.append("linearGradient")
         .attr("id", "volumeUpGradient")
         .attr("x1", "0%").attr("y1", "0%")
         .attr("x2", "0%").attr("y2", "100%");
-    volumeUpGradient.append("stop").attr("offset", "0%").style("stop-color", "var(--color-volume-uptrend)").style("stop-opacity", 0.7); // Top
-    volumeUpGradient.append("stop").attr("offset", "100%").style("stop-color", d3.color(computedStyle.getPropertyValue('--color-volume-uptrend').trim().replace(/rgba\((\d+,\s*\d+,\s*\d+),.*?\)/, 'rgb($1)') || 'rgba(255,215,0,0.5)').darker(0.5).toString()).style("stop-opacity", 0.9); // Bottom
+    // Volume Up: Gold gradient
+    volumeUpGradient.append("stop").attr("offset", "0%").style("stop-color", "#FFD700").style("stop-opacity", 0.8); // Gold
+    volumeUpGradient.append("stop").attr("offset", "100%").style("stop-color", "#B8860B").style("stop-opacity", 0.9); // DarkGoldenrod
 
     const volumeDownGradient = defs.append("linearGradient")
         .attr("id", "volumeDownGradient")
         .attr("x1", "0%").attr("y1", "0%")
         .attr("x2", "0%").attr("y2", "100%");
-    volumeDownGradient.append("stop").attr("offset", "0%").style("stop-color", "var(--color-volume-downtrend)").style("stop-opacity", 0.7); // Top
-    volumeDownGradient.append("stop").attr("offset", "100%").style("stop-color", d3.color(computedStyle.getPropertyValue('--color-volume-downtrend').trim().replace(/rgba\((\d+,\s*\d+,\s*\d+),.*?\)/, 'rgb($1)') || 'rgba(58,80,107,0.5)').darker(0.5).toString()).style("stop-opacity", 0.9); // Bottom
+    // Volume Down: Metallic Gray gradient
+    volumeDownGradient.append("stop").attr("offset", "0%").style("stop-color", "#A9A9A9").style("stop-opacity", 0.7); // DarkGray
+    volumeDownGradient.append("stop").attr("offset", "100%").style("stop-color", "#696969").style("stop-opacity", 0.9); // DimGray
 
-    const margin = { top: 20, right: 40, bottom: 20, left: 60 }; // Reduced bottom margin for overall chart
+    const margin = { top: 20, right: 40, bottom: 20, left: 60 };
     const chartWidth = propWidth - margin.left - margin.right;
 
     // --- Dynamic Height Allocation ---
@@ -93,20 +96,16 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     const volumeChartRatio = 0.25; // Ratio for volume chart
 
     let priceChartHeight = propHeight * basePriceChartRatio - margin.top - margin.bottom;
-    let volumeChartHeight = 0; // Initialize to 0
-    let currentYOffset = 0; // Will be set based on price chart height
+    let volumeChartHeight = 0;
+    let currentYOffset = 0;
 
-    if (visibleIndicators.volume) {
-      // If volume is visible, adjust price chart height and calculate volume chart height
-      priceChartHeight = propHeight * (basePriceChartRatio - (volumeChartRatio * 0.35)) - margin.top - margin.bottom; // Give a bit more to price
-      volumeChartHeight = propHeight * volumeChartRatio - margin.top; // Volume chart also needs top margin
-      currentYOffset = priceChartHeight + margin.bottom + margin.top; // Y offset for volume chart
-    } else {
-      // If no volume, price chart takes most of the space
-      priceChartHeight = propHeight - margin.top - margin.bottom;
-      currentYOffset = priceChartHeight + margin.bottom;
-    }
-    const indicatorTopMargin = margin.top / 2; // Still useful for volume chart's internal padding
+    // Volume is always visible if data exists, so calculate its height and adjust price chart height
+    // The decision to show volume is based on data presence and allocated height later on.
+    priceChartHeight = propHeight * (basePriceChartRatio - (volumeChartRatio * 0.35)) - margin.top - margin.bottom;
+    volumeChartHeight = propHeight * volumeChartRatio - margin.top;
+    currentYOffset = priceChartHeight + margin.bottom + margin.top;
+
+    const indicatorTopMargin = margin.top / 2;
 
 
     // --- Scales ---
@@ -180,7 +179,8 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
       .attr("x2", xScale.bandwidth() / 2)
       .attr("y1", d => yPriceScale(d.high))
       .attr("y2", d => yPriceScale(d.low))
-      .attr("stroke", d => d.open > d.close ? 'var(--color-candle-downtrend-wick)' : 'var(--color-candle-uptrend-wick)');
+      // Wick colors: Gold for uptrend, Lighter Gray/Blue for downtrend
+      .attr("stroke", d => d.open > d.close ? '#B0C4DE' : '#DAA520'); // LightSteelBlue for downtrend wick, Goldenrod for uptrend wick
 
     candles.append("rect")
       .attr("class", d => `candle-body ${d.open > d.close ? 'bearish' : 'bullish'}`)
@@ -193,15 +193,17 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     // --- Volume Chart (Conditional) ---
     let volumeG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
 
-    volumeChartHeightRef.current = volumeChartHeight; // Store for zoom
-    indicatorTopMarginRef.current = indicatorTopMargin; // Store for zoom
+    volumeChartHeightRef.current = volumeChartHeight;
+    indicatorTopMarginRef.current = indicatorTopMargin;
 
-    if (visibleIndicators.volume && volumeChartHeightRef.current > 0) {
+    // Ensure volume chart is drawn if data exists and height is allocated
+    // (visibleIndicators.volume check removed as it's effectively always true for drawing logic)
+    if (data.length > 0 && volumeChartHeightRef.current > 0) {
       const yVolumeScale = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.volume) || 0])
         .range([volumeChartHeightRef.current - indicatorTopMarginRef.current, 0])
         .nice();
-      yVolumeScaleRef.current = yVolumeScale; // Store for zoom
+      yVolumeScaleRef.current = yVolumeScale;
 
 
       volumeG = g.append("g")
@@ -243,16 +245,14 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
         .attr("y", d => yVolumeScale(d.volume))
         .attr("width", barWidth)
         .attr("height", topPieceHeight)
-        .attr("fill", d => {
-          const baseColorVar = d.open > d.close ? '--color-volume-downtrend' : '--color-volume-uptrend';
-          let baseColor = computedStyle.getPropertyValue(baseColorVar).trim();
-          if (baseColor.startsWith('rgba')) { // d3.color might struggle with rgba for brighter/darker
-            baseColor = baseColor.replace(/rgba\((\d+,\s*\d+,\s*\d+),.*?\)/, 'rgb($1)');
-          }
-          return d3.color(baseColor || (d.open > d.close ? '#8E3B3D' : '#4A8E7A') )?.brighter(0.7).toString() || 'gray';
+        .attr("fill", d => { // Brighter top piece for 3D effect
+          const baseColor = d.open > d.close
+            ? (d3.color("#A9A9A9")?.brighter(0.5).toString() || '#C0C0C0')
+            : (d3.color("#FFD700")?.brighter(0.5).toString() || '#FFEEAA');
+          return baseColor;
         });
 
-      volumeG.append("text").attr("x", 10).attr("y", 10).text("Volume").style("font-size", "10px").attr("fill", "var(--color-text-secondary)");
+      volumeG.append("text").attr("x", 10).attr("y", 10).text("Volume").style("font-size", "10px").attr("fill", "var(--color-text-secondary, #ccc)"); // Added fallback
     }
 
     // MACD and RSI sections are completely removed.
@@ -338,8 +338,8 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
 
             const tooltip = d3.select(tooltipRef.current);
             tooltip.style("opacity", 1);
-            // Updated formatting for date and prices
-            const formatTime = d3.timeFormat('%d %b %H:%M'); // DD MMM HH:mm
+
+            const formatTime = d3.timeFormat('%Y-%m-%d %H:%M'); // YYYY-MM-DD HH:MM
             const formatPrice = (price: number) => `$${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
             tooltip.html(`
@@ -382,20 +382,20 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
             .attr("dy", ".15em")
             .attr("transform", "rotate(-45)");
 
-        // Update X-axis for visible indicators
-        if (visibleIndicators.volume && volumeG) {
+        // Update X-axis for volume (always visible if drawn)
+        if (volumeG) {
             volumeG.select<SVGGElement>(".x-axis.volume-axis")
                 .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
         }
-        // MACD and RSI X-axis updates are removed.
 
         const currentCandles = priceG.selectAll(".candle-group");
-        currentCandles.attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`) // Use -10000 to effectively hide off-screen
+        currentCandles.attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`)
                .style("display", (d: any) => (xScale(d.date.getTime().toString()) === undefined || (xScale(d.date.getTime().toString()) || 0) < 0 || (xScale(d.date.getTime().toString()) || 0) > chartWidth) ? "none" : "initial");
         currentCandles.select("rect.candle-body").attr("width", xScale.bandwidth());
         currentCandles.select("line.wick").attr("x1", xScale.bandwidth() / 2).attr("x2", xScale.bandwidth() / 2);
 
-        if (visibleIndicators.volume && volumeG && yVolumeScaleRef.current && volumeChartHeightRef.current != null && indicatorTopMarginRef.current != null) {
+        // Update volume bars (always visible if drawn, visibleIndicators.volume check removed)
+        if (volumeG && yVolumeScaleRef.current && volumeChartHeightRef.current != null && indicatorTopMarginRef.current != null) {
             const currentVolumeBarGroups = volumeG.selectAll(".volume-bar-group");
             currentVolumeBarGroups
                 .attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`)
@@ -429,33 +429,23 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     svg.call(zoomBehavior)
        .on("dblclick.zoom", null);
 
-  }, [data, propWidth, propHeight, visibleIndicators]); // Added visibleIndicators
+  }, [data, propWidth, propHeight]); // visibleIndicators removed from dependency array
 
-  const toggleIndicator = (indicatorName: keyof typeof visibleIndicators) => {
-    setVisibleIndicators(prev => ({
-      ...prev,
-      [indicatorName]: !prev[indicatorName],
-    }));
-  };
+  // const toggleIndicator = (indicatorName: keyof typeof visibleIndicators) => { // Removed
+  //   setVisibleIndicators(prev => ({ // Removed
+  //     ...prev, // Removed
+  //     [indicatorName]: !prev[indicatorName], // Removed
+  //   })); // Removed
+  // }; // Removed
 
   return (
     <>
       <div className="d3-candlestick-chart-container" style={{ width: propWidth, height: propHeight }}>
         <svg ref={svgRef} width={propWidth} height={propHeight}></svg>
-        <div ref={tooltipRef} className="chart-tooltip" style={{ position: 'absolute', display: 'none', opacity: 0 }}></div>
+        <div ref={tooltipRef} className="chart-tooltip" style={{ position: 'absolute', opacity: 0 }}></div>
+        {/* display: 'none' removed from inline style for tooltip, opacity handles visibility */}
       </div>
-      <div className="chart-indicator-toggles" style={{ marginTop: '10px', textAlign: 'center' }}>
-        {/* Only show Volume toggle if it's intended to be toggleable, otherwise this can be removed */}
-        { Object.prototype.hasOwnProperty.call(visibleIndicators, 'volume') && (
-            <button
-              key="volume"
-              onClick={() => toggleIndicator('volume')}
-              className={`toggle-button ${visibleIndicators.volume ? 'active' : ''}`}
-            >
-              VOLUME
-            </button>
-        )}
-      </div>
+      {/* The chart-indicator-toggles div is completely removed */}
     </>
   );
 };

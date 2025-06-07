@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 import {
   FaAngleDown, FaAngleRight, FaHome, FaChartLine, FaChartPie,
-  FaBroadcastTower, FaBookOpen, FaInfoCircle
+  FaBroadcastTower, FaBookOpen, FaInfoCircle, FaEnvelope
 } from 'react-icons/fa';
 
 interface NavItem {
@@ -38,10 +38,10 @@ const navItems: NavItem[] = [
 ];
 
 interface SidebarProps {
-  toggleContactModal: () => void;
+  openContactModal: () => void; // Changed prop name
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ toggleContactModal }) => {
+const Sidebar: React.FC<SidebarProps> = ({ openContactModal }) => { // Changed prop name
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (name: string) => {
@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ toggleContactModal }) => {
           {renderNavItems(navItems)}
         </ul>
         <div className="sidebar-footer">
-          <button onClick={toggleContactModal} className="sidebar-contact-button btn-text">
+          <button onClick={openContactModal} className="sidebar-contact-button btn-text">
             <FaEnvelope className="nav-icon" />
             <span className="nav-text">Contact Us</span>
           </button>

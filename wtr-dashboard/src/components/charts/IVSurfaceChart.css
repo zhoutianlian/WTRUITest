@@ -1,0 +1,66 @@
+/* src/components/charts/IVSurfaceChart.css */
+.iv-surface-chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* Stack chart and legend */
+  align-items: center; /* Center legend */
+}
+
+.iv-surface-chart-container svg {
+  display: block;
+  font-family: var(--font-family-sans);
+}
+
+.iv-surface-legend-svg {
+    margin-top: var(--spacing-unit); /* Space between chart and legend */
+}
+
+.iv-surface-axis path,
+.iv-surface-axis line {
+  /* Domain line hidden in JS for X/Y axes, ticks also hidden via tickSize(0) */
+  /* For legend axis, style as needed */
+  stroke: var(--color-chart-gridlines, #444);
+}
+
+.iv-surface-axis text,
+.legend-axis text {
+  fill: var(--color-chart-axis-text, #ccc);
+  font-size: 0.75rem;
+}
+
+.axis-label {
+  fill: var(--color-chart-axis-text, #ccc);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.iv-cell {
+  /* fill is set by D3 color scale */
+  /* stroke and stroke-width are set by D3 on hover */
+  shape-rendering: crispEdges; /* Ensures sharp edges for cells */
+}
+
+/* Tooltip style is shared via .simple-chart-tooltip, ensure it's globally available or in charts.css */
+/*
+.simple-chart-tooltip {
+  position: absolute;
+  background-color: var(--color-background-tooltip, rgba(10, 12, 16, 0.9));
+  color: var(--color-text-tooltip, #f0f0f0);
+  border: 1px solid var(--color-accent-gold, #b08d57);
+  border-radius: var(--border-radius-small, 4px);
+  padding: var(--spacing-unit, 8px) calc(var(--spacing-unit) * 1.5, 12px);
+  font-size: 0.8rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+.simple-chart-tooltip strong {
+  color: var(--color-accent-gold-highlight, #FFD700);
+  margin-right: var(--spacing-unit-half, 4px);
+}
+*/

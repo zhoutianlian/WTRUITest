@@ -18,11 +18,13 @@ const generateMockCandlestickData = (numPoints = 60) => {
   const data = [];
   let lastClose = 100 + Math.random() * 50;
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - numPoints);
+  // Generate data for the last numPoints hours
+  startDate.setHours(startDate.getHours() - numPoints);
 
   for (let i = 0; i < numPoints; i++) {
     const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
+    // Increment by hour for each data point
+    date.setHours(startDate.getHours() + i);
 
     const open = lastClose;
     const close = open + (Math.random() - 0.48) * 10; // Slight bias for variation
@@ -74,7 +76,7 @@ const DashboardPage: React.FC = () => {
           <div ref={gridContainerRef} className="grid-stack">
             <div className="grid-stack-item" gs-x="0" gs-y="0" gs-w="4" gs-h="2">
               <div className="grid-stack-item-content"> {/* This content div is kept by GridStack for structure */}
-                <div className="dashboard-card"> {/* Applied new style */}
+                <div className="dashboard-card glassmorphic-card"> {/* Added glassmorphic-card style */}
                   <div className="dashboard-card-header"><h3>Welcome to WTR</h3></div>
                   <div className="dashboard-card-content">
                      <p>Your advanced crypto intelligence hub. Explore market data, on-chain analytics, and cutting-edge research.</p>
@@ -99,7 +101,7 @@ const DashboardPage: React.FC = () => {
             </div>
              <div className="grid-stack-item" gs-x="0" gs-y="2" gs-w="4" gs-h="3"> {/* Adjusted Y and H */}
               <div className="grid-stack-item-content">
-                <div className="dashboard-card"> {/* Applied new style */}
+                <div className="dashboard-card glassmorphic-card"> {/* Added glassmorphic-card style */}
                   <div className="dashboard-card-header"><h3>Quick Access</h3></div>
                   <div className="dashboard-card-content">
                     <ul>

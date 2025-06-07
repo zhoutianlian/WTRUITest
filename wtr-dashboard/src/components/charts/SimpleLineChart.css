@@ -1,0 +1,84 @@
+/* src/components/charts/SimpleLineChart.css */
+.simple-line-chart-container {
+  position: relative; /* For tooltip positioning */
+  background-color: transparent; /* Chart cards will provide background */
+}
+
+.simple-line-chart-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-family-sans);
+}
+
+.chart-axis path,
+.chart-axis line {
+  stroke: var(--color-chart-gridlines, #444); /* Use theme variable or fallback */
+  shape-rendering: crispEdges;
+}
+
+.chart-axis text {
+  fill: var(--color-chart-axis-text, #ccc); /* Use theme variable or fallback */
+  font-size: 0.75rem;
+}
+
+.y-axis-label {
+  fill: var(--color-chart-axis-text, #ccc);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.grid .tick line {
+  stroke: var(--color-chart-gridlines, #444);
+  stroke-opacity: 0.3;
+  stroke-dasharray: 2,2;
+}
+.grid path.domain {
+  stroke-width: 0; /* Hide domain path if grid is used */
+}
+
+
+.chart-line {
+  /* stroke is set via prop, but can have a fallback or default here if needed */
+  stroke-width: 2px;
+  /* filter: drop-shadow(0 1px 2px rgba(var(--rgb-accent-gold-luminous), 0.5)); Optional: glow effect for the line */
+}
+
+.simple-chart-tooltip {
+  position: absolute;
+  background-color: var(--color-background-tooltip, rgba(10, 12, 16, 0.9)); /* Dark, slightly transparent */
+  color: var(--color-text-tooltip, #f0f0f0);
+  border: 1px solid var(--color-accent-gold, #b08d57); /* Gold border */
+  border-radius: var(--border-radius-small, 4px);
+  padding: var(--spacing-unit, 8px) calc(var(--spacing-unit) * 1.5, 12px);
+  font-size: 0.8rem;
+  pointer-events: none; /* Tooltip should not interfere with mouse events */
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  /* transform: translate(-50%, -110%);  JS will handle positioning */
+}
+
+.simple-chart-tooltip strong {
+  color: var(--color-accent-gold-highlight, #FFD700); /* Gold for labels */
+  margin-right: var(--spacing-unit-half, 4px);
+}
+
+.focus-circle {
+  fill: var(--color-accent-gold-luminous, #FFD700);
+  stroke: var(--color-background-primary, #0A0C10); /* To make it pop against the line */
+  stroke-width: 1.5px;
+  pointer-events: none;
+}
+
+.focus-line {
+  stroke: var(--color-accent-gold, #b08d57);
+  stroke-width: 1px;
+  stroke-dasharray: 3,3;
+  pointer-events: none;
+}
+
+.overlay-rect {
+  /* No specific style needed, just for capturing mouse events */
+}

@@ -19,36 +19,86 @@ import {
   Scatter,      // For IV Surface Heatmap attempt
   ReferenceLine,
 } from 'recharts';
-import * as d3 from 'd3'; // For color manipulation and scales
+import * as d3 from 'd3';
+import { format, subDays, addMonths, setDate } from 'date-fns';
 
-// Interfaces
-interface ChartDataPoint {
-  date?: string; // For time-series or categorical like Term Structure
-  category?: string; // For categorical axes like Strike for Volume/Skew
+// Import custom D3 charts
+import SimpleLineChart from '../../components/charts/SimpleLineChart';
+import SimpleBarChart from '../../components/charts/SimpleBarChart';
+import IVSurfaceChart, { IVSurfaceDataPoint } from '../../components/charts/IVSurfaceChart';
+
+// --- Data Structures ---
+interface TimeSeriesDataPoint {
+  date: Date;
   value: number;
-  value2?: number; // For grouped/stacked bars (e.g., Calls vs Puts volume)
-  iv?: number; // For IV Surface
-  daysToExpiry?: number; // For IV Surface Y-axis
-  strike?: number; // For IV Surface X-axis
+  dateString?: string;
 }
 
-interface Indicator {
+interface CategoricalDataPoint {
+  category: string;
+  value: number;
+  type?: 'Call' | 'Put'; // For OI by Strike if differentiating
+}
+
+// For existing Recharts data that uses string dates
+interface RechartsOriginalDataPoint {
+    date?: string;
+    category?: string;
+    value: number;
+    value2?: number;
+    calls?: number;
+    puts?: number;
+    iv?: number;
+    daysToExpiry?: number;
+    strike?: number;
+}
+
+
+interface BaseConfig {
   id: string;
   title: string;
-  chartType: 'line' | 'bar' | 'area' | 'scatter'; // Added scatter for IV Surface
-  data: ChartDataPoint[];
   description: string;
-  yAxisLabel?: string;
-  xAxisLabel?: string; // For IV Surface
+  gridWidth?: number;
+}
+
+interface RechartsConfig extends BaseConfig {
+  componentType: 'recharts';
+  chartType: 'line' | 'bar' | 'area'; // Scatter removed, will use D3 for IV surface
+  data: RechartsOriginalDataPoint[];
   dataKey: string;
   dataKey2?: string;
+  yAxisLabel?: string;
+  xAxisLabel?: string;
   positiveColor?: string;
   negativeColor?: string;
   color2?: string;
-  isIVSurface?: boolean; // Flag for special handling
+  isIVSurface?: boolean; // Kept if Recharts tooltip needs it for other charts
 }
 
-// Custom Tooltip (adapted from FuturesAnalysisPage)
+interface D3SimpleLineConfig extends BaseConfig {
+  componentType: 'd3SimpleLine';
+  data: TimeSeriesDataPoint[];
+  yAxisLabel?: string;
+  lineColor?: string;
+}
+
+interface D3SimpleBarConfig extends BaseConfig {
+  componentType: 'd3SimpleBar';
+  data: CategoricalDataPoint[];
+  yAxisLabel?: string;
+  // barColor could be a prop
+}
+
+interface D3IVSurfaceConfig extends BaseConfig {
+  componentType: 'd3IVSurface';
+  data: IVSurfaceDataPoint[];
+  // Specific props for IV Surface chart if any
+}
+
+type ComponentConfig = RechartsConfig | D3SimpleLineConfig | D3SimpleBarConfig | D3IVSurfaceConfig;
+
+
+// Custom Tooltip (Recharts only)
 const CustomTooltip = ({ active, payload, label, ...rest }: any) => {
   if (active && payload && payload.length) {
     // Accessing context passed to Tooltip content prop
@@ -98,176 +148,148 @@ const CustomTooltip = ({ active, payload, label, ...rest }: any) => {
 };
 
 
-// Mock Data for Options Analysis
-const optionsAnalysisData: Indicator[] = [
-  {
-    id: 'optionsVolumeStrike',
-    title: 'Options Volume by Strike (BTC - Near Month)',
-    chartType: 'bar',
-    description: 'Trading volume (Calls vs Puts) at different strike prices for near-month expiry contracts.',
-    yAxisLabel: 'Volume (Contracts)',
-    xAxisLabel: 'Strike Price',
-    dataKey: 'calls',
-    dataKey2: 'puts',
-    positiveColor: 'var(--color-accent-gold-luminous)', // Calls
-    color2: 'var(--color-accent-secondary-blue)',      // Puts
-    data: [
-      { category: '38k', value: 0, calls: 1200, puts: 800 }, // Using k for brevity
-      { category: '39k', value: 0, calls: 1500, puts: 950 },
-      { category: '40k', value: 0, calls: 2200, puts: 1300 },
-      { category: '41k', value: 0, calls: 1800, puts: 1100 },
-      { category: '42k', value: 0, calls: 1300, puts: 700 },
-    ],
-  },
-  {
-    id: 'putCallRatio',
-    title: 'Put/Call Ratio (Daily Volume)',
-    chartType: 'line',
-    description: 'Ratio of put options volume to call options volume. A rising ratio can indicate bearish sentiment.',
-    yAxisLabel: 'Ratio',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-gold-burnished)',
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
-      value: parseFloat((0.6 + Math.random() * 0.4 + Math.sin(i/10)*0.1).toFixed(2)),
-    })),
-  },
-  {
-    id: 'ivSkewBTC',
-    title: 'Implied Volatility Skew (BTC - Near Month)',
-    chartType: 'line',
-    description: 'Difference in implied volatility between out-of-the-money puts and calls.',
-    yAxisLabel: 'IV (%)',
-    xAxisLabel: 'Moneyness / Strike',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-secondary-red)',
-    data: [
-      { category: '25D Put', value: 0.65 + Math.random()*0.05 },
-      { category: 'ATM', value: 0.60 + Math.random()*0.02 },
-      { category: '25D Call', value: 0.58 + Math.random()*0.03 },
-      { category: '40D Call', value: 0.59 + Math.random()*0.03 },
-    ],
-  },
+// --- Mock Data Generation Helpers ---
+const generateTimeSeries = (days: number, startVal: number, dailyFluctuation: number, trendPerDay: number = 0): TimeSeriesDataPoint[] => {
+  const data: TimeSeriesDataPoint[] = [];
+  let val = startVal;
+  for (let i = 0; i < days; i++) {
+    const date = subDays(new Date(), days - 1 - i);
+    val += (Math.random() - 0.5) * dailyFluctuation + trendPerDay;
+    data.push({ date, value: parseFloat(val.toFixed(4)), dateString: format(date, 'yyyy-MM-dd') });
+  }
+  return data;
+};
+
+const generateIVSurfaceData = (): IVSurfaceDataPoint[] => {
+  const surfaceData: IVSurfaceDataPoint[] = [];
+  const expiries = [7, 14, 30, 60, 90, 180]; // Days
+  const strikes = [50000, 55000, 58000, 60000, 62000, 65000, 68000, 70000, 75000];
+  const atmStrike = 60000;
+  const baseIV = 0.50; // 50%
+  expiries.forEach(dte => {
+    strikes.forEach(strike => {
+      let iv = baseIV;
+      // Smile/Skew: Higher IV for OTM strikes, more pronounced for shorter expiries
+      const moneyness = Math.log(strike / atmStrike) / (Math.sqrt(dte / 365)); // Simplified moneyness
+      iv += Math.abs(moneyness) * 0.15 + Math.pow(moneyness,2)*0.05; // Basic smile shape
+      if (moneyness < 0) iv += Math.abs(moneyness) * 0.05; // Add some put skew
+      // Term structure: upward sloping for shorter DTEs
+      iv += (30-Math.min(dte,30)) * 0.001;
+      iv = Math.max(0.20, Math.min(iv, 1.20)); // Clamp IV between 20% and 120%
+      surfaceData.push({ timeToExpiryDays: dte, strike: strike, iv: parseFloat(iv.toFixed(3)) });
+    });
+  });
+  return surfaceData;
+};
+
+const generateOIByStrikeData = (numStrikes: number): CategoricalDataPoint[] => {
+  const data: CategoricalDataPoint[] = [];
+  const baseStrike = 55000;
+  const strikeIncrement = 1000;
+  for (let i = 0; i < numStrikes; i++) {
+    const strike = baseStrike + i * strikeIncrement;
+    data.push({
+      category: `${strike / 1000}k`, // e.g., "55k"
+      value: Math.floor(Math.random() * 2000 + 200), // OI in contracts
+      // type: Math.random() > 0.5 ? 'Call' : 'Put' // If differentiating
+    });
+  }
+  return data;
+};
+
+
+// --- Page Specific Configurations ---
+const optionsPageComponentConfigs: ComponentConfig[] = [
   {
     id: 'ivSurfaceBTC',
     title: 'Implied Volatility Surface (BTC)',
-    chartType: 'scatter',
-    description: 'Heatmap representation of implied volatility across different strike prices and times to expiry.',
-    yAxisLabel: 'Days to Expiry (DTE)',
-    xAxisLabel: 'Strike Price ($)',
-    dataKey: 'iv',
-    isIVSurface: true,
-    data: ((): ChartDataPoint[] => {
-      const surfaceData: ChartDataPoint[] = [];
-      const expiries = [7, 14, 30, 60, 90];
-      const strikes = [36000, 38000, 39000, 40000, 41000, 42000, 44000, 46000];
-      const atmStrike = 40000; // Assumed ATM for smile generation
-      const baseIV = 0.55;
-      expiries.forEach(dte => {
-        strikes.forEach(strike => {
-          let iv = baseIV;
-          iv += Math.pow((strike - atmStrike) / 1000, 2) * (0.002 + dte * 0.00005); // Smile effect, wider with DTE
-          iv += dte * 0.0003; // Term structure effect
-          iv = Math.max(0.30, Math.min(iv, 0.95)); // Clamp IV
-          surfaceData.push({ daysToExpiry: dte, strike: strike, value: 0, iv: parseFloat(iv.toFixed(3)) });
-        });
-      });
-      return surfaceData;
-    })(),
+    description: 'IV across different strike prices and times to expiry. (D3 Heatmap)',
+    componentType: 'd3IVSurface',
+    data: generateIVSurfaceData(),
+    gridWidth: 2, // Span two columns
+  },
+  {
+    id: 'ivSkew25Delta',
+    title: '25-Delta Skew (BTC - 90 Days)',
+    description: 'Time-series of the 25-delta skew (difference between 25D Put IV and 25D Call IV). (D3 Line)',
+    componentType: 'd3SimpleLine',
+    data: generateTimeSeries(90, 0.05, 0.02, 0.0001), // Skew typically a small percentage
+    yAxisLabel: 'Skew Value',
+    lineColor: 'var(--color-accent-secondary-teal, #4DB6AC)',
+  },
+  {
+    id: 'oiByStrikeBTC',
+    title: 'Open Interest by Strike (BTC - Near Month)',
+    description: 'Open interest at different strike prices for near-month BTC options. (D3 Bar)',
+    componentType: 'd3SimpleBar',
+    data: generateOIByStrikeData(10),
+    yAxisLabel: 'Open Interest (Contracts)',
+  },
+  // Keeping existing Put/Call Ratio from Recharts for variety
+  {
+    id: 'putCallRatio',
+    title: 'Put/Call Ratio (Daily Volume - Recharts)',
+    description: 'Ratio of put options volume to call options volume. A rising ratio can indicate bearish sentiment.',
+    componentType: 'recharts',
+    chartType: 'line',
+    data: Array.from({ length: 30 }, (_, i) => ({ // Original Recharts data format
+      date: format(subDays(new Date(), 29-i), 'yyyy-MM-dd'),
+      value: parseFloat((0.6 + Math.random() * 0.4 + Math.sin(i/10)*0.1).toFixed(2)),
+    })),
+    dataKey: 'value',
+    yAxisLabel: 'Ratio',
+    positiveColor: 'var(--color-accent-gold-burnished)',
   },
 ];
 
-// Recharts Color Scale for IV Surface
-const ivColorScale = d3.scaleSequential(d3.interpolateYlOrBr).domain([0.4, 0.75]); // Adjusted domain for typical IVs
 
-// RenderChart Component (adapted for Options)
-const RenderChart = ({ indicator }: { indicator: Indicator }) => {
-  const commonLineProps = {
+// Recharts Renderer (minor adaptations from other pages)
+const RenderRechart = ({ config }: { config: RechartsConfig }) => {
+  const { dataKey, dataKey2, positiveColor, negativeColor, color2, chartType, yAxisLabel, xAxisLabel, data, title, isIVSurface } = config;
+   const commonLineProps = {
     type: "monotone" as const,
-    stroke: indicator.positiveColor || "var(--color-accent-gold-luminous)",
+    stroke: positiveColor || "var(--color-accent-gold-luminous)",
     strokeWidth: 2,
     dot: { fill: indicator.positiveColor || "var(--color-accent-gold-luminous)", r: 3, strokeWidth:0 },
-    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: indicator.positiveColor || "var(--color-accent-gold-highlight)" },
+    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: positiveColor || "var(--color-accent-gold-highlight)" },
   };
-  const chartMargins = { top: 10, right: 30, left: 45, bottom: 25 }; // Adjusted margins
-
-  const gradientId = (type: string) => `${type}-${indicator.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
+  const chartMargins = { top: 10, right: 30, left: 45, bottom: 25 };
+  const gradientId = (type: string) => `${type}-${config.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
   const yAxisTickFormatter = (value: any) => {
-    if (indicator.id === 'ivSkewBTC' || (indicator.isIVSurface && indicator.dataKey === 'iv')) return `${(value * 100).toFixed(0)}%`;
-    if (indicator.id === 'putCallRatio') return value.toFixed(2);
+    if (config.id === 'putCallRatio') return typeof value === 'number' ? value.toFixed(2) : value;
     if (typeof value === 'number') {
-        if (Math.abs(value) >= 1e3 && indicator.id !== 'optionsVolumeStrike' && !indicator.yAxisLabel?.includes('DTE')) return `${(value/1e3).toFixed(0)}k`;
+        if (Math.abs(value) >= 1e3 && !config.yAxisLabel?.includes('Contracts')) return `${(value/1e3).toFixed(0)}k`;
         return value.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0});
     }
     return value;
   };
 
   const xAxisTickFormatter = (value: any) => {
-    if (indicator.id === 'optionsVolumeStrike' || indicator.id === 'ivSkewBTC') return value; // category is already '38k' etc.
-    if (indicator.isIVSurface) return `${(value/1000)}k`; // Strike for IV surface
-    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) return value.substring(5);
+    if (config.id === 'optionsVolumeStrike' || config.id === 'ivSkewBTC') return value; // category is already '38k' etc.
+    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) return format(new Date(value), 'MMM dd');
     return value;
   };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      {indicator.chartType === 'line' && (
-        <LineChart data={indicator.data} margin={chartMargins}>
+      {chartType === 'line' && (
+        <LineChart data={data} margin={chartMargins}>
           <defs>
             <linearGradient id={gradientId('lineShadow')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
+              <stop offset="5%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey={indicator.xAxisLabel ? "category" : "date"} name={indicator.xAxisLabel} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={xAxisTickFormatter} label={indicator.xAxisLabel ? { value: indicator.xAxisLabel, position: 'insideBottom', dy:15, fill: 'var(--color-chart-axis-text)', fontSize: 10 } : undefined} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -40 }} tickFormatter={yAxisTickFormatter} />
-          <Tooltip content={<CustomTooltip indicatorContext={indicator} />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
-          <Line dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} />
-          <Area type="monotone" dataKey={indicator.dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />
+          <XAxis dataKey={xAxisLabel ? "category" : "date"} name={xAxisLabel} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={xAxisTickFormatter} label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', dy:15, fill: 'var(--color-chart-axis-text)', fontSize: 10 } : undefined} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -40 }} tickFormatter={yAxisTickFormatter} />
+          <Tooltip content={<CustomTooltip indicatorContext={config} />} cursor={{ stroke: positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+          <Line dataKey={dataKey} name={title} {...commonLineProps} />
+          <Area type="monotone" dataKey={dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />
         </LineChart>
       )}
-      {indicator.chartType === 'bar' && (
-        <BarChart data={indicator.data} margin={chartMargins}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey="category" name={indicator.xAxisLabel} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={indicator.xAxisLabel ? { value: indicator.xAxisLabel, position: 'insideBottom', dy:15, fill: 'var(--color-chart-axis-text)', fontSize: 10 } : undefined} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -40 }} tickFormatter={yAxisTickFormatter}/>
-          <Tooltip content={<CustomTooltip indicatorContext={indicator}/>} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.08)' }} />
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          <Bar dataKey={indicator.dataKey} name="Calls" fill={indicator.positiveColor || "var(--color-accent-gold-luminous)"} />
-          {indicator.dataKey2 && <Bar dataKey={indicator.dataKey2} name="Puts" fill={indicator.color2 || "var(--color-accent-secondary-blue)"} />}
-        </BarChart>
-      )}
-      {indicator.chartType === 'area' && (
-         <AreaChart data={indicator.data} margin={chartMargins}>
-         <defs>
-           <linearGradient id={gradientId('areaMain')} x1="0" y1="0" x2="0" y2="1">
-             <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
-             <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
-           </linearGradient>
-         </defs>
-         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-         <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={xAxisTickFormatter} />
-         <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -40 }} tickFormatter={yAxisTickFormatter}/>
-         <Tooltip content={<CustomTooltip indicatorContext={indicator} />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
-         <Area dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
-       </AreaChart>
-      )}
-      {indicator.chartType === 'scatter' && indicator.isIVSurface && (
-        <ScatterChart margin={{ top: 10, right: 30, bottom: 30, left: 50 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis type="number" dataKey="strike" name="Strike" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} domain={['dataMin - 1000', 'dataMax + 1000']} label={{ value: indicator.xAxisLabel, position: 'insideBottom', dy:15, fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={(val) => `${(val/1000)}k`} />
-          <YAxis type="number" dataKey="daysToExpiry" name="Days to Expiry" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} domain={['dataMin - 2', 'dataMax + 5']} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -45 }} />
-          <ZAxis type="number" dataKey="iv" range={[60, 500]} name="Implied Volatility" />
-          <Tooltip content={<CustomTooltip indicatorContext={indicator} />} cursor={{ stroke: 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
-          <Scatter name={indicator.title} data={indicator.data} >
-            {indicator.data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={ivColorScale(entry.iv || 0)} />
-            ))}
-          </Scatter>
-        </ScatterChart>
-      )}
+      {/* Other Recharts types like bar, area can be added here if needed for other configs */}
     </ResponsiveContainer>
   );
 };
@@ -278,20 +300,41 @@ const OptionsAnalysisPage: React.FC = () => {
     <div className="page-container">
       <h1 className="page-title">Options Market Analysis</h1>
       <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '30px'}}>
-        Analyzing options data including volume, open interest, put/call ratios, and implied volatility metrics.
+        Analyzing options data including IV surface, skew, and open interest by strike.
       </p>
-      <div className="dashboard-grid">
-        {optionsAnalysisData.map((indicator) => (
-          <div key={indicator.id} className="dashboard-card">
+      <div className="dashboard-grid derivatives-options-grid"> {/* Added specific class */}
+        {optionsPageComponentConfigs.map((config) => (
+          <div
+            key={config.id}
+            className={`dashboard-card glassmorphic-card ${config.gridWidth === 2 ? 'grid-col-span-2' : ''}`}
+          >
             <div className="dashboard-card-header">
-              <h3>{indicator.title}</h3>
+              <h3>{config.title}</h3>
             </div>
             <div className="dashboard-card-content">
               <p style={{ fontSize: '0.85rem', marginBottom: 'var(--spacing-unit)'}}>
-                {indicator.description}
+                {config.description}
               </p>
-              <div className="chart-container" style={{ height: indicator.isIVSurface ? '400px' : '320px' }}> {/* Larger for IV Surface */}
-                <RenderChart indicator={indicator} />
+              <div className="chart-container" style={{ height: config.componentType === 'd3IVSurface' ? '450px' : '350px' }}>
+                {config.componentType === 'recharts' && <RenderRechart config={config} />}
+                {config.componentType === 'd3SimpleLine' && (
+                  <SimpleLineChart
+                    data={config.data as TimeSeriesDataPoint[]}
+                    yAxisLabel={config.yAxisLabel}
+                    lineColor={config.lineColor}
+                  />
+                )}
+                {config.componentType === 'd3SimpleBar' && (
+                  <SimpleBarChart
+                    data={config.data as CategoricalDataPoint[]}
+                    yAxisLabel={config.yAxisLabel}
+                  />
+                )}
+                {config.componentType === 'd3IVSurface' && (
+                  <IVSurfaceChart
+                    data={config.data as IVSurfaceDataPoint[]}
+                  />
+                )}
               </div>
             </div>
           </div>

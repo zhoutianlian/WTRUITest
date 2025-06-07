@@ -1,177 +1,84 @@
-/* src/pages/EntryPage.css */
-.entry-page {
+.entry-page-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  /* background-color is now handled by NewBackground.css or the canvas itself */
-  color: var(--color-text-primary);
-  overflow: hidden; /* Important to prevent scrollbars from canvas animation */
-  position: relative; /* Needed for z-indexing content above the background */
+  min-height: 100vh; /* Full viewport height */
+  width: 100%; /* Full viewport width */
+  background-color: #1a1a1a; /* Dark theme background */
+  color: #ffffff;
+  text-align: center;
+  position: relative; /* For positioning the 3D background container */
+  overflow: hidden; /* Ensures nothing spills out */
 }
 
-/* Removed .entry-page-background and .background-overlay-text rules */
-
-.entry-page-content {
-  position: relative; /* Changed from z-index: 2 to rely on natural stacking order or explicit relative positioning */
-  z-index: 1; /* Ensure content is above the NewBackground component (which might have z-index -1 or 0) */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 4); /* Adjusted padding */
-  background-color: rgba(10, 12, 16, 0.75); /* Slightly more opaque dark overlay for better readability */
-  border-radius: var(--border-radius-xlarge, 12px); /* Larger border radius */
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5); /* More pronounced shadow */
-  backdrop-filter: blur(8px) saturate(150%); /* Adjusted blur and saturate for glassmorphism */
-  -webkit-backdrop-filter: blur(8px) saturate(150%); /* For Safari */
-  border: 1px solid var(--color-border-secondary, rgba(228, 161, 27, 0.25)); /* Gold-tinged border, ensure fallback */
-  width: 90%; /* Max width relative to parent */
-  max-width: 480px; /* Max width for the content card */
-  text-align: center; /* Center text inside the content area */
-}
-
-.entry-logo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: calc(var(--spacing-unit) * 2.5); /* Adjusted margin */
-}
-
-.entry-logo-container .logo svg {
-    width: 90px; /* Slightly adjusted size */
-    height: auto;
-    margin-bottom: var(--spacing-unit);
-}
-
-.entry-logo-container h2 {
-    color: var(--color-accent-gold-luminous);
-    font-weight: var(--font-weight-semibold); /* Slightly bolder */
-    font-size: 2rem; /* Larger welcome text */
-}
-
-.entry-options {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: calc(var(--spacing-unit) * 1.5); /* Adjusted gap */
+#threejs-bg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 320px; /* Max width for buttons, can be adjusted */
+  height: 100%;
+  z-index: 0; /* Behind other content */
+  /* Placeholder for actual 3D background or CSS animation */
+  background: linear-gradient(45deg, #000000, #1a1a1a, #2c2c2c); /* Example gradient */
+}
+
+.entry-content {
+  position: relative; /* Ensure content is above the background */
+  z-index: 1;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.3); /* Slight glassmorphic hint */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.entry-content h1 {
+  font-size: 3rem;
+  color: #ffd700; /* Gold color for heading */
+  margin-bottom: 0.5em;
+}
+
+.entry-content p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5em;
+}
+
+.entry-buttons {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically on smaller screens or by default */
+  align-items: center;
+  gap: 15px; /* Space between buttons */
 }
 
 .entry-button {
-  display: inline-block;
-  width: 100%;
-  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2.5); /* Adjusted padding */
-  border-radius: var(--border-radius-medium);
-  text-align: center;
-  font-size: 1.05rem; /* Slightly larger font */
-  font-weight: var(--font-weight-semibold);
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  color: #1a1a1a; /* Dark text on light buttons */
+  background-color: #ffd700; /* Gold background for buttons */
+  border: none;
+  border-radius: 5px;
   text-decoration: none;
-  transition: all 0.25s ease-in-out; /* Slightly faster transition */
-  border: 1px solid transparent;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+  min-width: 250px; /* Ensure buttons have a good width */
+  text-align: center;
 }
 
-.primary-entry-button {
-  background-color: var(--color-accent-gold);
-  color: var(--color-background-primary);
-  border-color: var(--color-accent-gold);
+.entry-button:hover,
+.entry-button:focus {
+  background-color: #e6c300; /* Darker gold on hover/focus */
+  transform: translateY(-2px); /* Slight lift effect */
+  color: #000000;
 }
 
-.primary-entry-button:hover {
-  background-color: var(--color-accent-gold-hover);
-  border-color: var(--color-accent-gold-hover);
-  transform: translateY(-3px) scale(1.03); /* More pronounced hover effect */
-  box-shadow: 0 8px 25px rgba(var(--rgb-accent-gold), 0.45);
-}
-
-.primary-entry-button:active {
-  transform: translateY(-1px) scale(1.01); /* Slight press effect */
-  box-shadow: 0 4px 15px rgba(var(--rgb-accent-gold), 0.35);
-}
-
-.secondary-entry-button {
-  background-color: transparent;
-  color: var(--color-accent-gold-luminous);
-  border: 1px solid var(--color-accent-gold-burnished);
-}
-
-.secondary-entry-button:hover {
-  background-color: rgba(176, 141, 87, 0.25); /* Slightly more opaque hover */
-  color: var(--color-accent-gold-hover);
-  border-color: var(--color-accent-gold-luminous);
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 20px rgba(var(--rgb-accent-gold), 0.25);
-}
-
-.secondary-entry-button:active {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 3px 10px rgba(var(--rgb-accent-gold), 0.2);
-}
-
-.entry-footer {
-    position: relative; /* Changed from absolute to relative to flow with content if page isn't full height */
-    /* If it must be at the bottom of the viewport, then position: fixed or absolute within .entry-page (which is 100vh) is needed */
-    /* For now, let it be part of the .entry-page flex flow */
-    padding-top: calc(var(--spacing-unit) * 2); /* Add some space above the footer if it's part of the content flow */
-    color: var(--color-text-secondary);
-    font-size: 0.8rem;
-    z-index: 1; /* Ensure it's stacked correctly if overlapping could occur */
-    text-align: center; /* Ensure footer text is centered */
-    width: 100%; /* Ensure it takes full width if needed */
-}
-
-/* Media query for responsiveness of the content card */
-@media (max-width: 768px) {
-  .entry-page-content {
-    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3);
-    max-width: 400px; /* Adjust max-width for tablets */
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .entry-buttons {
+    flex-direction: row; /* Buttons side-by-side on larger screens */
+    justify-content: center;
   }
-  .entry-logo-container h2 {
-    font-size: 1.8rem;
-  }
+
   .entry-button {
-    font-size: 1rem;
+    margin: 0 10px; /* Add horizontal margin for side-by-side buttons */
   }
-}
-
-@media (max-width: 480px) {
-  .entry-page-content {
-    padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 2);
-    width: 85%; /* More width for small screens */
-    max-width: none; /* Remove max-width constraint for very small screens if needed */
-    margin-top: var(--spacing-unit); /* Add some top margin */
-    margin-bottom: var(--spacing-unit); /* Add some bottom margin */
-  }
-  .entry-logo-container .logo svg {
-    width: 70px;
-  }
-  .entry-logo-container h2 {
-    font-size: 1.6rem;
-  }
-  .entry-options {
-    gap: var(--spacing-unit);
-  }
-  .entry-button {
-    padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
-    font-size: 0.95rem;
-  }
-  .entry-footer {
-    font-size: 0.75rem;
-    padding-top: var(--spacing-unit);
-  }
-}
-
-/* Particle Burst Effect Styles */
-.particle {
-  position: fixed; /* Positioned relative to the viewport */
-  width: 5px;      /* Particle size */
-  height: 5px;
-  background-color: var(--color-accent-gold-luminous);
-  border-radius: 50%;
-  pointer-events: none; /* Particles should not be interactive */
-  opacity: 1;
-  z-index: 9999; /* Ensure particles are on top of other content */
-  transition: transform 0.7s cubic-bezier(0.1, 0.8, 0.7, 1), opacity 0.7s ease-out; /* Adjusted timing and easing */
 }

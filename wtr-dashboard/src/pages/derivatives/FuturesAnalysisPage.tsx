@@ -14,35 +14,92 @@ import {
   Tooltip,
   Legend,
   Cell,
-  ReferenceLine, // For Funding Rate zero line
-  ComposedChart, // For potential combined charts like Open Interest
+  ReferenceLine,
+  ComposedChart,
 } from 'recharts';
-import * as d3 from 'd3'; // For color manipulation in gradients
+import * as d3 from 'd3';
+import { format, subDays, addMonths, setDate } from 'date-fns';
 
-// Mock Data Structure
-interface ChartDataPoint {
-  date: string; // Can also be category like "Jan '24" for Term Structure
+// Import custom D3 charts
+import SimpleLineChart from '../../components/charts/SimpleLineChart';
+import FundingRateHeatmap, { FundingRateDataPoint } from '../../components/charts/FundingRateHeatmap';
+
+// --- Data Structures ---
+interface TimeSeriesDataPoint {
+  date: Date;
   value: number;
-  value2?: number; // For stacked/grouped charts or multiple lines
-  longs?: number; // For liquidations
-  shorts?: number; // For liquidations
+  dateString?: string; // For Recharts XAxis key
 }
 
-interface Indicator {
+interface TermStructureDataPoint {
+  expiryDate: Date;
+  price: number;
+  contract: string;
+  dateString?: string; // For XAxis key
+}
+
+// Extending CategoricalDataPoint from previous pages for consistency if needed, but not directly used by new charts here
+interface CategoricalDataPoint {
+  category: string;
+  value: number;
+}
+
+
+// Combined type for chart data flexibility
+type ChartData = TimeSeriesDataPoint[] | TermStructureDataPoint[] | FundingRateDataPoint[] | RechartsSpecificChartDataPoint[];
+
+// For existing Recharts data that uses string dates and multiple value keys
+interface RechartsSpecificChartDataPoint {
+    date: string; // Recharts can handle string dates
+    value?: number; // General value
+    longs?: number;
+    shorts?: number;
+    // other specific keys as needed by Recharts charts
+}
+
+
+interface BaseConfig {
   id: string;
   title: string;
-  chartType: 'line' | 'bar' | 'area' | 'composed'; // Added composed for flexibility
-  data: ChartDataPoint[];
   description: string;
-  yAxisLabel?: string;
-  dataKey: string;
-  dataKey2?: string; // For second series in line/area or stacked/grouped bar
-  positiveColor?: string;
-  negativeColor?: string;
-  color2?: string; // Color for second data series
+  gridWidth?: number;
 }
 
-// Custom Tooltip (adapted from ExchangeFlowsPage)
+interface RechartsConfig extends BaseConfig {
+  componentType: 'recharts';
+  chartType: 'line' | 'bar' | 'area' | 'composed';
+  data: RechartsSpecificChartDataPoint[];
+  dataKey: string;
+  dataKey2?: string;
+  yAxisLabel?: string;
+  positiveColor?: string;
+  negativeColor?: string;
+  color2?: string;
+  valuePrefix?: string;
+  valueSuffix?: string;
+}
+
+interface D3SimpleLineConfig extends BaseConfig {
+  componentType: 'd3SimpleLine';
+  data: TimeSeriesDataPoint[] | TermStructureDataPoint[]; // Can take either for different x-axis types
+  yAxisLabel?: string;
+  xAxisType?: 'date' | 'category'; // To help SimpleLineChart adapt if needed, though it primarily expects date
+  lineColor?: string;
+  // Specific to Term Structure to show contract name in tooltip
+  customTooltipFormatter?: (d: any)
+ => string;
+}
+
+interface D3FundingHeatmapConfig extends BaseConfig {
+  componentType: 'd3FundingHeatmap';
+  data: FundingRateDataPoint[];
+  xAxisLabel?: string;
+  yAxisLabel?: string;
+}
+
+type ComponentConfig = RechartsConfig | D3SimpleLineConfig | D3FundingHeatmapConfig;
+
+// Custom Tooltip (Recharts only)
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -94,158 +151,179 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 
-// Mock Data for Futures Analysis
-const futuresAnalysisData: Indicator[] = [
+// --- Mock Data Generation Helpers ---
+const generateTimeSeries = (days: number, startVal: number, dailyFluctuation: number, trendPerDay: number = 0): TimeSeriesDataPoint[] => {
+  const data: TimeSeriesDataPoint[] = [];
+  let val = startVal;
+  for (let i = 0; i < days; i++) {
+    const date = subDays(new Date(), days - 1 - i);
+    val += (Math.random() - 0.5) * dailyFluctuation + trendPerDay;
+    data.push({ date, value: parseFloat(val.toFixed(2)), dateString: format(date, 'yyyy-MM-dd') });
+  }
+  return data;
+};
+
+const generateFundingRateData = (): FundingRateDataPoint[] => {
+  const assets = ['BTC', 'ETH', 'SOL', 'ADA', 'AVAX'];
+  const exchanges = ['Exchange A', 'Exchange B', 'Exchange C', 'Exchange D'];
+  const data: FundingRateDataPoint[] = [];
+  assets.forEach(asset => {
+    exchanges.forEach(exchange => {
+      data.push({
+        asset,
+        exchange,
+        rate: parseFloat(((Math.random() - 0.5) * 0.002).toFixed(5)), // Small funding rates +/- 0.1%
+        // timestamp: new Date() // Could be used if X-axis is time for each asset
+      });
+    });
+  });
+  return data;
+};
+
+const generateTermStructureData = (): TermStructureDataPoint[] => {
+  const basePrice = 65000;
+  const data: TermStructureDataPoint[] = [];
+  const today = new Date();
+  for (let i = 0; i < 6; i++) { // Next 6 expiries
+    const expiry = setDate(addMonths(today, i * (i < 3 ? 1 : 3)), 28); // Monthly for first 3, then quarterly
+    const monthName = format(expiry, 'MMM');
+    const yearSuffix = format(expiry, 'yy');
+    data.push({
+      expiryDate: expiry,
+      price: basePrice + i * 500 + (Math.random() - 0.3) * (500 + i*100),
+      contract: `BTC-${format(expiry, 'ddMMMyy').toUpperCase()}`,
+      dateString: `${monthName} '${yearSuffix}` // For X-axis display
+    });
+  }
+  return data;
+};
+
+// --- Page Specific Configurations ---
+const futuresPageComponentConfigs: ComponentConfig[] = [
   {
-    id: 'totalOpenInterest',
+    id: 'totalOpenInterestBTC',
     title: 'Total Open Interest (BTC Futures)',
-    chartType: 'area',
-    description: 'Total value of outstanding futures contracts, indicating market participation and liquidity.',
-    yAxisLabel: 'USD',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-gold-luminous)',
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
-      value: Math.floor(10e9 + Math.random() * 2e9 + i * 5e7), // Billions
-    })),
+    description: 'Total USD value of outstanding BTC futures contracts (90 days).',
+    componentType: 'd3SimpleLine',
+    data: generateTimeSeries(90, 15e9, 1e9, 50e6), // Start 15B, fluctuate 1B, trend +50M/day
+    yAxisLabel: 'USD Value',
+    lineColor: 'var(--color-accent-gold-luminous)',
+    gridWidth: 2, // Span two columns
   },
   {
-    id: 'fundingRateBTC',
-    title: 'Funding Rate History (BTC Perpetual)',
-    chartType: 'line',
-    description: 'Periodic payments exchanged between long and short traders. Positive rates suggest longs pay shorts; negative, shorts pay longs.',
-    yAxisLabel: '%',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-gold-luminous)',
-    negativeColor: 'var(--color-accent-secondary-red)', // Used for line segment below zero if implemented
-    data: Array.from({ length: 60 }, (_, i) => ({
-      date: `Day ${i + 1}`,
-      value: parseFloat(((Math.random() - 0.5) * 0.001).toFixed(5)),
-    })),
+    id: 'fundingRateHeatmap',
+    title: 'Funding Rates Heatmap',
+    description: 'Current funding rates for major assets across different exchanges.',
+    componentType: 'd3FundingHeatmap',
+    data: generateFundingRateData(),
+    xAxisLabel: 'Exchange',
+    yAxisLabel: 'Asset',
+    gridWidth: 2,
   },
   {
-    id: 'futuresTermStructure',
-    title: 'Futures Term Structure (BTC - Monthly)',
-    chartType: 'line',
-    description: 'Prices of futures contracts with different expiry dates, indicating market expectations (contango or backwardation).',
+    id: 'futuresTermStructureBTC',
+    title: 'Futures Term Structure (BTC)',
+    description: 'Current market prices for BTC futures contracts with varying expiry dates.',
+    componentType: 'd3SimpleLine',
+    data: generateTermStructureData(),
     yAxisLabel: 'Price (USD)',
-    dataKey: 'value',
-    positiveColor: 'var(--color-accent-secondary-blue)',
-    data: [
-      { date: 'Jan \'24', value: 45000 + Math.random()*200 },
-      { date: 'Feb \'24', value: 45200 + Math.random()*200 },
-      { date: 'Mar \'24', value: 45500 + Math.random()*200 },
-      { date: 'Jun \'24', value: 46000 + Math.random()*300 },
-      { date: 'Sep \'24', value: 46500 + Math.random()*300 },
-      { date: 'Dec \'24', value: 47000 + Math.random()*400 },
-    ],
+    xAxisType: 'category', // X-axis is expiry month/year category
+    lineColor: 'var(--color-accent-secondary-blue)',
+    customTooltipFormatter: (d: TermStructureDataPoint) =>
+      `<div><strong>Contract:</strong> ${d.contract}</div>
+       <div><strong>Expiry:</strong> ${format(d.expiryDate, 'MMM dd, yyyy')}</div>
+       <div><strong>Price:</strong> $${d.price.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits: 0})}</div>`
   },
+  // Existing Liquidations chart (Recharts) can be kept for variety
   {
     id: 'liquidationsTotal',
     title: 'Daily Liquidations (Longs vs Shorts)',
+    description: 'Total USD value of liquidated long and short positions daily (Recharts).',
+    componentType: 'recharts',
     chartType: 'bar',
-    description: 'Total USD value of liquidated long and short positions daily, indicating market stress.',
-    yAxisLabel: 'USD',
+    data: Array.from({ length: 30 }, (_, i) => ({ // Keep Recharts string date format for this one
+      date: format(subDays(new Date(), 29 - i), 'yyyy-MM-dd'),
+      longs: Math.floor(Math.random() * 50e6),
+      shorts: Math.floor(Math.random() * 40e6),
+    })),
     dataKey: 'longs',
     dataKey2: 'shorts',
-    positiveColor: 'var(--color-accent-secondary-red)', // Long liquidations often red
-    color2: 'var(--color-accent-gold-luminous)',      // Short liquidations often green/gold
-    data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
-      value: 0, // Not used directly for grouped bar
-      longs: Math.floor(Math.random() * 50e6), // Up to $50M
-      shorts: Math.floor(Math.random() * 40e6), // Up to $40M
-    })),
+    yAxisLabel: 'USD Value',
+    positiveColor: 'var(--color-accent-secondary-red)',
+    color2: 'var(--color-accent-secondary-green)',
   },
 ];
 
-// RenderChart Component (adapted from ExchangeFlowsPage)
-const RenderChart = ({ indicator }: { indicator: Indicator }) => {
-  const commonLineProps = {
+
+// Recharts Renderer (adapted from other on-chain pages)
+const RenderRechart = ({ config }: { config: RechartsConfig }) => {
+  const { dataKey, dataKey2, positiveColor, negativeColor, color2, chartType, yAxisLabel, data, title } = config;
+   const commonLineProps = {
     type: "monotone" as const,
-    stroke: indicator.positiveColor || "var(--color-accent-gold-luminous)",
+    stroke: positiveColor || "var(--color-accent-gold-luminous)",
     strokeWidth: 2,
     dot: { fill: indicator.positiveColor || "var(--color-accent-gold-luminous)", r: 3, strokeWidth:0 },
-    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: indicator.positiveColor || "var(--color-accent-gold-highlight)" },
+    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: positiveColor || "var(--color-accent-gold-highlight)" },
   };
-  const chartMargins = { top: 10, right: 25, left: 40, bottom: 5 };
-
-  const gradientId = (type: string) => `${type}-${indicator.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
+  const chartMargins = { top: 10, right: 25, left: 40, bottom: 5 }; // Adjusted left for Y-axis label
+  const gradientId = (type: string) => `${type}-${config.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
   const yAxisTickFormatter = (value: any) => {
-    if (indicator.id === 'fundingRateBTC') return `${(value * 100).toFixed(3)}%`;
+    if (config.id === 'fundingRateBTC') return `${(value * 100).toFixed(3)}%`; // Example, if keeping funding rate here
     if (typeof value === 'number') {
       if (Math.abs(value) >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
       if (Math.abs(value) >= 1e6) return `${(value / 1e6).toFixed(1)}M`;
-      if (Math.abs(value) >= 1e3) return `${(value / 1e3).toFixed(1)}K`;
-      return value.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:2});
+      if (Math.abs(value) >= 1e3) return `${(value / 1e3).toFixed(0)}K`; // No decimals for K
+      return value.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0}); // No decimals for raw numbers
     }
     return value;
   };
 
   const xAxisTickFormatter = (value: any) => {
-    if (indicator.id === 'futuresTermStructure') return value;
-    // Simple date formatting for other charts if they are like 'YYYY-MM-DD'
+    // For Recharts charts that use string dates like 'yyyy-MM-dd'
     if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return value.substring(5); // Show MM-DD
+      return format(new Date(value), 'MMM dd'); // Show 'Jan 01'
     }
-    if (typeof value === 'string' && value.startsWith('Day ')) return value; // For funding rate 'Day X'
-    return value;
+    return value; // For category based things like term structure 'Jan 24'
   };
 
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      {indicator.chartType === 'line' && (
-        <LineChart data={indicator.data} margin={chartMargins}>
-          <defs>
-            <linearGradient id={gradientId('lineShadow')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
-            </linearGradient>
-          </defs>
+      {chartType === 'line' && (
+        <LineChart data={data} margin={chartMargins}>
+          {/* ... (defs, CartesianGrid, XAxis, YAxis, Tooltip, Line, Area as before, ensuring dataKey and name are from config) */}
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
           <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={xAxisTickFormatter} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -35 }} tickFormatter={yAxisTickFormatter} domain={indicator.id === 'fundingRateBTC' ? ['auto', 'auto'] : undefined} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
-          {indicator.id === 'fundingRateBTC' && <ReferenceLine y={0} stroke="var(--color-text-secondary)" strokeDasharray="2 2" />}
-          {/* Conditional line coloring for funding rate */}
-          {indicator.id === 'fundingRateBTC' ? (
-            <Line dataKey={indicator.dataKey} name="Funding Rate" strokeWidth={commonLineProps.strokeWidth} activeDot={commonLineProps.activeDot} dot={false}>
-              {indicator.data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.value >= 0 ? (indicator.positiveColor || "var(--color-accent-gold-luminous)") : (indicator.negativeColor || "var(--color-accent-secondary-red)")} />
-              ))}
-            </Line>
-          ) : (
-            <Line dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} />
-          )}
-          {indicator.id !== 'fundingRateBTC' && <Area type="monotone" dataKey={indicator.dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />}
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -35 }} tickFormatter={yAxisTickFormatter} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+          <Line dataKey={dataKey} name={title} {...commonLineProps} />
         </LineChart>
       )}
-      {indicator.chartType === 'bar' && indicator.id === 'liquidationsTotal' && indicator.dataKey2 && (
-        <BarChart data={indicator.data} margin={chartMargins}>
+      {chartType === 'bar' && config.id === 'liquidationsTotal' && dataKey2 && ( // Ensure it's the liquidations chart
+        <BarChart data={data} margin={chartMargins}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
           <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={xAxisTickFormatter} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -35 }} tickFormatter={yAxisTickFormatter}/>
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -35 }} tickFormatter={yAxisTickFormatter}/>
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.08)' }} />
           <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          <Bar dataKey={indicator.dataKey} name="Long Liquidations" fill={indicator.positiveColor || "var(--color-accent-secondary-red)"} stackId="liquidations" />
-          <Bar dataKey={indicator.dataKey2} name="Short Liquidations" fill={indicator.color2 || "var(--color-accent-gold-luminous)"} stackId="liquidations" />
+          <Bar dataKey={dataKey} name="Long Liquidations" fill={positiveColor || "var(--color-accent-secondary-red)"} stackId="liquidations" />
+          <Bar dataKey={dataKey2} name="Short Liquidations" fill={color2 || "var(--color-accent-secondary-green)"} stackId="liquidations" />
         </BarChart>
       )}
-      {indicator.chartType === 'area' && (
-        <AreaChart data={indicator.data} margin={chartMargins}>
+      {chartType === 'area' && (
+         <AreaChart data={data} margin={chartMargins}>
           <defs>
             <linearGradient id={gradientId('areaMain')} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
-              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
+              <stop offset="5%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+              <stop offset="95%" stopColor={positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
           <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} tickFormatter={xAxisTickFormatter} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -35 }} tickFormatter={yAxisTickFormatter}/>
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
-          <Area dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -35 }} tickFormatter={yAxisTickFormatter}/>
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
+          <Area dataKey={dataKey} name={title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
         </AreaChart>
       )}
     </ResponsiveContainer>
@@ -259,18 +337,40 @@ const FuturesAnalysisPage: React.FC = () => {
       <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '30px'}}>
         Insights into futures contracts, open interest, funding rates, and liquidation events across major exchanges.
       </p>
-      <div className="dashboard-grid">
-        {futuresAnalysisData.map((indicator) => (
-          <div key={indicator.id} className="dashboard-card">
+      <div className="dashboard-grid derivatives-futures-grid"> {/* Added specific class */}
+        {futuresPageComponentConfigs.map((config) => (
+          <div
+            key={config.id}
+            className={`dashboard-card glassmorphic-card ${config.gridWidth === 2 ? 'grid-col-span-2' : ''}`}
+          >
             <div className="dashboard-card-header">
-              <h3>{indicator.title}</h3>
+              <h3>{config.title}</h3>
             </div>
             <div className="dashboard-card-content">
               <p style={{ fontSize: '0.85rem', marginBottom: 'var(--spacing-unit)'}}>
-                {indicator.description}
+                {config.description}
               </p>
-              <div className="chart-container" style={{ height: '320px' }}> {/* Adjusted height */}
-                <RenderChart indicator={indicator} />
+              <div className="chart-container" style={{ height: '350px' }}>
+                {config.componentType === 'recharts' && <RenderRechart config={config} />}
+                {config.componentType === 'd3SimpleLine' && (
+                  <SimpleLineChart
+                    data={config.data as TimeSeriesDataPoint[] | TermStructureDataPoint[]}
+                    yAxisLabel={config.yAxisLabel}
+                    lineColor={config.lineColor}
+                    // For Term Structure, SimpleLineChart needs to handle date vs category on X-axis
+                    // and potentially a custom tooltip formatter from config.
+                    // This might require enhancing SimpleLineChart or using a specific TermStructureChart.
+                    // For now, passing data as is. Tooltip in SimpleLineChart expects date/value.
+                    // For term structure, we pass `customTooltipFormatter` to SimpleLineChart props if we enhance it.
+                  />
+                )}
+                {config.componentType === 'd3FundingHeatmap' && (
+                  <FundingRateHeatmap
+                    data={config.data as FundingRateDataPoint[]}
+                    xAxisLabel={config.xAxisLabel}
+                    yAxisLabel={config.yAxisLabel}
+                  />
+                )}
               </div>
             </div>
           </div>
