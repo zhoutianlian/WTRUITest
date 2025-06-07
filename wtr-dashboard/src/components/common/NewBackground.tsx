@@ -364,7 +364,7 @@ void main() {
         focus() { this.textarea.focus(); }
         #hide() { [this.errorindicator, this.errorfield, this.textarea].forEach(el => el.classList.add('hidden')); }
         #show() { [this.errorindicator, this.errorfield, this.textarea].forEach(el => el.classList.remove('hidden')); }
-        handleScroll() { this.errorindicator.style.setProperty('--scroll-top', \`\${this.textarea.scrollTop}px\`); }
+        handleScroll() { this.errorindicator.style.setProperty('--scroll-top', String(this.textarea.scrollTop) + 'px'); }
     }
 
 
