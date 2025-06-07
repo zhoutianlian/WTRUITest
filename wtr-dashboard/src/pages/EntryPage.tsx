@@ -1,19 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './EntryPage.css';
-import Logo from '../components/common/Logo'; // Assuming Logo is desired
-import Dynamic3DBackground from '../components/common/Dynamic3DBackground'; // Import the new component
+import Logo from '../components/common/Logo';
+import NewBackground from '../components/common/NewBackground'; // Import the NewBackground component
 
 const EntryPage: React.FC = () => {
   return (
     <div className="entry-page">
-      <div className="entry-page-background">
-        <Dynamic3DBackground />
-        <div className="background-overlay-text">
-          <h1>WTR Crypto Intelligence</h1>
-          <p>Unlock the Future of Digital Asset Analysis.</p>
-        </div>
-      </div>
+      <NewBackground /> {/* Add the NewBackground component here */}
+      {/* The entry-page-background div and its contents (Dynamic3DBackground, background-overlay-text) are removed */}
       <div className="entry-page-content">
         <div className="entry-logo-container">
           <Logo />

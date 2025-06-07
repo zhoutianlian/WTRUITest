@@ -1,99 +1,75 @@
 /* src/pages/EntryPage.css */
 .entry-page {
   display: flex;
-  flex-direction: column; /* Changed to column for content flow */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: var(--color-background-primary);
+  /* background-color is now handled by NewBackground.css or the canvas itself */
   color: var(--color-text-primary);
-  overflow: hidden;
-  position: relative;
+  overflow: hidden; /* Important to prevent scrollbars from canvas animation */
+  position: relative; /* Needed for z-indexing content above the background */
 }
 
-.entry-page-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.background-overlay-text {
-    text-align: center;
-    z-index: 2; /* Above background, below main content */
-    color: var(--color-text-primary);
-    opacity: 0.15; /* Make it very subtle, part of the background feel */
-}
-
-.background-overlay-text h1 {
-    font-size: 3rem;
-    color: var(--color-accent-gold-luminous);
-    margin-bottom: var(--spacing-unit);
-    text-shadow: 0 0 15px rgba(228, 161, 27, 0.5);
-}
-
-.background-overlay-text p {
-    font-size: 1.2rem;
-    color: var(--color-text-secondary);
-}
+/* Removed .entry-page-background and .background-overlay-text rules */
 
 .entry-page-content {
-  z-index: 2; /* Ensure content is above the background */
+  position: relative; /* Changed from z-index: 2 to rely on natural stacking order or explicit relative positioning */
+  z-index: 1; /* Ensure content is above the NewBackground component (which might have z-index -1 or 0) */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--spacing-unit) * 4);
-  background-color: rgba(10, 12, 16, 0.6); /* Slightly transparent dark overlay */
-  border-radius: var(--border-radius-large);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
-  backdrop-filter: blur(5px); /* Subtle blur for content pane */
-  border: 1px solid var(--color-border-primary);
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 4); /* Adjusted padding */
+  background-color: rgba(10, 12, 16, 0.75); /* Slightly more opaque dark overlay for better readability */
+  border-radius: var(--border-radius-xlarge, 12px); /* Larger border radius */
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5); /* More pronounced shadow */
+  backdrop-filter: blur(8px) saturate(150%); /* Adjusted blur and saturate for glassmorphism */
+  -webkit-backdrop-filter: blur(8px) saturate(150%); /* For Safari */
+  border: 1px solid var(--color-border-secondary, rgba(228, 161, 27, 0.25)); /* Gold-tinged border, ensure fallback */
+  width: 90%; /* Max width relative to parent */
+  max-width: 480px; /* Max width for the content card */
+  text-align: center; /* Center text inside the content area */
 }
 
 .entry-logo-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: calc(var(--spacing-unit) * 3);
+    margin-bottom: calc(var(--spacing-unit) * 2.5); /* Adjusted margin */
 }
 
-.entry-logo-container .logo svg { /* Assuming logo is an SVG */
-    width: 100px; /* Adjust as needed */
+.entry-logo-container .logo svg {
+    width: 90px; /* Slightly adjusted size */
     height: auto;
     margin-bottom: var(--spacing-unit);
 }
 
 .entry-logo-container h2 {
     color: var(--color-accent-gold-luminous);
-    font-weight: var(--font-weight-medium);
-    font-size: 1.8rem;
+    font-weight: var(--font-weight-semibold); /* Slightly bolder */
+    font-size: 2rem; /* Larger welcome text */
 }
 
 .entry-options {
   display: flex;
-  flex-direction: column; /* Stack buttons vertically */
+  flex-direction: column;
   align-items: center;
-  gap: calc(var(--spacing-unit) * 2); /* Space between buttons */
+  gap: calc(var(--spacing-unit) * 1.5); /* Adjusted gap */
   width: 100%;
-  max-width: 300px; /* Max width for buttons */
+  max-width: 320px; /* Max width for buttons, can be adjusted */
 }
 
 .entry-button {
   display: inline-block;
-  width: 100%; /* Make buttons full width of container */
-  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+  width: 100%;
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 2.5); /* Adjusted padding */
   border-radius: var(--border-radius-medium);
   text-align: center;
-  font-size: 1rem;
+  font-size: 1.05rem; /* Slightly larger font */
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease-in-out; /* Slightly faster transition */
   border: 1px solid transparent;
 }
 
@@ -106,38 +82,83 @@
 .primary-entry-button:hover {
   background-color: var(--color-accent-gold-hover);
   border-color: var(--color-accent-gold-hover);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(var(--rgb-accent-gold), 0.4); /* Gold glow */
+  transform: translateY(-3px) scale(1.03); /* More pronounced hover effect */
+  box-shadow: 0 8px 25px rgba(var(--rgb-accent-gold), 0.45);
 }
 
 .primary-entry-button:active {
-  transform: translateY(0px) scale(1);
-  box-shadow: 0 3px 10px rgba(var(--rgb-accent-gold), 0.3);
+  transform: translateY(-1px) scale(1.01); /* Slight press effect */
+  box-shadow: 0 4px 15px rgba(var(--rgb-accent-gold), 0.35);
 }
 
 .secondary-entry-button {
   background-color: transparent;
   color: var(--color-accent-gold-luminous);
-  border: 1px solid var(--color-accent-gold-burnished); /* Changed to burnished gold */
+  border: 1px solid var(--color-accent-gold-burnished);
 }
 
 .secondary-entry-button:hover {
-  background-color: rgba(176, 141, 87, 0.2); /* Burnished gold (B08D57) at 20% opacity */
+  background-color: rgba(176, 141, 87, 0.25); /* Slightly more opaque hover */
   color: var(--color-accent-gold-hover);
-  border-color: var(--color-accent-gold-luminous); /* Changed to luminous for hover */
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 15px rgba(var(--rgb-accent-gold), 0.2); /* Softer gold glow - using luminous for consistency in glow */
+  border-color: var(--color-accent-gold-luminous);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(var(--rgb-accent-gold), 0.25);
 }
 
 .secondary-entry-button:active {
-  transform: translateY(0px) scale(1);
-  box-shadow: 0 2px 8px rgba(var(--rgb-accent-gold), 0.15);
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 3px 10px rgba(var(--rgb-accent-gold), 0.2);
 }
 
 .entry-footer {
-    position: absolute;
-    bottom: var(--spacing-unit);
+    position: relative; /* Changed from absolute to relative to flow with content if page isn't full height */
+    /* If it must be at the bottom of the viewport, then position: fixed or absolute within .entry-page (which is 100vh) is needed */
+    /* For now, let it be part of the .entry-page flex flow */
+    padding-top: calc(var(--spacing-unit) * 2); /* Add some space above the footer if it's part of the content flow */
     color: var(--color-text-secondary);
     font-size: 0.8rem;
-    z-index: 3; /* Above background if content is not full height */
+    z-index: 1; /* Ensure it's stacked correctly if overlapping could occur */
+    text-align: center; /* Ensure footer text is centered */
+    width: 100%; /* Ensure it takes full width if needed */
+}
+
+/* Media query for responsiveness of the content card */
+@media (max-width: 768px) {
+  .entry-page-content {
+    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3);
+    max-width: 400px; /* Adjust max-width for tablets */
+  }
+  .entry-logo-container h2 {
+    font-size: 1.8rem;
+  }
+  .entry-button {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .entry-page-content {
+    padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 2);
+    width: 85%; /* More width for small screens */
+    max-width: none; /* Remove max-width constraint for very small screens if needed */
+    margin-top: var(--spacing-unit); /* Add some top margin */
+    margin-bottom: var(--spacing-unit); /* Add some bottom margin */
+  }
+  .entry-logo-container .logo svg {
+    width: 70px;
+  }
+  .entry-logo-container h2 {
+    font-size: 1.6rem;
+  }
+  .entry-options {
+    gap: var(--spacing-unit);
+  }
+  .entry-button {
+    padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
+    font-size: 0.95rem;
+  }
+  .entry-footer {
+    font-size: 0.75rem;
+    padding-top: var(--spacing-unit);
+  }
 }

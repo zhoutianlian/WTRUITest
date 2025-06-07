@@ -1,16 +1,17 @@
 // src/pages/LoginPage.tsx
 import React from 'react';
 import LoginForm from '../components/auth/LoginForm';
-import ThreeSceneLogin from '../components/common/ThreeSceneLogin';
-import Logo from '../components/common/Logo'; // Optional: Add logo to login page
+import NewBackground from '../components/common/NewBackground'; // Import NewBackground
+import Logo from '../components/common/Logo';
 import './LoginPage.css';
 
 const LoginPage: React.FC = () => {
   return (
     <div className="login-page">
-      <ThreeSceneLogin />
+      <NewBackground /> {/* Add NewBackground here */}
+      {/* ThreeSceneLogin component is removed */}
       <div className="login-content-wrapper">
-        <div className="login-logo-container"> {/* Container for the logo */}
+        <div className="login-logo-container">
           <Logo />
         </div>
         <LoginForm />

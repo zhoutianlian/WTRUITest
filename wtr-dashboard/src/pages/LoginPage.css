@@ -1,54 +1,82 @@
 /* src/pages/LoginPage.css */
 .login-page {
   display: flex;
-  flex-direction: column; /* Align logo and form vertically */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  width: 100vw;
-  position: relative; /* For z-indexing of Three.js scene */
-  background-color: var(--color-background-primary); /* Fallback if scene is transparent or fails */
-  overflow: hidden; /* Prevent scrollbars from scene */
-  padding: var(--spacing-unit) * 2; /* Add some padding for smaller screens */
+  width: 100vw; /* Ensure it covers full viewport width */
+  /* background-color is now handled by NewBackground.css or the canvas itself */
+  color: var(--color-text-primary); /* Assuming this is defined, for text within .login-page but outside .login-content-wrapper */
+  overflow: hidden; /* Important to prevent scrollbars from canvas animation */
+  position: relative; /* Needed for z-indexing content above the background */
+  /* padding: calc(var(--spacing-unit) * 2); Removed padding from the main page, apply to content if needed */
 }
 
 .login-logo-container {
-  margin-bottom: calc(var(--spacing-unit) * 3); /* Space between logo and form card */
-  position: relative; /* To ensure it's above the Three.js scene */
-  z-index: 1;
-  /* Adjust logo size specifically for login page if needed via Logo.css or here */
+  margin-bottom: calc(var(--spacing-unit) * 2); /* Adjusted space */
+  position: relative;
+  z-index: 1; /* Keep logo above background, but below potential popups if any */
+  /* Logo size adjustments can remain or be adapted if needed */
 }
 
-/* Override for logo on login page if a different size is needed */
-.login-logo-container .logo-svg {
-  height: 40px; /* Slightly larger logo on login page */
+.login-logo-container .logo-svg { /* Or use a more specific selector if 'logo-svg' is too generic */
+  height: 45px; /* Slightly adjusted logo size */
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); /* Add a subtle shadow to the logo for better visibility */
 }
-
 
 .login-content-wrapper {
-  position: relative; /* To ensure it's above the Three.js scene */
-  z-index: 1;
-  background-color: rgba(15, 17, 21, 0.65); /* --color-background-secondary at 65% opacity */
-  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 4); /* 24px 32px */
-  border-radius: var(--border-radius-large, 8px); /* Use theme variable with fallback */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37); /* Standard shadow */
-  max-width: 480px; /* Max width for the form card */
-  width: 100%; /* Responsive width */
-  border: 1px solid var(--color-border-secondary); /* Gold-tinged border */
-  backdrop-filter: blur(10px) saturate(180%); /* Standard glassmorphism */
-  -webkit-backdrop-filter: blur(10px) saturate(180%); /* For Safari */
+  position: relative; /* Stays relative for stacking context */
+  z-index: 1; /* Ensure content is above the NewBackground component */
+  display: flex; /* Added flex for internal alignment */
+  flex-direction: column; /* Stack logo and form */
+  align-items: center; /* Center items horizontally */
+  background-color: rgba(12, 15, 20, 0.78); /* Darker, slightly more opaque for login form clarity */
+  padding: calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 3.5); /* Adjusted padding */
+  border-radius: var(--border-radius-xlarge, 12px); /* Consistent with EntryPage */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55); /* Slightly adjusted shadow */
+  backdrop-filter: blur(9px) saturate(160%);
+  -webkit-backdrop-filter: blur(9px) saturate(160%);
+  border: 1px solid var(--color-border-secondary, rgba(200, 150, 50, 0.28)); /* Adjusted gold-tinged border color */
+  width: 90%; /* Relative width */
+  max-width: 420px; /* Slightly smaller max-width for login form */
+  text-align: center; /* Ensure text like headers in LoginForm are centered if not explicitly aligned */
 }
 
-/* Ensure that the direct children of login-content-wrapper (like LoginForm) are not affected by backdrop-filter
-   if they also have backgrounds. Usually not an issue if LoginForm has no background itself. */
+/* Styling for the LoginForm's internal elements might be needed if they don't adapt well. */
+/* For example, if LoginForm has an h2 title: */
+.login-content-wrapper .login-form-container h2 { /* Assuming LoginForm has a container with this class */
+  font-size: 1.75rem;
+  color: var(--color-text-primary); /* Ensure text color contrasts with the background */
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
 
-/* Media query for smaller screens to reduce padding or adjust layout if needed */
+/* Media query for smaller screens */
 @media (max-width: 600px) {
   .login-content-wrapper {
-    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 3); /* 20px 24px */
-    margin: 0 var(--spacing-unit); /* Add some horizontal margin */
+    padding: calc(var(--spacing-unit) * 2.5) calc(var(--spacing-unit) * 2.5);
+    width: 90%;
+    max-width: 380px; /* Adjust max-width for smaller screens */
+    margin-top: var(--spacing-unit); /* Add some top margin on small screens */
+    margin-bottom: var(--spacing-unit); /* Add some bottom margin */
   }
-  .login-form-container h2 {
-    font-size: 1.6rem;
+  .login-logo-container .logo-svg {
+    height: 38px;
+  }
+   .login-content-wrapper .login-form-container h2 { /* Example */
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .login-content-wrapper {
+    padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 2);
+    width: 92%; /* Slightly more width for very small screens */
+  }
+   .login-logo-container {
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+  }
+  .login-logo-container .logo-svg {
+    height: 35px;
   }
 }
