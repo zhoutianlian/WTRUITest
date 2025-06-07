@@ -11,6 +11,7 @@ import FuturesAnalysisPage from './pages/derivatives/FuturesAnalysisPage';
 import OptionsAnalysisPage from './pages/derivatives/OptionsAnalysisPage';
 import SignalsPage from './pages/SignalsPage';
 import ResearchPage from './pages/ResearchPage';
+import ResearchDetailPage from './pages/ResearchDetailPage'; // Import ResearchDetailPage
 import AboutPage from './pages/AboutPage';
 import EntryPage from './pages/EntryPage'; // Import EntryPage
 import { Navigate } from 'react-router-dom'; // Import Navigate
@@ -38,7 +39,10 @@ function App() {
           <Route path="options-analysis" element={<OptionsAnalysisPage />} />
         </Route>
         <Route path="signals" element={<SignalsPage />} />
-        <Route path="research" element={<ResearchPage />} />
+        <Route path="research">
+          <Route index element={<ResearchPage />} />
+          <Route path=":articleId" element={<ResearchDetailPage />} />
+        </Route>
         <Route path="about" element={<AboutPage />} />
       </Route>
       {/* <Route path="*" element={<NotFoundPage />} /> */}

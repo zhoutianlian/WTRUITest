@@ -27,142 +27,43 @@
   height: 100dvh;
   margin: 0;
   overflow: hidden;
+  position: relative; /* For z-index stacking context if needed, or for absolute positioning of children */
 }
 
-.new-background-container > body {
-  display: grid;
-  grid-template-rows: calc(100dvh - 4rem) 4rem;
-  font-family: system-ui, sans-serif;
-}
-
-.new-background-container canvas,
-.new-background-container .editor,
-.new-background-container #controls {
-  grid-row: 1;
-  grid-column: 1;
-}
+/* Removed .new-background-container > body specific grid styling as it's not relevant for a dedicated background */
 
 .new-background-container canvas {
-  --canvas-z-index: -1;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  background: black;
-  touch-action: none;
-  z-index: var(--canvas-z-index);
-}
-
-.new-background-container .editor,
-.new-background-container .overlay,
-.new-background-container #error {
-  font-family: 'Courier New', Courier, monospace;
-  background: repeating-linear-gradient(0deg, #000a, #1119, #000a .25rem);
-  padding: 1em;
-}
-
-.new-background-container .editor {
-  color: #fefefe;
-  tab-size: 2;
-  border: none;
-  resize: none;
-}
-
-.new-background-container .editor:focus {
-  outline: none;
-}
-
-.new-background-container #error {
-  grid-row: 2;
-  grid-column: 1;
-  margin: 0;
-  padding-block: 0;
-  padding-top: .5em;
-  color: firebrick;
-  overflow: auto;
-  text-wrap: pretty;
-}
-
-.new-background-container #indicator {
-  visibility: hidden;
-  position: absolute;
-  top: calc(var(--top, 0px) - var(--scroll-top, 0px));
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 10px solid firebrick;
-  transform: translateY(-25%);
-}
-
-.new-background-container .overlay {
-  position: absolute;
+  position: fixed; /* Use fixed to ensure it covers the viewport */
   top: 0;
   left: 0;
-  right: 0;
-  margin: 0;
+  width: 100vw;    /* Cover full viewport width */
+  height: 100vh;   /* Cover full viewport height */
+  background: black; /* Fallback background color */
+  touch-action: none;
+  z-index: -1;       /* Position canvas behind other content */
+  /* object-fit: contain; /* Not needed for full viewport canvas */
+  /* --canvas-z-index variable is removed as z-index is now static */
 }
 
-.new-background-container .editor,
-.new-background-container .overlay {
-  font-size: 1rem;
-  line-height: 1.2;
-  white-space: pre;
+/*
+  Removed CSS rules for .editor, .overlay, #error, #indicator, #controls,
+  and related input/icon styles as these UI elements are no longer rendered.
+*/
+
+/* Styles for .hidden and .opaque might still be useful if other dynamic elements exist, but are not strictly needed for the current setup.
+   Keeping them for now in case they are used by other parts of the application through this CSS file,
+   but they can be removed if this CSS is exclusively for NewBackground.tsx.
+*/
+.new-background-container .hidden {
+  display: none !important;
 }
 
-.new-background-container #controls {
-  position: fixed;
-  top: 1em;
-  right: 2em;
+.new-background-container .opaque {
+  opacity: 1 !important;
+  background: #111 !important; /* Example, might not be needed */
 }
 
-.new-background-container .controls {
-  position: relative;
-  display: flex;
-  gap: 1.5em;
-  padding: .5em 1.25em;
-  background: #1111;
-  border-radius: 4px;
-}
-
-.new-background-container .controls::before,
-.new-background-container .controls::after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  transform: scale(.95);
-  border-radius: inherit;
-  opacity: 0;
-}
-
-.new-background-container .controls::before {
-  background: #aef;
-  animation: pulse 2s infinite;
-}
-
-.new-background-container .controls::after {
-  background: #fefefe66;
-  transition: transform 200ms ease-in-out;
-}
-
-.new-background-container .controls:hover::before,
-.new-background-container .controls:hover::after {
-  opacity: 1;
-}
-
-.new-background-container .controls:hover::before {
-  transform: scale(.98);
-  filter: blur(2px);
-}
-
-.new-background-container .controls:hover::after {
-  transform: scale(1.025, 1.1);
-}
-
-.new-background-container .controls:hover {
-  background: #111f;
-}
-
+/* Pulse animation might be unused now, can be removed if no elements use it */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -177,53 +78,27 @@
   }
 }
 
-.new-background-container .hidden {
-  display: none !important;
+/* General scrollbar styling can remain if desired for the overall application context,
+   or removed if not needed by this component specifically.
+*/
+::-webkit-scrollbar {
+  width: 0.625rem;
+  height: 0.625rem;
 }
 
-.new-background-container .opaque {
-  opacity: 1 !important;
-  background: #111 !important;
+::-webkit-scrollbar-thumb {
+  background: #111;
+  border-radius: 0.3125rem;
+  box-shadow: inset 0.125rem 0.125rem 0.125rem rgba(255, 255, 255, 0.25),
+    inset -0.125rem -0.125rem 0.125rem rgba(0, 0, 0, 0.25);
+  cursor: default;
 }
 
-.new-background-container input {
-  all: unset;
-  opacity: .2;
-  filter: saturate(0) invert(1);
-  cursor: pointer;
-  transition: opacity 200ms ease-in-out;
-  padding: .25em .5em;
+::-webkit-scrollbar-track {
+  background: #333;
 }
 
-.new-background-container input:hover {
-  opacity: 1;
-}
-
-.new-background-container .icon {
-  text-align: center;
-  line-height: 1;
-}
-
-.new-background-container #btnToggleView {
-  width: 1.25em;
-}
-
-.new-background-container #btnToggleView::after {
-  content: '👁';
-}
-
-.new-background-container #btnToggleView:checked::after {
-  content: '✏️';
-}
-
-.new-background-container #btnToggleResolution::after {
-  content: '1️⃣';
-}
-
-.new-background-container #btnToggleResolution:checked::after {
-  content: '2️⃣';
-}
-
-.new-background-container #btnReset::after {
-  content: '⏮️';
+::selection {
+  background: #fff;
+  color: #333;
 }

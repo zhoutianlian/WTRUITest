@@ -1,5 +1,5 @@
 import React from 'react';
-import './OnChainPages.css'; // Import shared CSS
+import './OnChainPages.css'; // Shared CSS for on-chain pages
 import {
   ResponsiveContainer,
   LineChart,
@@ -12,31 +12,33 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend, // Added Legend for multi-line/bar charts
+  Legend, // Added Legend for potential use
+  Cell,   // Added Cell for conditional bar coloring
 } from 'recharts';
+import * as d3 from 'd3'; // For color manipulation in gradients
 
-// Mock Data Structure (can be shared or adapted)
+
+// Mock Data Structure (same as MacroIndicatorsPage)
 interface ChartDataPoint {
-  date: string;
-  value?: number; // For single value series
-  inflow?: number; // For inflow/outflow charts
-  outflow?: number;
-  btcReserve?: number;
-  ethReserve?: number;
+  date: string; // e.g., "2023-01-01"
+  value: number;
+  // For Net Inflow/Outflow, 'value' can be positive or negative
 }
 
-interface ExchangeFlowIndicator {
+interface Indicator {
   id: string;
   title: string;
-  chartType: 'line' | 'bar' | 'area' | 'groupedBar';
+  chartType: 'line' | 'bar' | 'area';
   data: ChartDataPoint[];
   description: string;
   yAxisLabel?: string;
-  dataKeys: string[]; // Can be multiple for grouped/stacked charts
-  colors: string[]; // Colors corresponding to dataKeys
+  dataKey: string;
+  // Optional: for charts that might need a specific color scheme beyond default
+  positiveColor?: string;
+  negativeColor?: string;
 }
 
-// Custom Tooltip (can be imported from a shared util if available, or defined here)
+// Custom Tooltip (adapted from MacroIndicatorsPage)
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -48,11 +50,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         borderRadius: 'var(--border-radius-medium)',
         boxShadow: '0 3px 10px rgba(0,0,0,0.3)',
       }}>
-        <p className="label" style={{color: 'var(--color-accent-gold-luminous)', marginBottom: 'var(--spacing-unit)'}}>
+        <p className="label" style={{color: 'var(--color-accent-gold-luminous)', marginBottom: 'calc(var(--spacing-unit) / 2)'}}>
           {`Date: ${label}`}
         </p>
         {payload.map((pld: any, index: number) => (
-          <p key={index} className="desc" style={{color: pld.stroke || pld.fill || 'var(--color-text-primary)' }}>
+          <p key={index} className="desc" style={{color: pld.payload.value >= 0 ? (pld.fill && pld.fill !== `url(#barPositive-${pld.name.replace(/\s+/g, '-')})` && pld.fill !== `url(#barNegative-${pld.name.replace(/\s+/g, '-')})` ? pld.fill : 'var(--color-text-primary)') : (pld.fill && pld.fill !== `url(#barPositive-${pld.name.replace(/\s+/g, '-')})` && pld.fill !== `url(#barNegative-${pld.name.replace(/\s+/g, '-')})` ? pld.fill : 'var(--color-accent-secondary-red)') }}>
             {`${pld.name}: ${pld.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
           </p>
         ))}
@@ -62,123 +64,147 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const mockExchangeFlowsData: ExchangeFlowIndicator[] = [
+// Mock Data for Exchange Flows
+const exchangeFlowsData: Indicator[] = [
   {
     id: 'netExchangeFlowBTC',
-    title: 'Net Exchange Flow (BTC)',
+    title: 'Net Exchange Inflow/Outflow (BTC)',
     chartType: 'bar',
-    description: 'Net amount of BTC flowing into (positive) or out of (negative) all exchanges.',
+    description: 'Net amount of BTC flowing into (positive) or out of (negative) all exchange wallets.',
     yAxisLabel: 'BTC',
-    dataKeys: ['value'],
-    colors: ['var(--color-accent-gold-luminous)'], // Will need logic to change color based on value
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-gold-luminous)',
+    negativeColor: 'var(--color-accent-secondary-red)',
     data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-10-${String(i + 1).padStart(2, '0')}`,
-      value: Math.floor((Math.random() - 0.5) * 5000), // Positive or negative
+      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
+      value: parseFloat(((Math.random() - 0.5) * 2000).toFixed(2)), // +/- 2000 BTC
     })),
   },
   {
-    id: 'stablecoinBalance',
-    title: 'Stablecoin Balance on Exchanges',
+    id: 'totalBTCBalance',
+    title: 'Total BTC Balance on Exchanges',
     chartType: 'area',
-    description: 'Total balance of major stablecoins (USDT, USDC, etc.) held on exchanges.',
-    yAxisLabel: 'USD',
-    dataKeys: ['value'],
-    colors: ['var(--color-accent-secondary-blue)'],
+    description: 'The total amount of BTC held in known exchange wallets, indicating potential supply available for trading.',
+    yAxisLabel: 'BTC',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-gold-luminous)',
     data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-10-${String(i + 1).padStart(2, '0')}`,
-      value: Math.floor(20000000000 + (Math.random() - 0.3) * 500000000 + i * 100000000),
+      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
+      value: Math.floor(2300000 - Math.random() * 50000 - i * 1500), // Decreasing trend
     })),
   },
   {
-    id: 'exchangeReserves',
-    title: 'Exchange Reserves (BTC & ETH)',
-    chartType: 'line', // Could be two separate lines
-    description: 'Total reserves of BTC and ETH held by exchanges.',
-    yAxisLabel: 'Amount',
-    dataKeys: ['btcReserve', 'ethReserve'],
-    colors: ['var(--color-accent-gold-luminous)', 'var(--color-accent-secondary-blue)'],
+    id: 'stablecoinNetFlow',
+    title: 'Stablecoin Net Flow to Exchanges (USD)',
+    chartType: 'bar',
+    description: 'Net amount of major stablecoins (USDT, USDC, etc.) flowing into or out of exchanges, indicating buying power.',
+    yAxisLabel: 'USD M',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-secondary-blue)',
+    negativeColor: 'var(--color-accent-gold-burnished)',
     data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-10-${String(i + 1).padStart(2, '0')}`,
-      btcReserve: Math.floor(2000000 + (Math.random() - 0.5) * 50000 - i * 1000),
-      ethReserve: Math.floor(15000000 + (Math.random() - 0.5) * 200000 - i * 5000),
+      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
+      value: parseFloat(((Math.random() - 0.4) * 50).toFixed(2)), // +/- $50M (value in millions)
+    })),
+  },
+    {
+    id: 'dailyActiveExchanges',
+    title: 'Daily Active Exchanges',
+    chartType: 'line',
+    description: 'Mock data representing the number of exchanges showing significant trading activity per day.',
+    yAxisLabel: 'Exchanges',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-secondary-blue)',
+    data: Array.from({ length: 30 }, (_, i) => ({
+      date: `2023-11-${String(i + 1).padStart(2, '0')}`,
+      value: Math.floor(80 + (Math.sin(i / 5) * 10) + Math.random() * 5), // Oscillating with some noise
     })),
   },
 ];
 
-const RenderExchangeChart = ({ indicator }: { indicator: ExchangeFlowIndicator }) => {
-  const chartMargins = { top: 5, right: 20, left: 30, bottom: 5 };
-
-  const getBarFillColor = (value: number) => {
-    if (indicator.id === 'netExchangeFlowBTC') {
-      return value >= 0 ? 'var(--color-accent-gold-luminous)' : 'var(--color-accent-secondary-red)';
-    }
-    return indicator.colors[0];
+// RenderChart Component (adapted from MacroIndicatorsPage)
+const RenderChart = ({ indicator }: { indicator: Indicator }) => {
+  const commonLineProps = {
+    type: "monotone" as const,
+    stroke: indicator.positiveColor || "var(--color-accent-gold-luminous)",
+    strokeWidth: 2,
+    dot: { fill: indicator.positiveColor || "var(--color-accent-gold-luminous)", strokeWidth: 0, r: 3 },
+    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: indicator.positiveColor || "var(--color-accent-gold-highlight)" },
   };
+  const chartMargins = { top: 5, right: 20, left: 35, bottom: 5 };
+
+  // Helper to generate a unique ID for gradients based on indicator ID and type
+  const gradientId = (type: string) => `${type}-${indicator.id.replace(/\s+/g, '-')}`;
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height="100%">
       {indicator.chartType === 'line' && (
         <LineChart data={indicator.data} margin={chartMargins}>
+          <defs>
+            <linearGradient id={gradientId('lineShadow')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
           <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -25 }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          {indicator.dataKeys.map((key, index) => (
-            <Line key={key} dataKey={key} name={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} stroke={indicator.colors[index % indicator.colors.length]} strokeWidth={2} dot={{ fill: indicator.colors[index % indicator.colors.length], strokeWidth: 0, r:3 }} activeDot={{r:6, stroke: 'var(--color-background-primary)', strokeWidth:2, fill: indicator.colors[index % indicator.colors.length]}}/>
-          ))}
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+          <Line dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} />
+          <Area type="monotone" dataKey={indicator.dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />
         </LineChart>
       )}
       {indicator.chartType === 'bar' && (
         <BarChart data={indicator.data} margin={chartMargins}>
+          <defs>
+            <linearGradient id={gradientId('barPositive')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={d3.color(indicator.positiveColor || "var(--color-accent-gold-luminous)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+            </linearGradient>
+            <linearGradient id={gradientId('barNegative')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={d3.color(indicator.negativeColor || "var(--color-accent-secondary-red)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={indicator.negativeColor || "var(--color-accent-secondary-red)"} stopOpacity={0.7}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
           <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -25 }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.1)' }} />
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          {indicator.dataKeys.map((key, index) => (
-             <Bar key={key} dataKey={key} name={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} >
-              {indicator.data.map((entry, entryIndex) => (
-                <rect key={`cell-${entryIndex}`} x={0} y={0} width={0} height={0} fill={getBarFillColor(entry[key as keyof ChartDataPoint] as number || 0)} />
-              ))}
-            </Bar>
-          ))}
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.08)' }} />
+          <Bar dataKey={indicator.dataKey} name={indicator.title}>
+            {indicator.data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.value >= 0 ? `url(#${gradientId('barPositive')})` : `url(#${gradientId('barNegative')})`} />
+            ))}
+          </Bar>
         </BarChart>
       )}
       {indicator.chartType === 'area' && (
         <AreaChart data={indicator.data} margin={chartMargins}>
           <defs>
-            {indicator.dataKeys.map((key, index) => (
-              <linearGradient key={`areaGradient-${key}`} id={`areaGradient-${indicator.id}-${key}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={indicator.colors[index % indicator.colors.length]} stopOpacity={0.7}/>
-                <stop offset="95%" stopColor={indicator.colors[index % indicator.colors.length]} stopOpacity={0.1}/>
-              </linearGradient>
-            ))}
+            <linearGradient id={gradientId('areaMain')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
+            </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
           <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -25 }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          {indicator.dataKeys.map((key, index) => (
-            <Area key={key} type="monotone" dataKey={key} name={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} stroke={indicator.colors[index % indicator.colors.length]} strokeWidth={2} fill={`url(#areaGradient-${indicator.id}-${key})`} dot={{ fill: indicator.colors[index % indicator.colors.length], strokeWidth:0, r:3 }} activeDot={{r:6, stroke: 'var(--color-background-primary)', strokeWidth:2, fill: indicator.colors[index % indicator.colors.length]}} />
-          ))}
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
+          <Area dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
         </AreaChart>
       )}
     </ResponsiveContainer>
   );
 };
 
-
 const ExchangeFlowsPage: React.FC = () => {
   return (
     <div className="page-container">
-      <h1 className="page-title">Exchange Flows Analysis</h1>
-      <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '20px'}}>
-        Insights into asset movements to and from cryptocurrency exchanges.
+      <h1 className="page-title">Exchange Flows</h1>
+      <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '30px'}}>
+        Tracking cryptocurrency movements to and from exchanges to gauge market sentiment and potential supply shifts.
       </p>
       <div className="dashboard-grid">
-        {mockExchangeFlowsData.map((indicator) => (
+        {exchangeFlowsData.map((indicator) => (
           <div key={indicator.id} className="dashboard-card">
             <div className="dashboard-card-header">
               <h3>{indicator.title}</h3>
@@ -187,8 +213,8 @@ const ExchangeFlowsPage: React.FC = () => {
               <p style={{ fontSize: '0.85rem', marginBottom: 'var(--spacing-unit)'}}>
                 {indicator.description}
               </p>
-              <div className="chart-container" style={{ height: '250px' }}>
-                <RenderExchangeChart indicator={indicator} />
+              <div className="chart-container" style={{ height: '300px' }}> {/* Consistent height for charts */}
+                <RenderChart indicator={indicator} />
               </div>
             </div>
           </div>

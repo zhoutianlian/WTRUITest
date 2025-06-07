@@ -14,18 +14,57 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Slightly wider min card width */
   gap: calc(var(--spacing-unit) * 3); /* 24px gap */
 }
 
 /* Ensure dashboard cards take full height if in a grid row */
 .dashboard-grid .dashboard-card {
   height: 100%;
-  min-height: 300px; /* Minimum height for cards with charts */
+  min-height: 320px; /* Min height for cards with charts */
 }
 
 /* Specific to derivatives if needed, or keep generic */
 .chart-container { /* Used within dashboard-card-content */
-  height: 250px; /* Default height for charts in these pages */
+  /* height: 250px; /* Default height for charts in these pages - overridden by inline styles in components for now */
   margin-top: var(--spacing-unit);
+}
+
+/* WTR Table Styling */
+.wtr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem; /* Slightly smaller for dense data */
+}
+
+.wtr-table th,
+.wtr-table td {
+  padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 1.5); /* 8px 12px */
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-primary);
+  white-space: nowrap; /* Prevent text wrapping, especially in headers */
+}
+
+.wtr-table th {
+  background-color: rgba(var(--rgb-background-tertiary), 0.7); /* Slightly transparent tertiary for header */
+  color: var(--color-accent-gold-highlight);
+  font-weight: var(--font-weight-semibold);
+  position: sticky; /* Make headers sticky if table scrolls */
+  top: 0;
+  z-index: 1; /* Ensure header stays above scrolling content */
+}
+
+.wtr-table tbody tr:nth-child(even) {
+  background-color: rgba(var(--rgb-background-secondary), 0.2); /* Very subtle zebra striping */
+}
+
+.wtr-table tbody tr:hover {
+  background-color: rgba(var(--rgb-accent-gold-luminous), 0.05); /* Subtle gold hover */
+}
+
+/* For scrollable table container within a card */
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scroll for wide tables */
+  /* maxHeight is usually set inline in the component */
 }

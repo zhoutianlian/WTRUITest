@@ -201,3 +201,25 @@
   color: var(--color-accent-gold-luminous); /* Luminous gold on hover */
   background-color: var(--color-background-tertiary); /* Retaining hover background from original for now */
 }
+
+/* Sidebar Footer and Contact Button */
+.sidebar-footer {
+  margin-top: auto; /* Pushes footer to the bottom */
+  padding: calc(var(--spacing-unit) * 2);
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.sidebar-contact-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align text to start */
+  /* Inherits .btn-text styles for background, color, padding etc. */
+  /* Specific padding override if .btn-text is too much horizontally */
+  padding: calc(var(--spacing-unit) * 1.25) calc(var(--spacing-unit) * 1.5);
+}
+
+.sidebar-contact-button .nav-icon {
+  margin-right: calc(var(--spacing-unit) * 1.5); /* Consistent with other nav icons */
+  /* Icon color will be inherited from .btn-text and its hover/active states */
+}

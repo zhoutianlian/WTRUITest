@@ -1,0 +1,165 @@
+/* src/pages/ResearchPage.css */
+.research-page-container { /* Specific container for overall research section padding */
+  padding: calc(var(--spacing-unit) * 3);
+}
+
+.research-page-title { /* Styles for the main title of the research section */
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-gold-highlight);
+  margin-bottom: calc(var(--spacing-unit) * 1); /* Less margin if subtitle follows closely */
+  padding-bottom: var(--spacing-unit);
+  border-bottom: 1px solid var(--color-accent-gold);
+}
+
+.research-page-subtitle {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.research-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: calc(var(--spacing-unit) * 3);
+}
+
+/* Re-using .dashboard-card for glassmorphic effect on research cards */
+/* Styles specific to the content within a research card: */
+
+.research-card-image-placeholder {
+  width: 100%;
+  height: 180px;
+  background-color: var(--color-background-tertiary);
+  border-bottom: 1px solid var(--color-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-disabled);
+  font-style: italic;
+  /* Ensure top corners match .dashboard-card if it has rounded corners */
+  border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+}
+
+.research-card-content {
+    padding: calc(var(--spacing-unit) * 2);
+    display: flex; /* Added for flex-grow on link */
+    flex-direction: column; /* Added for flex-grow on link */
+    flex-grow: 1; /* Added for flex-grow on link */
+}
+
+.research-card-title {
+    font-size: 1.2rem;
+    color: var(--color-accent-gold-luminous);
+    margin-bottom: calc(var(--spacing-unit) * 0.5);
+    font-weight: var(--font-weight-semibold); /* Make title stand out */
+}
+
+.research-card-date {
+    font-size: 0.8rem;
+    color: var(--color-text-disabled);
+    margin-bottom: var(--spacing-unit);
+}
+
+.research-card-abstract {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin-bottom: calc(var(--spacing-unit) * 1.5);
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.4em * 3 * 0.9); /* Approx 3 lines height based on font-size and line-height */
+    line-height: 1.4; /* Adjust if needed */
+}
+
+.research-card-link {
+    display: inline-block; /* Changed from inline-block */
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent-gold);
+    text-decoration: none;
+    margin-top: auto; /* Pushes link to bottom of the card content */
+    padding-top: var(--spacing-unit); /* Add some space above if content is short */
+    align-self: flex-start; /* Align link to the start of the flex container */
+}
+.research-card-link:hover {
+    color: var(--color-accent-gold-hover);
+    text-decoration: underline;
+}
+
+/* Research Detail Page */
+.research-article-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 3);
+  background-color: var(--color-background-secondary);
+  border-radius: var(--border-radius-large);
+  color: var(--color-text-primary); /* Default text color for article */
+}
+.research-article-title {
+  font-size: 2.2rem;
+  color: var(--color-accent-gold-highlight);
+  margin-bottom: var(--spacing-unit);
+  line-height: 1.3;
+}
+.research-article-meta {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary); /* Changed from disabled for better readability */
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+.research-article-meta span { /* For separating author/date */
+    margin: 0 calc(var(--spacing-unit) * 0.5);
+}
+
+.research-article-content h2 {
+  font-size: 1.6rem;
+  color: var(--color-accent-gold-luminous);
+  margin-top: calc(var(--spacing-unit) * 3);
+  margin-bottom: var(--spacing-unit);
+  border-bottom: 1px solid var(--color-border-primary);
+  padding-bottom: calc(var(--spacing-unit) * 0.5);
+}
+.research-article-content h3 {
+  font-size: 1.3rem;
+  color: var(--color-accent-gold);
+  margin-top: calc(var(--spacing-unit) * 2);
+  margin-bottom: calc(var(--spacing-unit) * 0.75);
+}
+.research-article-content p {
+  font-size: 1rem; /* Standard paragraph size */
+  line-height: 1.7;
+  color: var(--color-text-secondary); /* Standard secondary text color */
+  margin-bottom: calc(var(--spacing-unit) * 2);
+}
+.research-article-content ul, .research-article-content ol {
+  margin-bottom: calc(var(--spacing-unit) * 2);
+  padding-left: calc(var(--spacing-unit) * 3);
+  color: var(--color-text-secondary);
+}
+.research-article-content li {
+  margin-bottom: var(--spacing-unit);
+  line-height: 1.7;
+}
+.research-article-content a { /* Specific styling for links within article content */
+    color: var(--color-accent-gold);
+}
+.research-article-content a:hover {
+    color: var(--color-accent-gold-hover);
+    text-decoration: underline;
+}
+
+.research-article-placeholder {
+  width: 100%;
+  height: 250px;
+  background-color: var(--color-background-primary);
+  border: 1px dashed var(--color-border-secondary);
+  border-radius: var(--border-radius-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-disabled);
+  font-style: italic;
+  margin: calc(var(--spacing-unit) * 2) 0;
+}

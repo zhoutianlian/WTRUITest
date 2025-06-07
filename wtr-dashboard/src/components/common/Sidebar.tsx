@@ -37,7 +37,11 @@ const navItems: NavItem[] = [
   // { path: '/login', name: 'Login' /* icon: <FaSignInAlt /> */ }, // Login is usually separate
 ];
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  toggleContactModal: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ toggleContactModal }) => {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (name: string) => {
@@ -105,9 +109,13 @@ const Sidebar: React.FC = () => {
         <ul className="sidebar-nav-list">
           {renderNavItems(navItems)}
         </ul>
+        <div className="sidebar-footer">
+          <button onClick={toggleContactModal} className="sidebar-contact-button btn-text">
+            <FaEnvelope className="nav-icon" />
+            <span className="nav-text">Contact Us</span>
+          </button>
+        </div>
       </div>
-      {/* Optional: Sidebar footer for settings, logout etc. */}
-      {/* <div className="sidebar-footer">Footer</div> */}
     </aside>
   );
 };

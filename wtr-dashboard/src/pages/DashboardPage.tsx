@@ -1,5 +1,6 @@
 // src/pages/DashboardPage.tsx
 import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
@@ -102,12 +103,11 @@ const DashboardPage: React.FC = () => {
                   <div className="dashboard-card-header"><h3>Quick Access</h3></div>
                   <div className="dashboard-card-content">
                     <ul>
-                      {/* Using <a> for now as react-router-dom Link might require router context not available here depending on setup */}
-                      <li><a href="/on-chain">On-Chain Analysis Dashboard</a></li>
-                      <li><a href="/derivatives">Derivatives Market Overview</a></li>
-                      <li><a href="/signals">Latest Trading Signals</a></li>
-                      <li><a href="/research">WTR Research Portal</a></li>
-                      <li><a href="/about">About WTR Platform</a></li>
+                      <li><Link to="/on-chain">On-Chain Analysis Dashboard</Link></li>
+                      <li><Link to="/derivatives">Derivatives Market Overview</Link></li>
+                      <li><Link to="/signals">Latest Trading Signals</Link></li>
+                      <li><Link to="/research">WTR Research Portal</Link></li>
+                      <li><Link to="/about">About WTR Platform</Link></li>
                     </ul>
                   </div>
                 </div>

@@ -30,9 +30,16 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
   const tooltipRef = useRef<HTMLDivElement | null>(null);
   const originalXScaleRef = useRef<d3.ScaleBand<string> | null>(null);
 
+  // Only 'volume' indicator is kept. MACD and RSI are removed.
   const [visibleIndicators, setVisibleIndicators] = React.useState({
-    volume: true, // Keep volume, default to true or false based on preference
+    volume: true,
   });
+
+  // Refs for scales and dimensions needed in zoom handler
+  const yVolumeScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
+  const volumeChartHeightRef = useRef(0);
+  const indicatorTopMarginRef = useRef(0);
+
 
   useEffect(() => {
     if (!data || data.length === 0 || !svgRef.current || !d3 || !d3.select) {
@@ -82,28 +89,24 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
     const chartWidth = propWidth - margin.left - margin.right;
 
     // --- Dynamic Height Allocation ---
-    const basePriceChartRatio = 0.60;
-    const indicatorChartRatio = 0.15;
-    let totalRatio = basePriceChartRatio;
-    let activeIndicatorCount = 0;
-    if (visibleIndicators.volume) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
-    // MACD and RSI removed from activeIndicatorCount
-    // if (visibleIndicators.macd) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
-    // if (visibleIndicators.rsi) { totalRatio += indicatorChartRatio; activeIndicatorCount++; }
+    const basePriceChartRatio = 0.75; // Increased ratio for price chart as MACD/RSI are removed
+    const volumeChartRatio = 0.25; // Ratio for volume chart
 
-    const normalizationFactor = totalRatio > 1 ? 1 / totalRatio : 1;
+    let priceChartHeight = propHeight * basePriceChartRatio - margin.top - margin.bottom;
+    let volumeChartHeight = 0; // Initialize to 0
+    let currentYOffset = 0; // Will be set based on price chart height
 
-    // Adjusted main price chart height calculation
-    let calculatedPriceChartHeight = propHeight * basePriceChartRatio * normalizationFactor;
-    // Ensure there's enough space for axes if indicators are present, adjust price chart height if necessary
-    const totalIndicatorOuterHeight = activeIndicatorCount * (propHeight * indicatorChartRatio * normalizationFactor + margin.top);
-    const availableHeightForPriceAndMainXAxis = propHeight - margin.top - margin.bottom - totalIndicatorOuterHeight;
-
-    const priceChartHeight = Math.max(availableHeightForPriceAndMainXAxis - margin.bottom, propHeight * 0.3); // Ensure minimum price chart height
-    const individualIndicatorHeight = propHeight * indicatorChartRatio * normalizationFactor;
-    const indicatorTopMargin = margin.top / 2; // Smaller top margin for indicator charts
-
-    let currentYOffset = priceChartHeight + margin.bottom;
+    if (visibleIndicators.volume) {
+      // If volume is visible, adjust price chart height and calculate volume chart height
+      priceChartHeight = propHeight * (basePriceChartRatio - (volumeChartRatio * 0.35)) - margin.top - margin.bottom; // Give a bit more to price
+      volumeChartHeight = propHeight * volumeChartRatio - margin.top; // Volume chart also needs top margin
+      currentYOffset = priceChartHeight + margin.bottom + margin.top; // Y offset for volume chart
+    } else {
+      // If no volume, price chart takes most of the space
+      priceChartHeight = propHeight - margin.top - margin.bottom;
+      currentYOffset = priceChartHeight + margin.bottom;
+    }
+    const indicatorTopMargin = margin.top / 2; // Still useful for volume chart's internal padding
 
 
     // --- Scales ---
@@ -189,54 +192,77 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
 
     // --- Volume Chart (Conditional) ---
     let volumeG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
-    if (visibleIndicators.volume) {
+
+    volumeChartHeightRef.current = volumeChartHeight; // Store for zoom
+    indicatorTopMarginRef.current = indicatorTopMargin; // Store for zoom
+
+    if (visibleIndicators.volume && volumeChartHeightRef.current > 0) {
       const yVolumeScale = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.volume) || 0])
-        .range([individualIndicatorHeight - indicatorTopMargin, 0])
+        .range([volumeChartHeightRef.current - indicatorTopMarginRef.current, 0])
         .nice();
+      yVolumeScaleRef.current = yVolumeScale; // Store for zoom
+
 
       volumeG = g.append("g")
         .attr("class", "volume-chart")
-        .attr("transform", `translate(0, ${currentYOffset + indicatorTopMargin})`);
+        .attr("transform", `translate(0, ${currentYOffset})`);
 
       volumeG.append("g")
         .attr("class", "x-axis volume-axis")
-        .attr("transform", `translate(0,${individualIndicatorHeight - indicatorTopMargin})`)
-        .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => "")); // Minimal X-axis
+        .attr("transform", `translate(0,${volumeChartHeightRef.current - indicatorTopMarginRef.current})`)
+        .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
 
       volumeG.append("g")
         .attr("class", "y-axis volume-axis")
         .call(d3.axisLeft(yVolumeScale).ticks(3).tickFormat(d3.format("~s")));
 
-      volumeG.selectAll(".volume-bar")
+      const volumeBarGroups = volumeG.selectAll(".volume-bar-group")
         .data(data)
         .enter()
-        .append("rect")
-        .attr("class", d => `volume-bar ${d.open > d.close ? 'bearish' : 'bullish'}`)
-        .attr("x", d => xScale(d.date.getTime().toString()) || 0)
-        .attr("y", d => yVolumeScale(d.volume))
-        .attr("width", xScale.bandwidth())
-        .attr("height", d => Math.max(0, (individualIndicatorHeight - indicatorTopMargin) - yVolumeScale(d.volume)))
+        .append("g")
+        .attr("class", "volume-bar-group")
+        .attr("transform", d => `translate(${xScale(d.date.getTime().toString()) || 0},0)`);
+
+      const barWidth = xScale.bandwidth();
+      const topPieceHeight = Math.max(1, barWidth * 0.12); // Proportional top piece
+
+      // Main Volume Bar
+      volumeBarGroups.append("rect")
+        .attr("class", d => `volume-bar-main ${d.open > d.close ? 'bearish' : 'bullish'}`)
+        .attr("x", 0)
+        .attr("y", d => yVolumeScale(d.volume) + topPieceHeight)
+        .attr("width", barWidth)
+        .attr("height", d => Math.max(0, (volumeChartHeightRef.current - indicatorTopMarginRef.current) - yVolumeScale(d.volume) - topPieceHeight))
         .attr("fill", d => d.open > d.close ? "url(#volumeDownGradient)" : "url(#volumeUpGradient)");
 
+      // 3D Top Piece
+      volumeBarGroups.append("rect")
+        .attr("class", d => `volume-bar-top ${d.open > d.close ? 'bearish' : 'bullish'}`)
+        .attr("x", 0)
+        .attr("y", d => yVolumeScale(d.volume))
+        .attr("width", barWidth)
+        .attr("height", topPieceHeight)
+        .attr("fill", d => {
+          const baseColorVar = d.open > d.close ? '--color-volume-downtrend' : '--color-volume-uptrend';
+          let baseColor = computedStyle.getPropertyValue(baseColorVar).trim();
+          if (baseColor.startsWith('rgba')) { // d3.color might struggle with rgba for brighter/darker
+            baseColor = baseColor.replace(/rgba\((\d+,\s*\d+,\s*\d+),.*?\)/, 'rgb($1)');
+          }
+          return d3.color(baseColor || (d.open > d.close ? '#8E3B3D' : '#4A8E7A') )?.brighter(0.7).toString() || 'gray';
+        });
+
       volumeG.append("text").attr("x", 10).attr("y", 10).text("Volume").style("font-size", "10px").attr("fill", "var(--color-text-secondary)");
-      currentYOffset += individualIndicatorHeight + indicatorTopMargin;
     }
 
-    // --- MACD Chart (Conditional Placeholder) ---
-    // Removed MACD plotting logic
-    // let macdG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
-    // let macdLine: d3.Line<{ date: Date; value: number; }> | null = null;
-    // if (visibleIndicators.macd) { ... }
-
-    // --- RSI Chart (Conditional Placeholder) ---
-    // Removed RSI plotting logic
-    // let rsiG: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
-    // let rsiLine: d3.Line<{ date: Date; value: number; }> | null = null;
-    // if (visibleIndicators.rsi) { ... }
+    // MACD and RSI sections are completely removed.
 
     // --- Tooltip Implementation ---
-    const priceChartInteractionG = g.append("g").attr("class", "price-chart-interaction-layer");
+    // Tooltip interaction area should cover only the price chart.
+    const priceChartInteractionG = g.append("g")
+        .attr("class", "price-chart-interaction-layer")
+        .attr("width", chartWidth)
+        .attr("height", priceChartHeight); // Set height for clarity, though rect below defines interactive area
 
     const crosshairY = priceChartInteractionG.append("line")
         .attr("class", "crosshair-y")
@@ -361,22 +387,33 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
             volumeG.select<SVGGElement>(".x-axis.volume-axis")
                 .call(d3.axisBottom(xScale).tickValues([]).tickFormat(() => ""));
         }
-        // Removed MACD/RSI X-axis updates from zoom
-        // if (visibleIndicators.macd && macdG) { ... }
-        // if (visibleIndicators.rsi && rsiG) { ... }
+        // MACD and RSI X-axis updates are removed.
 
         const currentCandles = priceG.selectAll(".candle-group");
-        currentCandles.attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`)
-               .style("display", (d: any) => xScale(d.date.getTime().toString()) === undefined ? "none" : "initial");
+        currentCandles.attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`) // Use -10000 to effectively hide off-screen
+               .style("display", (d: any) => (xScale(d.date.getTime().toString()) === undefined || (xScale(d.date.getTime().toString()) || 0) < 0 || (xScale(d.date.getTime().toString()) || 0) > chartWidth) ? "none" : "initial");
         currentCandles.select("rect.candle-body").attr("width", xScale.bandwidth());
         currentCandles.select("line.wick").attr("x1", xScale.bandwidth() / 2).attr("x2", xScale.bandwidth() / 2);
 
-        if (visibleIndicators.volume && volumeG) {
-            const currentVolumeBars = volumeG.selectAll(".volume-bar");
-            currentVolumeBars
-                .attr("x", (d: any) => xScale(d.date.getTime().toString()) || -10000)
-                .style("display", (d: any) => xScale(d.date.getTime().toString()) === undefined ? "none" : "initial")
-                .attr("width", xScale.bandwidth());
+        if (visibleIndicators.volume && volumeG && yVolumeScaleRef.current && volumeChartHeightRef.current != null && indicatorTopMarginRef.current != null) {
+            const currentVolumeBarGroups = volumeG.selectAll(".volume-bar-group");
+            currentVolumeBarGroups
+                .attr("transform", (d: any) => `translate(${xScale(d.date.getTime().toString()) || -10000},0)`)
+                .style("display", (d: any) => (xScale(d.date.getTime().toString()) === undefined || (xScale(d.date.getTime().toString()) || 0) < 0 || (xScale(d.date.getTime().toString()) || 0) > chartWidth) ? "none" : "initial");
+
+            const newBarWidth = xScale.bandwidth();
+            const newTopPieceHeight = Math.max(1, newBarWidth * 0.12);
+
+            currentVolumeBarGroups.select(".volume-bar-main")
+                .attr("width", newBarWidth)
+                .attr("y", (d: any) => yVolumeScaleRef.current!(d.volume) + newTopPieceHeight)
+                .attr("height", (d: any) => Math.max(0, (volumeChartHeightRef.current - indicatorTopMarginRef.current) - yVolumeScaleRef.current!(d.volume) - newTopPieceHeight));
+
+
+            currentVolumeBarGroups.select(".volume-bar-top")
+                .attr("width", newBarWidth)
+                .attr("height", newTopPieceHeight)
+                .attr("y", (d: any) => yVolumeScaleRef.current!(d.volume));
         }
 
         priceG.select<SVGGElement>(".grid.price-grid-x")
@@ -408,15 +445,16 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
         <div ref={tooltipRef} className="chart-tooltip" style={{ position: 'absolute', display: 'none', opacity: 0 }}></div>
       </div>
       <div className="chart-indicator-toggles" style={{ marginTop: '10px', textAlign: 'center' }}>
-        {(Object.keys(visibleIndicators) as Array<keyof typeof visibleIndicators>).map((key) => (
-          <button
-            key={key}
-            onClick={() => toggleIndicator(key)}
-            className={`toggle-button ${visibleIndicators[key] ? 'active' : ''}`}
-          >
-            {key.toUpperCase()}
-          </button>
-        ))}
+        {/* Only show Volume toggle if it's intended to be toggleable, otherwise this can be removed */}
+        { Object.prototype.hasOwnProperty.call(visibleIndicators, 'volume') && (
+            <button
+              key="volume"
+              onClick={() => toggleIndicator('volume')}
+              className={`toggle-button ${visibleIndicators.volume ? 'active' : ''}`}
+            >
+              VOLUME
+            </button>
+        )}
       </div>
     </>
   );

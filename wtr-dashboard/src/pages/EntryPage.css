@@ -162,3 +162,16 @@
     padding-top: var(--spacing-unit);
   }
 }
+
+/* Particle Burst Effect Styles */
+.particle {
+  position: fixed; /* Positioned relative to the viewport */
+  width: 5px;      /* Particle size */
+  height: 5px;
+  background-color: var(--color-accent-gold-luminous);
+  border-radius: 50%;
+  pointer-events: none; /* Particles should not be interactive */
+  opacity: 1;
+  z-index: 9999; /* Ensure particles are on top of other content */
+  transition: transform 0.7s cubic-bezier(0.1, 0.8, 0.7, 1), opacity 0.7s ease-out; /* Adjusted timing and easing */
+}

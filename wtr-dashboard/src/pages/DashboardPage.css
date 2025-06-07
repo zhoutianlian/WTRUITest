@@ -10,7 +10,7 @@
   border-radius: var(--border-radius-large, 8px);
   overflow: hidden;
   /* background-color: var(--color-background-secondary); /* Overridden by gradient */
-  min-height: 350px; /* Kept existing min-height */
+  min-height: 420px; /* Increased min-height for more impact */
   padding: 20px 0; /* Added padding */
   display: flex;
   align-items: center;

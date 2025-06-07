@@ -1,5 +1,5 @@
 import React from 'react';
-import './OnChainPages.css'; // Import shared CSS
+import './OnChainPages.css'; // Shared CSS for on-chain pages
 import {
   ResponsiveContainer,
   LineChart,
@@ -8,46 +8,36 @@ import {
   Bar,
   AreaChart,
   Area,
-  ScatterChart, // Added ScatterChart
-  Scatter,      // Added Scatter
-  ZAxis,        // Added ZAxis for scatter plot bubble size
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
+  Cell,
 } from 'recharts';
+import * as d3 from 'd3'; // For color manipulation in gradients
 
 // Mock Data Structure
 interface ChartDataPoint {
   date: string;
-  value?: number;
-  netChange?: number; // For Whale Net Position Change
-  txAmount?: number;  // For Large Wallet Inflow/Outflow scatter plot
-  txType?: 'inflow' | 'outflow' | 'neutral'; // For scatter plot coloring
-  concentration?: number; // For Whale Concentration Index
-  activeWhales?: number; // For Number of Active Whale Wallets
+  value: number;
 }
 
-interface WhaleTrackingIndicator {
+interface Indicator {
   id: string;
   title: string;
-  chartType: 'line' | 'bar' | 'area' | 'scatter';
+  chartType: 'line' | 'bar' | 'area';
   data: ChartDataPoint[];
   description: string;
   yAxisLabel?: string;
-  xAxisLabel?: string; // For scatter plot
-  zAxisLabel?: string; // For scatter plot bubble size
-  dataKeys: { x: string; y: string; z?: string, type?: string }; // More flexible for scatter
-  colors?: string[]; // Primary color for single series, or array for specific uses
+  dataKey: string;
+  positiveColor?: string;
+  negativeColor?: string;
 }
 
-// Custom Tooltip (can be imported or defined)
+// Custom Tooltip (copied from ExchangeFlowsPage)
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    const point = payload[0].payload; // For scatter plots, label might be undefined
-    const displayLabel = label || point.date || 'Data Point';
-
     return (
       <div className="chart-tooltip-recharts" style={{
         backgroundColor: 'var(--color-background-tertiary)',
@@ -57,13 +47,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         borderRadius: 'var(--border-radius-medium)',
         boxShadow: '0 3px 10px rgba(0,0,0,0.3)',
       }}>
-        <p className="label" style={{color: 'var(--color-accent-gold-luminous)', marginBottom: 'var(--spacing-unit)'}}>
-          {displayLabel}
+        <p className="label" style={{color: 'var(--color-accent-gold-luminous)', marginBottom: 'calc(var(--spacing-unit) / 2)'}}>
+          {`Date: ${label}`}
         </p>
         {payload.map((pld: any, index: number) => (
-          <p key={index} className="desc" style={{color: pld.color || pld.stroke || pld.fill || 'var(--color-text-primary)' }}>
+          <p key={index} className="desc" style={{color: pld.payload.value >= 0 ? (pld.fill && pld.fill !== `url(#barPositive-${pld.name.replace(/\s+/g, '-')})` && pld.fill !== `url(#barNegative-${pld.name.replace(/\s+/g, '-')})` ? pld.fill : 'var(--color-text-primary)') : (pld.fill && pld.fill !== `url(#barPositive-${pld.name.replace(/\s+/g, '-')})` && pld.fill !== `url(#barNegative-${pld.name.replace(/\s+/g, '-')})` ? pld.fill : 'var(--color-accent-secondary-red)') }}>
             {`${pld.name}: ${pld.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`}
-            {pld.dataKey === 'txAmount' && point.txType && ` (${point.txType})`}
           </p>
         ))}
       </div>
@@ -72,125 +61,131 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const mockWhaleTrackingData: WhaleTrackingIndicator[] = [
+// Mock Data for Whale Tracking
+const whaleTrackingData: Indicator[] = [
   {
-    id: 'whaleNetPositionChange',
+    id: 'whaleNetPositionChangeBTC',
     title: 'Whale Net Position Change (BTC)',
     chartType: 'bar',
-    description: 'Daily net change in BTC holdings by identified whale wallets. Positive indicates accumulation, negative indicates distribution.',
-    yAxisLabel: 'BTC Change',
-    dataKeys: { x: 'date', y: 'netChange' },
-    colors: ['var(--color-accent-gold-luminous)'], // Base color, will be conditional
+    description: 'Daily net change in BTC holdings by whale entities (typically >1k BTC). Positive values indicate accumulation, negative values indicate distribution.',
+    yAxisLabel: 'BTC',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-gold-luminous)',
+    negativeColor: 'var(--color-accent-secondary-red)',
     data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-10-${String(i + 1).padStart(2, '0')}`,
-      netChange: Math.floor((Math.random() - 0.5) * 1000), // Positive or negative
+      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
+      value: parseFloat(((Math.random() - 0.55) * 500).toFixed(2)), // +/- 500 BTC, slight negative bias
     })),
   },
   {
-    id: 'largeWalletTransactions',
-    title: 'Large Wallet Transactions',
-    chartType: 'scatter',
-    description: 'Individual large transactions to/from exchanges. Bubble size indicates transaction amount.',
-    xAxisLabel: 'Day of Month',
-    yAxisLabel: 'Transaction Amount (BTC)',
-    zAxisLabel: 'Amount',
-    dataKeys: { x: 'date', y: 'txAmount', z: 'txAmount', type: 'txType' }, // z for bubble size, type for color
-    data: Array.from({ length: 40 }, (_, i) => { // More data points for scatter
-      const type = Math.random() > 0.5 ? 'inflow' : 'outflow';
-      return {
-        date: `2023-10-${String(Math.floor(i / 2) + 1).padStart(2, '0')}`, // Multiple tx per day
-        txAmount: Math.floor(Math.random() * 500 + 50), // 50 to 550 BTC
-        txType: type,
-      };
-    }),
+    id: 'activeWhaleAddresses',
+    title: 'Active Whale Addresses (>1k BTC)',
+    chartType: 'line',
+    description: 'Number of unique whale addresses transacting daily, indicating whale activity levels.',
+    yAxisLabel: 'Addresses',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-secondary-blue)',
+    data: Array.from({ length: 30 }, (_, i) => ({
+      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
+      value: Math.floor(1800 + (Math.sin(i / 6) * 100) + (Math.random() * 50)), // Oscillating trend
+    })),
   },
   {
-    id: 'whaleConcentration',
-    title: 'Whale Concentration Index',
-    chartType: 'line',
-    description: 'Percentage of total BTC supply held by the top 1% of addresses.',
-    yAxisLabel: '% of Supply',
-    dataKeys: { x: 'date', y: 'concentration' },
-    colors: ['var(--color-accent-secondary-blue)'],
+    id: 'whaleAccumulationScore',
+    title: 'Whale Accumulation Trend Score',
+    chartType: 'area',
+    description: 'A composite score (0-100) indicating general whale accumulation or distribution pressure based on multiple factors.',
+    yAxisLabel: 'Score (0-100)',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-gold-burnished)',
     data: Array.from({ length: 30 }, (_, i) => ({
-      date: `2023-10-${String(i + 1).padStart(2, '0')}`,
-      concentration: parseFloat((25 + Math.random() * 2 + i * 0.05).toFixed(2)), // Small fluctuations
+      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
+      value: Math.floor(40 + (Math.random() * 30) + (i * 0.5) ), // Generally increasing but noisy
+    })),
+  },
+  {
+    id: 'avgWhaleTxSizeUSD',
+    title: 'Average Whale Transaction Size (USD)',
+    chartType: 'line',
+    description: 'Average USD value of transactions conducted by whale entities, highlighting large capital movements.',
+    yAxisLabel: 'USD',
+    dataKey: 'value',
+    positiveColor: 'var(--color-accent-gold-highlight)',
+    data: Array.from({ length: 30 }, (_, i) => ({
+      date: `2023-12-${String(i + 1).padStart(2, '0')}`,
+      value: Math.floor(1500000 + (Math.random() - 0.2) * 500000), // Average $1.5M with variation
     })),
   },
 ];
 
-const RenderWhaleChart = ({ indicator }: { indicator: WhaleTrackingIndicator }) => {
-  const chartMargins = { top: 5, right: 20, left: 35, bottom: 20 }; // Adjusted for axis labels
-
-  const getBarFillColor = (value: number) => {
-    if (indicator.id === 'whaleNetPositionChange') {
-      return value >= 0 ? 'var(--color-accent-gold-luminous)' : 'var(--color-accent-secondary-red)';
-    }
-    return indicator.colors?.[0] || 'var(--color-accent-gold-luminous)';
+// RenderChart Component (copied and adapted from ExchangeFlowsPage)
+const RenderChart = ({ indicator }: { indicator: Indicator }) => {
+  const commonLineProps = {
+    type: "monotone" as const,
+    stroke: indicator.positiveColor || "var(--color-accent-gold-luminous)",
+    strokeWidth: 2,
+    dot: { fill: indicator.positiveColor || "var(--color-accent-gold-luminous)", strokeWidth: 0, r: 3 },
+    activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: indicator.positiveColor || "var(--color-accent-gold-highlight)" },
   };
+  const chartMargins = { top: 5, right: 20, left: 35, bottom: 5 };
 
-  const getScatterFillColor = (type?: 'inflow' | 'outflow' | 'neutral') => {
-    if (type === 'inflow') return 'var(--color-accent-gold-luminous)';
-    if (type === 'outflow') return 'var(--color-accent-secondary-red)';
-    return 'var(--color-text-disabled)';
-  };
+  const gradientId = (type: string) => `${type}-${indicator.id.replace(/\s+/g, '-')}`;
 
   return (
-    <ResponsiveContainer width="100%" height={280}> {/* Increased height for potentially complex charts */}
+    <ResponsiveContainer width="100%" height="100%">
       {indicator.chartType === 'line' && (
         <LineChart data={indicator.data} margin={chartMargins}>
+          <defs>
+            <linearGradient id={gradientId('lineShadow')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.05}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey={indicator.dataKeys.x} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} name={indicator.xAxisLabel || 'Date'} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.colors?.[0], strokeWidth: 1, strokeDasharray: '3 3' }} />
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          <Line dataKey={indicator.dataKeys.y} name={indicator.title} stroke={indicator.colors?.[0]} strokeWidth={2} dot={{ fill: indicator.colors?.[0], strokeWidth:0, r:3 }} activeDot={{r:6, stroke: 'var(--color-background-primary)', strokeWidth:2, fill: indicator.colors?.[0]}}/>
+          <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+          <Line dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} />
+          <Area type="monotone" dataKey={indicator.dataKey} strokeWidth={0} fill={`url(#${gradientId('lineShadow')})`} />
         </LineChart>
       )}
       {indicator.chartType === 'bar' && (
         <BarChart data={indicator.data} margin={chartMargins}>
+          <defs>
+            <linearGradient id={gradientId('barPositive')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={d3.color(indicator.positiveColor || "var(--color-accent-gold-luminous)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+            </linearGradient>
+            <linearGradient id={gradientId('barNegative')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={d3.color(indicator.negativeColor || "var(--color-accent-secondary-red)")?.brighter(0.5).toString()} stopOpacity={0.9}/>
+              <stop offset="100%" stopColor={indicator.negativeColor || "var(--color-accent-secondary-red)"} stopOpacity={0.7}/>
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey={indicator.dataKeys.x} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} name={indicator.xAxisLabel || 'Date'} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.1)' }} />
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          <Bar dataKey={indicator.dataKeys.y} name={indicator.title}>
+          <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(var(--rgb-accent-gold-luminous), 0.08)' }} />
+          <Bar dataKey={indicator.dataKey} name={indicator.title}>
             {indicator.data.map((entry, index) => (
-              <rect key={`cell-${index}`} x={0} y={0} width={0} height={0} fill={getBarFillColor(entry[indicator.dataKeys.y as keyof ChartDataPoint] as number || 0)} />
+              <Cell key={`cell-${index}`} fill={entry.value >= 0 ? `url(#${gradientId('barPositive')})` : `url(#${gradientId('barNegative')})`} />
             ))}
           </Bar>
         </BarChart>
       )}
-       {indicator.chartType === 'area' && (
+      {indicator.chartType === 'area' && (
         <AreaChart data={indicator.data} margin={chartMargins}>
           <defs>
-            <linearGradient id={`areaGradient-${indicator.id}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={indicator.colors?.[0]} stopOpacity={0.7}/>
-              <stop offset="95%" stopColor={indicator.colors?.[0]} stopOpacity={0.1}/>
+            <linearGradient id={gradientId('areaMain')} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.7}/>
+              <stop offset="95%" stopColor={indicator.positiveColor || "var(--color-accent-gold-luminous)"} stopOpacity={0.1}/>
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis dataKey={indicator.dataKeys.x} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} name={indicator.xAxisLabel || 'Date'} />
-          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.colors?.[0], strokeWidth: 1, strokeDasharray: '3 3' }}/>
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          <Area type="monotone" dataKey={indicator.dataKeys.y} name={indicator.title} stroke={indicator.colors?.[0]} strokeWidth={2} fill={`url(#areaGradient-${indicator.id})`} dot={{ fill: indicator.colors?.[0], strokeWidth:0, r:3 }} activeDot={{r:6, stroke: 'var(--color-background-primary)', strokeWidth:2, fill: indicator.colors?.[0]}} />
+          <XAxis dataKey="date" stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
+          <YAxis stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} tickFormatter={(value) => typeof value === 'number' ? value.toLocaleString() : value} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: indicator.positiveColor || 'var(--color-accent-gold-luminous)', strokeWidth: 1, strokeDasharray: '3 3' }}/>
+          <Area dataKey={indicator.dataKey} name={indicator.title} {...commonLineProps} fill={`url(#${gradientId('areaMain')})`} />
         </AreaChart>
-      )}
-      {indicator.chartType === 'scatter' && indicator.dataKeys.z && (
-        <ScatterChart margin={chartMargins}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-gridlines)" />
-          <XAxis type="category" dataKey={indicator.dataKeys.x} name={indicator.xAxisLabel || 'Date'} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} />
-          <YAxis type="number" dataKey={indicator.dataKeys.y} name={indicator.yAxisLabel || 'Value'} stroke="var(--color-chart-axis-text)" tick={{ fill: 'var(--color-chart-axis-text)', fontSize: 10 }} label={{ value: indicator.yAxisLabel, angle: -90, position: 'insideLeft', fill: 'var(--color-chart-axis-text)', fontSize: 10, dx: -30 }} />
-          {indicator.dataKeys.z && <ZAxis type="number" dataKey={indicator.dataKeys.z} range={[50, 500]} name={indicator.zAxisLabel || 'Size'} />}
-          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: 'var(--color-text-disabled)' }} />
-          <Legend wrapperStyle={{fontSize: "10px", paddingTop: "10px"}}/>
-          <Scatter name={indicator.title} data={indicator.data} >
-            {indicator.data.map((entry, index) => (
-              <rect key={`cell-${index}`} x={0} y={0} width={0} height={0} fill={getScatterFillColor(entry[indicator.dataKeys.type as keyof ChartDataPoint] as 'inflow' | 'outflow' | 'neutral' | undefined)} />
-            ))}
-          </Scatter>
-        </ScatterChart>
       )}
     </ResponsiveContainer>
   );
@@ -199,12 +194,12 @@ const RenderWhaleChart = ({ indicator }: { indicator: WhaleTrackingIndicator }) 
 const WhaleTrackingPage: React.FC = () => {
   return (
     <div className="page-container">
-      <h1 className="page-title">Whale Tracking Analysis</h1>
-      <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '20px'}}>
-        Monitoring the activity of large market participants (whales).
+      <h1 className="page-title">Whale Activity & Tracking</h1>
+      <p className="page-subtitle" style={{color: 'var(--color-text-secondary)', marginTop: '-20px', marginBottom: '30px'}}>
+        Monitoring large wallet movements and accumulation patterns to identify potential market-moving activities.
       </p>
       <div className="dashboard-grid">
-        {mockWhaleTrackingData.map((indicator) => (
+        {whaleTrackingData.map((indicator) => (
           <div key={indicator.id} className="dashboard-card">
             <div className="dashboard-card-header">
               <h3>{indicator.title}</h3>
@@ -213,8 +208,8 @@ const WhaleTrackingPage: React.FC = () => {
               <p style={{ fontSize: '0.85rem', marginBottom: 'var(--spacing-unit)'}}>
                 {indicator.description}
               </p>
-              <div className="chart-container" style={{ height: '280px' }}> {/* Adjusted height for charts */}
-                <RenderWhaleChart indicator={indicator} />
+              <div className="chart-container" style={{ height: '300px' }}>
+                <RenderChart indicator={indicator} />
               </div>
             </div>
           </div>
