@@ -246,6 +246,15 @@
   box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.2);
   display: flex; /* Added to allow header/content to flex column */
   flex-direction: column; /* Added to allow header/content to flex column */
+  border: 1px solid var(--color-border-secondary); /* Glassmorphic update */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease; /* Glassmorphic update */
+}
+
+.dashboard-card:hover { /* Glassmorphic hover effects */
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px 0 rgba(0, 0, 0, 0.25);
+  background: rgba(var(--rgb-background-secondary), 0.75); /* Slightly more opaque */
+  border-color: var(--color-accent-gold-burnished); /* Intensify border */
 }
 
 .dashboard-card-header { /* Wrapper for h3 to control padding/border */

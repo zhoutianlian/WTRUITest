@@ -1,0 +1,31 @@
+/* src/pages/derivatives/DerivativesPages.css */
+.page-container {
+  padding: calc(var(--spacing-unit) * 3); /* 24px */
+}
+
+.page-title {
+  font-size: 1.75rem; /* ~28px */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-gold-highlight);
+  margin-bottom: calc(var(--spacing-unit) * 3); /* 24px */
+  padding-bottom: var(--spacing-unit); /* 8px */
+  border-bottom: 1px solid var(--color-accent-gold);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+  gap: calc(var(--spacing-unit) * 3); /* 24px gap */
+}
+
+/* Ensure dashboard cards take full height if in a grid row */
+.dashboard-grid .dashboard-card {
+  height: 100%;
+  min-height: 300px; /* Minimum height for cards with charts */
+}
+
+/* Specific to derivatives if needed, or keep generic */
+.chart-container { /* Used within dashboard-card-content */
+  height: 250px; /* Default height for charts in these pages */
+  margin-top: var(--spacing-unit);
+}

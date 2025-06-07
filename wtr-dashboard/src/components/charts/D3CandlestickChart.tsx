@@ -312,12 +312,16 @@ const D3CandlestickChart: React.FC<D3CandlestickChartProps> = ({
 
             const tooltip = d3.select(tooltipRef.current);
             tooltip.style("opacity", 1);
+            // Updated formatting for date and prices
+            const formatTime = d3.timeFormat('%d %b %H:%M'); // DD MMM HH:mm
+            const formatPrice = (price: number) => `$${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
             tooltip.html(`
-                <div class="tooltip-line"><span class="tooltip-label">Date:</span> <span class="tooltip-value">${d3.timeFormat('%Y-%m-%d')(selectedData.date)}</span></div>
-                <div class="tooltip-line"><span class="tooltip-label">Open:</span> <span class="tooltip-value">${selectedData.open.toFixed(2)}</span></div>
-                <div class="tooltip-line"><span class="tooltip-label">High:</span> <span class="tooltip-value">${selectedData.high.toFixed(2)}</span></div>
-                <div class="tooltip-line"><span class="tooltip-label">Low:</span> <span class="tooltip-value">${selectedData.low.toFixed(2)}</span></div>
-                <div class="tooltip-line"><span class="tooltip-label">Close:</span> <span class="tooltip-value">${selectedData.close.toFixed(2)}</span></div>
+                <div class="tooltip-line"><span class="tooltip-label">Time:</span> <span class="tooltip-value">${formatTime(selectedData.date)}</span></div>
+                <div class="tooltip-line"><span class="tooltip-label">Open:</span> <span class="tooltip-value">${formatPrice(selectedData.open)}</span></div>
+                <div class="tooltip-line"><span class="tooltip-label">High:</span> <span class="tooltip-value">${formatPrice(selectedData.high)}</span></div>
+                <div class="tooltip-line"><span class="tooltip-label">Low:</span> <span class="tooltip-value">${formatPrice(selectedData.low)}</span></div>
+                <div class="tooltip-line"><span class="tooltip-label">Close:</span> <span class="tooltip-value">${formatPrice(selectedData.close)}</span></div>
                 <div class="tooltip-line"><span class="tooltip-label">Volume:</span> <span class="tooltip-value">${d3.format("~s")(selectedData.volume)}</span></div>
             `);
 

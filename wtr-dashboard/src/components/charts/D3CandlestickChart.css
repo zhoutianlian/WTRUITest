@@ -79,7 +79,7 @@
 .chart-tooltip {
   position: absolute;
   background-color: var(--color-background-tertiary);
-  border: 1px solid var(--color-accent-gold);
+  border: 1px solid var(--color-accent-gold-luminous); /* Changed to luminous gold */
   color: var(--color-text-primary);
   padding: var(--spacing-unit);
   border-radius: var(--border-radius-medium);

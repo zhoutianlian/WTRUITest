@@ -93,7 +93,7 @@
   font-size: 1rem;
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
-  transition: transform 0.2s ease-out, background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition: all 0.3s ease;
   border: 1px solid transparent;
 }
 
@@ -118,15 +118,15 @@
 .secondary-entry-button {
   background-color: transparent;
   color: var(--color-accent-gold-luminous);
-  border: 1px solid var(--color-accent-gold-luminous);
+  border: 1px solid var(--color-accent-gold-burnished); /* Changed to burnished gold */
 }
 
 .secondary-entry-button:hover {
-  background-color: rgba(var(--rgb-accent-gold), 0.1); /* Luminous gold at 10% opacity */
+  background-color: rgba(176, 141, 87, 0.2); /* Burnished gold (B08D57) at 20% opacity */
   color: var(--color-accent-gold-hover);
-  border-color: var(--color-accent-gold-hover);
+  border-color: var(--color-accent-gold-luminous); /* Changed to luminous for hover */
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 15px rgba(var(--rgb-accent-gold), 0.2); /* Softer gold glow */
+  box-shadow: 0 4px 15px rgba(var(--rgb-accent-gold), 0.2); /* Softer gold glow - using luminous for consistency in glow */
 }
 
 .secondary-entry-button:active {

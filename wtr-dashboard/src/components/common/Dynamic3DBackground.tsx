@@ -20,7 +20,7 @@ const ParticleSystem: React.FC = () => {
   // Theme colors (assuming CSS variables are somehow accessible or hardcoded for now)
   // For simplicity, I'll hardcode them here but ideally, they'd be passed or fetched.
   const goldColor = new THREE.Color("#E4A11B"); // --color-accent-gold-luminous
-  const blueColor = new THREE.Color("#4A90E2"); // --color-accent-secondary-blue
+  const blueColor = new THREE.Color("#3D8F8F"); // --color-accent-secondary-blue (updated)
 
   const particleColors = useMemo(() => {
     const colors = new Float32Array(count * 3);

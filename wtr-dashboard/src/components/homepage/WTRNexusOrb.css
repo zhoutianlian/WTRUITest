@@ -1,0 +1,120 @@
+/* src/components/homepage/WTRNexusOrb.css */
+.wtr-nexus-orb-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: calc(var(--spacing-unit) * 4) 0; /* Add some vertical spacing */
+  perspective: 800px; /* For 3D effects if any */
+}
+
+.wtr-nexus-orb {
+  width: 150px;
+  height: 150px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: slowRotate 25s linear infinite;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.wtr-nexus-orb-core {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--color-accent-gold-luminous),
+    var(--color-accent-gold-burnished) 30%,
+    var(--color-background-tertiary) 70%
+  );
+  box-shadow: 0 0 10px rgba(var(--rgb-accent-gold-luminous, 228, 161, 27), 0.3),
+              inset 0 0 15px rgba(var(--rgb-background-primary, 10,12,16), 0.5);
+}
+
+.wtr-nexus-orb-ring1,
+.wtr-nexus-orb-ring2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  animation: ringPulse 4s ease-in-out infinite alternate;
+}
+
+.wtr-nexus-orb-ring1 {
+  border-color: rgba(var(--rgb-accent-gold-luminous, 228, 161, 27), 0.3);
+  transform: rotateX(70deg) rotateY(20deg) scale(1.1);
+  animation-delay: 0s;
+}
+
+.wtr-nexus-orb-ring2 {
+  border-color: rgba(var(--rgb-accent-gold-burnished, 176, 141, 87), 0.2);
+  transform: rotateX(-60deg) rotateY(-30deg) scale(1.2);
+  animation-delay: -2s; /* Offset animation */
+}
+
+@keyframes slowRotate {
+  0% {
+    transform: rotate3d(0.5, 1, 0.2, 0deg);
+  }
+  100% {
+    transform: rotate3d(0.5, 1, 0.2, 360deg);
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    opacity: 0.4;
+    transform: rotateX(70deg) rotateY(20deg) scale(1.05);
+  }
+  100% {
+    opacity: 0.8;
+    transform: rotateX(75deg) rotateY(25deg) scale(1.15); /* Slightly different rotation and scale for pulsing effect */
+  }
+}
+/* Apply to ring2 with its specific initial transform */
+@keyframes ringPulse2 {
+  0% {
+    opacity: 0.3;
+    transform: rotateX(-60deg) rotateY(-30deg) scale(1.15);
+  }
+  100% {
+    opacity: 0.7;
+    transform: rotateX(-65deg) rotateY(-35deg) scale(1.25);
+  }
+}
+.wtr-nexus-orb-ring1 {
+  animation-name: ringPulse; /* Keep original for ring1 */
+}
+.wtr-nexus-orb-ring2 {
+  animation-name: ringPulse2; /* Assign new animation for ring2 */
+}
+
+
+/* Hover Interaction */
+.wtr-nexus-orb-container:hover .wtr-nexus-orb {
+  transform: scale(1.1) rotate3d(0.5, 1, 0.2, 30deg); /* Example: slight scale and different rotation for interaction */
+  box-shadow: 0 0 25px rgba(var(--rgb-accent-gold-luminous, 228, 161, 27), 0.5),
+              0 0 40px rgba(var(--rgb-accent-gold-burnished, 176, 141, 87), 0.3);
+  animation-play-state: paused; /* Pause main rotation on hover to emphasize direct interaction */
+}
+
+.wtr-nexus-orb-container:hover .wtr-nexus-orb-core {
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--color-accent-gold-highlight), /* Brighter gold on hover */
+    var(--color-accent-gold-luminous) 40%,
+    var(--color-background-tertiary) 80%
+  );
+  box-shadow: 0 0 20px rgba(var(--rgb-accent-gold-highlight, 255,215,0), 0.5), /* Brighter glow */
+              inset 0 0 10px rgba(var(--rgb-background-primary, 10,12,16), 0.3);
+}
+
+.wtr-nexus-orb-container:hover .wtr-nexus-orb-ring1,
+.wtr-nexus-orb-container:hover .wtr-nexus-orb-ring2 {
+  opacity: 1;
+  border-width: 3px; /* Thicker border on hover */
+  animation-play-state: paused;
+}

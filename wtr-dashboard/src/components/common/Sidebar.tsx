@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
   {
     path: '/on-chain', name: 'On-chain Analysis', icon: <FaChartLine />,
     subItems: [
-      { path: '/on-chain/macro', name: 'Macro Indicators' },
+      { path: '/on-chain/macro-indicators', name: 'Macro Indicators' },
       { path: '/on-chain/exchange-flows', name: 'Exchange Flows' },
       { path: '/on-chain/whale-tracking', name: 'Whale Tracking' },
     ]
@@ -27,8 +27,8 @@ const navItems: NavItem[] = [
   {
     path: '/derivatives', name: 'Derivatives Analysis', icon: <FaChartPie />,
     subItems: [
-      { path: '/derivatives/futures', name: 'Futures Analysis' },
-      { path: '/derivatives/options', name: 'Options Analysis' },
+      { path: '/derivatives/futures-analysis', name: 'Futures Analysis' },
+      { path: '/derivatives/options-analysis', name: 'Options Analysis' },
     ]
   },
   { path: '/signals', name: 'Trading Signals', icon: <FaBroadcastTower /> },

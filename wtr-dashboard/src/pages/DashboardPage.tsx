@@ -10,6 +10,7 @@ import WTRCoreInsights from '../components/homepage/WTRCoreInsights';
 import FeaturedCapabilities from '../components/homepage/FeaturedCapabilities';
 import LatestResearchSnippets from '../components/homepage/LatestResearchSnippets';
 import WTRVision from '../components/homepage/WTRVision';
+import WTRNexusOrb from '../components/homepage/WTRNexusOrb'; // Import the new Orb component
 
 // Mock Data for D3 Candlestick Chart
 const generateMockCandlestickData = (numPoints = 60) => {
@@ -116,7 +117,13 @@ const DashboardPage: React.FC = () => {
         </div>
       </section>
 
-      {/* New Content Sections */}
+      {/* WTR Orb Nexus Section */}
+      <section className="wtr-nexus-orb-section px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="dashboard-section-title">The WTR Nexus</h2>
+        <WTRNexusOrb />
+      </section>
+
+      {/* Other Content Sections */}
       <WTRCoreInsights />
       <FeaturedCapabilities />
       <LatestResearchSnippets />
