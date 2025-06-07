@@ -277,6 +277,13 @@ void main() {
         moves: [number, number];
         element: HTMLElement;
 
+        // Helper method for coordinate mapping
+        #map(x: number, y: number): [number, number] {
+            const currentScale = this.getScale();
+            const elHeight = (this.element as HTMLElement).clientHeight;
+            return [x * currentScale, elHeight * currentScale - y * currentScale];
+        }
+
         constructor(element: HTMLElement, scale: number) {
             this.element = element;
             this.scale = scale;
@@ -285,11 +292,11 @@ void main() {
             this.lastCoords = [0,0];
             this.moves = [0,0];
 
-            const map = (el: HTMLElement, s: number, x: number, y: number) => [x * s, el.clientHeight * s - y * s]; // Corrected for canvas height
+            // const map removed
 
             element.addEventListener("pointerdown", (e: PointerEvent) => {
                 this.active = true;
-                this.pointers.set(e.pointerId, map(this.element, this.getScale(), e.clientX, e.clientY));
+                this.pointers.set(e.pointerId, this.#map(e.clientX, e.clientY));
             });
             element.addEventListener("pointerup", (e: PointerEvent) => {
                 if (this.count === 1) this.lastCoords = this.first;
@@ -304,7 +311,7 @@ void main() {
             element.addEventListener("pointermove", (e: PointerEvent) => {
                 if (!this.active) return;
                 this.lastCoords = [e.clientX, e.clientY]; // Store raw clientX/Y for 'first' getter fallback
-                this.pointers.set(e.pointerId, map(this.element, this.getScale(), e.clientX, e.clientY));
+                this.pointers.set(e.pointerId, this.#map(e.clientX, e.clientY));
                 this.moves = [this.moves[0]+e.movementX, this.moves[1]+e.movementY];
             });
         }
@@ -318,7 +325,7 @@ void main() {
         get count() { return this.pointers.size; }
         get move() { return this.moves; }
         get coords() { return this.pointers.size > 0 ? Array.from(this.pointers.values()).flat() : [0, 0]; }
-        get first() { return this.pointers.values().next().value || map(this.element, this.getScale(), ...this.lastCoords); }
+        get first() { return this.pointers.values().next().value || this.#map(this.lastCoords[0], this.lastCoords[1]); }
     }
 
     // Editor Local (simplified)
