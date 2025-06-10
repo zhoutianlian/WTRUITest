@@ -21,7 +21,8 @@ import { format, subDays } from 'date-fns';
 // Import custom D3 charts and new components
 import SimpleBarChart from '../../components/charts/SimpleBarChart';
 import SimpleLineChart from '../../components/charts/SimpleLineChart';
-import WhaleTransactionFeed, { WhaleTransaction } from '../../components/onchain/WhaleTransactionFeed';
+import WhaleTransactionFeed from '../../components/onchain/WhaleTransactionFeed';
+import type { WhaleTransaction } from '../../components/onchain/WhaleTransactionFeed';
 
 
 // --- Data Structures ---
