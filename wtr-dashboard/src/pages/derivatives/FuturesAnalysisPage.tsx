@@ -22,7 +22,7 @@ import { format, subDays, addMonths, setDate } from 'date-fns';
 
 // Import custom D3 charts
 import SimpleLineChart from '../../components/charts/SimpleLineChart';
-import FundingRateHeatmap, { FundingRateDataPoint } from '../../components/charts/FundingRateHeatmap';
+import FundingRateHeatmap, { FundingRateDataPoint } from '../../components/charts/FundingRateHeatmap.tsx';
 
 // --- Data Structures ---
 interface TimeSeriesDataPoint {

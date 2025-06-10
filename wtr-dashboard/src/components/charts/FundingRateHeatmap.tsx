@@ -145,3 +145,5 @@ const FundingRateHeatmap: React.FC<FundingRateHeatmapProps> = ({
 };
 
 export default FundingRateHeatmap;
+
+export type { FundingRateDataPoint };
