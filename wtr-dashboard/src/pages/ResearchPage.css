@@ -27,18 +27,23 @@
 /* Re-using .dashboard-card for glassmorphic effect on research cards */
 /* Styles specific to the content within a research card: */
 
-.research-card-image-placeholder {
+.research-card-image-container { /* Formerly research-card-image-placeholder */
   width: 100%;
-  height: 180px;
-  background-color: var(--color-background-tertiary);
+  height: 180px; /* Or desired height */
+  background-color: var(--color-background-tertiary); /* Fallback color */
   border-bottom: 1px solid var(--color-border-primary);
-  display: flex;
+  display: flex; /* To center the image if it's smaller than container */
   align-items: center;
   justify-content: center;
-  color: var(--color-text-disabled);
-  font-style: italic;
-  /* Ensure top corners match .dashboard-card if it has rounded corners */
+  overflow: hidden; /* To clip image if it's larger */
   border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+}
+
+.research-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the container, cropping if necessary */
+  display: block; /* Remove extra space below image */
 }
 
 .research-card-content {

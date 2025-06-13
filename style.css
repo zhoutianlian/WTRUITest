@@ -230,3 +230,28 @@ nav a.nav-link:active { /* More tactile feedback */
 .signal-id { font-style: italic; }
 .onchain-anomaly-item .signal-asset { color: #8E44AD; } /* Purple accent for on-chain event "asset" */
 .options-chain-table .put-row td:first-child { color: #F44336; font-weight: 500; }
+
+/* Animated Gradient Background */
+body.animated-gradient {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #fff; /* Ensure text is readable on the animated background */
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Apply this to the body of index.html if it's the target */
+/* If a specific div inside index.html should have this background,
+   a class would be added to that div and targeted in CSS instead.
+   For now, this targets the body itself. */

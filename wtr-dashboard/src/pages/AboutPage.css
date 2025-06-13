@@ -1,0 +1,87 @@
+/* wtr-dashboard/src/pages/AboutPage.css */
+.about-page-container.animated-gradient {
+    background: linear-gradient(-45deg, #1a202c, #2d3748, #4a5568, #718096); /* Darker gradient for a professional feel */
+    background-size: 400% 400%;
+    animation: gradientBG 20s ease infinite;
+    color: #fff;
+    padding: 40px 20px; /* Add some padding */
+    min-height: calc(100vh - 60px); /* Adjust based on header/footer height */
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.about-page-content {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: rgba(26, 32, 44, 0.8); /* Semi-transparent dark background for content readability */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.about-section {
+    margin-bottom: 40px;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    color: var(--color-accent-gold-highlight); /* Assuming this variable is globally available */
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-accent-gold, #B08D57); /* Fallback color */
+}
+
+.about-section p, .about-section ul {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #E2E8F0; /* Light gray for text */
+    margin-bottom: 15px;
+}
+
+.about-section ul {
+    list-style: disc;
+    padding-left: 20px;
+}
+
+.team-members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.team-member-card {
+    background-color: rgba(45, 55, 72, 0.8); /* Slightly lighter than content background */
+    padding: 20px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.team-member-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 15px auto;
+    border: 3px solid var(--color-accent-gold, #B08D57);
+}
+
+.team-member-card h3 {
+    font-size: 1.5rem;
+    color: var(--color-accent-gold-luminous, #F0E68C);
+    margin-bottom: 5px;
+}
+
+.team-member-card p.role {
+    font-size: 1rem;
+    color: var(--color-accent-gold, #B08D57);
+    margin-bottom: 10px;
+}
+
+.team-member-card p.bio {
+    font-size: 0.9rem;
+    color: #CBD5E0; /* Lighter gray for bio */
+}

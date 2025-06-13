@@ -178,7 +178,7 @@ const RenderRechart = ({ indicatorConfig }: { indicatorConfig: RechartsIndicator
     type: "monotone" as const,
     stroke: positiveColor || "var(--color-accent-gold-luminous)",
     strokeWidth: 2,
-    dot: { fill: indicator.positiveColor || "var(--color-accent-gold-luminous)", strokeWidth: 0, r: 3 },
+    dot: { fill: indicatorConfig.positiveColor || "var(--color-accent-gold-luminous)", strokeWidth: 0, r: 3 },
     activeDot: { r: 6, stroke: "var(--color-background-primary)", strokeWidth: 2, fill: positiveColor || "var(--color-accent-gold-highlight)" },
   };
   const chartMargins = { top: 5, right: 20, left: 35, bottom: 5 };

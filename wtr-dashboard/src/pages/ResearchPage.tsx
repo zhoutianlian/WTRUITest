@@ -110,8 +110,8 @@ const ResearchPage: React.FC = () => {
       <div className="research-grid">
         {mockResearchReports.map((report) => (
           <div key={report.id} className="dashboard-card"> {/* Using .dashboard-card for base glassmorphic style */}
-            <div className="research-card-image-placeholder">
-              <span>{report.imagePlaceholderText}</span>
+            <div className="research-card-image-container"> {/* Renamed class for clarity */}
+              <img src={`https://placehold.co/600x400/2D3748/E2E8F0?text=${encodeURIComponent(report.title)}`} alt={report.title} className="research-card-image" />
             </div>
             <div className="research-card-content">
               <h3 className="research-card-title">{report.title}</h3>
